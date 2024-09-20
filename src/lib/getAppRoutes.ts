@@ -18,7 +18,7 @@ export const getAppRoutes = async (): Promise<Route[]> => {
 
   return result.map((route) => ({
     // capitalize the first letter of the route
-    displayName: route.charAt(0).toUpperCase() + route.slice(1),
+    displayName: `${route[0].toUpperCase()}${route.slice(1)}`,
     route: route.replace(/\/$/, ""),
   }));
 };
