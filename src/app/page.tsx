@@ -2,10 +2,10 @@ import styles from "./page.module.css";
 import { routes } from "@/lib/routes";
 import Link from "next/link";
 
-export default async () => (
+export default () => (
   <div className={styles.page}>
     <main className={styles.main}>
-      <h1>Welcome to sergn.io</h1>
+      <h1>sergn.io</h1>
       <div>
         {routes.map(({ route, displayName }) => (
           <Link key={route} href={route}>
