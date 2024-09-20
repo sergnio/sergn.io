@@ -1,19 +1,22 @@
-"use client";
-
-import { useState } from "react";
-
 import Image from "next/image";
+import { glob } from "glob";
 import styles from "./page.module.css";
+import { getAppRoutes } from "@/lib/getAppRoutes";
 
-export default () => {
-  const [count, setCount] = useState<number>(0);
+export default async () => {
+  const routes = await getAppRoutes();
+
   return (
     <div className={styles.page}>
       <main className={styles.main}>
-        <h2>Count: {count}</h2>
-        <button onClick={() => setCount((prevCount) => prevCount + 1)}>
-          Increment
-        </button>
+        <h1>Welcome to sergn.io</h1>
+        <div>
+          {routes.map(({ displayName, route }) => (
+            <a key={route} href={`/${route}`}>
+              <h2>{displayName}</h2>
+            </a>
+          ))}
+        </div>
       </main>
       <footer className={styles.footer}>
         <a
