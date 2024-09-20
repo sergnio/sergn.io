@@ -11,7 +11,6 @@ export default () => {
     <div className={styles.page}>
       <main className={styles.main}>
         <h2>Count: {count}</h2>
-
         <button onClick={() => setCount((prevCount) => prevCount + 1)}>
           Increment
         </button>
