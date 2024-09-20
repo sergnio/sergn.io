@@ -1,5 +1,4 @@
 import Image from "next/image";
-import { glob } from "glob";
 import styles from "./page.module.css";
 import { getAppRoutes } from "@/lib/getAppRoutes";
 
