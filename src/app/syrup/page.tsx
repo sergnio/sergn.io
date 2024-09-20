@@ -33,7 +33,7 @@ export default () => (
           <td colSpan={4}>No syrups found</td>
         </tr>
       )}
-      {syrups.map(({ name, rating, price, location, image, image2 }, index) => (
+      {syrups.map(({ name, rating, price, location, image }, index) => (
         <tr key={index}>
           <td>{name}</td>
           <td>{rating}</td>
