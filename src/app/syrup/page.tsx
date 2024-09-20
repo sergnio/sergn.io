@@ -40,6 +40,7 @@ export default () => (
           <td>{price}</td>
           <td>{location}</td>
           <td>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={image} alt={`${name} image`} />
           </td>
         </tr>
