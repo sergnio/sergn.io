@@ -15,7 +15,7 @@ export default async () => (
       </div>
     </main>
     <footer className={styles.footer}>
-      <p>© 2024 sergn.io</p>
+      <p>© {new Date().getFullYear()} sergn.io</p>
     </footer>
   </div>
 );
