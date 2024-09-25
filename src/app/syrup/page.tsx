@@ -66,8 +66,7 @@ const syrups: Syrup[] = [
   },
 ];
 
-const sortByRating: (a: Syrup, b: Syrup) => number = (a, b) =>
-  b.rating - a.rating;
+const sortByRating = (a: Syrup, b: Syrup): number => b.rating - a.rating;
 
 const calculatePricePerLiter = ({ cost }: Pick<Syrup, "cost">) =>
   cost?.price ? `$${Number(cost.price / cost.liters).toFixed(2)}` : NO_RATING;
