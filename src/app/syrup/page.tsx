@@ -2,8 +2,8 @@ import styles from "./syrup.module.css";
 
 type Syrup = {
   name: string;
-  rating?: number;
   reason: string;
+  rating?: number;
   cost?: {
     price: number;
     liters: number;
@@ -66,7 +66,8 @@ const syrups: Syrup[] = [
   },
 ];
 
-const sortByRating = (a: Syrup, b: Syrup): number => b.rating - a.rating;
+const sortByRating = (a: Syrup, b: Syrup): number =>
+  (b.rating ?? 0) - (a.rating ?? 0);
 
 const calculatePricePerLiter = ({ cost }: Pick<Syrup, "cost">) =>
   cost?.price ? `$${Number(cost.price / cost.liters).toFixed(2)}` : NO_RATING;
