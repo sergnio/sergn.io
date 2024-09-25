@@ -2,12 +2,14 @@ import styles from "./syrup.module.css";
 
 type Syrup = {
   name: string;
-  rating: number;
+  rating?: number;
   reason: string;
-  price: number;
+  price?: number;
   location: string;
   image: string;
 };
+
+const NO_RATING = "??";
 
 const syrups: Syrup[] = [
   {
@@ -26,6 +28,28 @@ const syrups: Syrup[] = [
     price: 9.99,
     location: "Amazon",
     image: "syrup/hidden_springs_amazon.jpg",
+  },
+  {
+    name: "Skluzaceks",
+    rating: 4.25,
+    reason: `A bit darker, a bit sweet, like the Hidden Springs. It's a local farm so this has bonus points, but still is lacking the pure maple syrup taste like S.O.`,
+    price: 18,
+    location: "320th Street, New Prague",
+    image: "syrup/skluzaceks.jpg",
+  },
+  {
+    name: "Wild Country",
+    rating: 4.25,
+    reason: `A bit darker, a bit sweet, like the Hidden Springs. It's a local farm so this has bonus points, but still is lacking the pure maple syrup taste like S.O.`,
+    price: 18,
+    location: "320th Street, New Prague",
+    image: "syrup/wild_country.jpg",
+  },
+  {
+    name: "Hamel",
+    reason: `Never tasted! I'm curious because Jake says it's good!`,
+    location: NO_RATING,
+    image: "syrup/hamel_jakes_house.jpg",
   },
 ];
 
@@ -55,9 +79,9 @@ export default () => (
         .map(({ name, rating, reason, price, location, image }, index) => (
           <tr key={index}>
             <td>{name}</td>
-            <td>{rating}</td>
+            <td>{rating ?? NO_RATING}</td>
             <td>{reason}</td>
-            <td>{price}</td>
+            <td>{price ?? NO_RATING}</td>
             <td>{location}</td>
             <td>
               {/* eslint-disable-next-line @next/next/no-img-element */}
