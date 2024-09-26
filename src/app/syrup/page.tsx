@@ -1,4 +1,5 @@
 import styles from "./syrup.module.css";
+import Image from "next/image";
 
 type Syrup = {
   name: string;
@@ -24,7 +25,7 @@ const syrups: Syrup[] = [
       liters: 3,
     },
     location: "Actual Canada",
-    image: "syrup/sweet_ontario_canada.jpg",
+    image: "/syrup/sweet_ontario_canada.jpg",
   },
   {
     name: "Hidden Springs",
@@ -35,7 +36,7 @@ const syrups: Syrup[] = [
       liters: 3,
     },
     location: "Amazon",
-    image: "syrup/hidden_springs_amazon.jpg",
+    image: "/syrup/hidden_springs_amazon.jpg",
   },
   {
     name: "Skluzaceks",
@@ -46,7 +47,7 @@ const syrups: Syrup[] = [
       liters: 2,
     },
     location: "320th Street, New Prague",
-    image: "syrup/skluzaceks.jpg",
+    image: "/syrup/skluzaceks.jpg",
   },
   {
     name: "Wild Country",
@@ -56,13 +57,13 @@ const syrups: Syrup[] = [
     },
     reason: `Quite good! Bit darker too, and not super sweet. This is quality pure maple syrup.`,
     location: "320th Street, New Prague",
-    image: "syrup/wild_country.jpg",
+    image: "/syrup/wild_country.jpg",
   },
   {
     name: "Hamel",
     reason: `Never tasted! I'm curious because Jake says it's good!`,
     location: NO_RATING,
-    image: "syrup/hamel_jakes_house.jpg",
+    image: "/syrup/hamel_jakes_house.jpg",
   },
 ];
 
@@ -81,10 +82,11 @@ export default () => (
         .sort(sortByRating)
         .map(({ name, rating, reason, cost, location, image }, index) => (
           <div key={index} className={styles.syrupCard}>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
+            <Image
               src={image}
               alt={`${name} image`}
+              width={200}
+              height={200}
               className={styles.syrupImage}
             />
             <div className={styles.syrupDetails}>
