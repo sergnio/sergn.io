@@ -1,3 +1,4 @@
+// eslint-disable-next-line @typescript-eslint/no-var-requires
 const webpush = require("web-push");
 const vapidKeys = webpush.generateVAPIDKeys();
 

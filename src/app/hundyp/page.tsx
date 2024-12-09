@@ -101,6 +101,7 @@ function InstallPrompt() {
 
   useEffect(() => {
     setIsIOS(
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as any).MSStream,
     );
 
@@ -122,6 +123,7 @@ function InstallPrompt() {
             {" "}
             ⎋{" "}
           </span>
+          {/* eslint-disable-next-line react/no-unescaped-entities */}
           and then "Add to Home Screen"
           <span role="img" aria-label="plus icon">
             {" "}

@@ -80,7 +80,7 @@ export default () => (
     ) : (
       syrups
         .sort(sortByRating)
-        .map(({ name, rating, reason, cost, location, image }, index) => (
+        .map(({ name, rating, reason, cost, location }, index) => (
           <div key={index} className={styles.syrupCard}>
             <Image
               src={"/syrup/hamel_jakes_house.png"}

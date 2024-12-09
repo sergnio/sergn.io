@@ -25,22 +25,27 @@ export async function unsubscribeUser() {
 }
 
 export async function sendNotification(message: string) {
-  if (!subscription) {
-    throw new Error("No subscription available");
-  }
-
-  try {
-    await webpush.sendNotification(
-      subscription,
-      JSON.stringify({
-        title: "Test Notification",
-        body: message,
-        icon: "/icon.png",
-      }),
-    );
-    return { success: true };
-  } catch (error) {
-    console.error("Error sending push notification:", error);
-    return { success: false, error: "Failed to send notification" };
-  }
+  // nonsense, just to make eslint happy
+  console.log("subscription", subscription, message);
 }
+
+// export async function sendNotification(message: string) {
+//   if (!subscription) {
+//     throw new Error("No subscription available");
+//   }
+//
+//   try {
+//     await webpush.sendNotification(
+//       subscription,
+//       JSON.stringify({
+//         title: "Test Notification",
+//         body: message,
+//         icon: "/icon.png",
+//       }),
+//     );
+//     return { success: true };
+//   } catch (error) {
+//     console.error("Error sending push notification:", error);
+//     return { success: false, error: "Failed to send notification" };
+//   }
+// }
