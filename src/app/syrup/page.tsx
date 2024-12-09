@@ -83,7 +83,7 @@ export default () => (
         .map(({ name, rating, reason, cost, location, image }, index) => (
           <div key={index} className={styles.syrupCard}>
             <Image
-              src={image}
+              src={"/syrup/hamel_jakes_house.png"}
               alt={`${name} image`}
               width={200}
               height={200}
