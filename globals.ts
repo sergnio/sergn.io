@@ -13,4 +13,5 @@ if (!("empty" in String)) {
   });
 }
 
-export {};
+// Don't think this is needed
+// export {}
