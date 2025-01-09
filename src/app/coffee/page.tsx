@@ -95,17 +95,13 @@ const isOunceBag = (bagSize: BagSize): bagSize is { oz: number } =>
 
 const formatPriceWithUnit = (price: number, bagSize: BagSize): string => {
   const weight = isOunceBag(bagSize) ? bagSize.oz : bagSize.g / 250;
+  const unit = isOunceBag(bagSize) ? "oz" : "250g";
   const pricePerUnit = (price / weight).toFixed(2);
 
-  if (pricePerUnit === price.toFixed(2)) {
-    return `/${isOunceBag(bagSize) ? "oz" : "250g"}`;
-  }
-
-  // If the price matches the raw price, return an empty string; otherwise, return the appropriate unit
-  const unit = isOunceBag(bagSize) ? "oz" : "250g";
-  return ` ($${pricePerUnit}/${unit})`;
+  return pricePerUnit === price.toFixed(2)
+    ? `/${unit}`
+    : ` ($${pricePerUnit}/${unit})`;
 };
-
 export default () => (
   <div className={styles.coffeeContainer}>
     {coffees.length === 0 ? (
