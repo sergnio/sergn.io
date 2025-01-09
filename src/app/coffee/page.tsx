@@ -39,6 +39,33 @@ const coffees: Coffee[] = [
     boughtFrom: "Avo Coffee Roasters",
     price: 15.43,
     bagSize: {
+      g: 250,
+    },
+    brewMethod: [
+      {
+        name: "Moka Pot",
+        grinder: {
+          name: Grinders.manual,
+          number: 4,
+          rotations: 1,
+        },
+      },
+      {
+        name: "Filter",
+        grinder: {
+          name: Grinders.manual,
+          number: 2,
+          rotations: 1,
+        },
+      },
+    ],
+    image: "/coffee/ethiopian_yirgacheffe.jpg",
+  },
+  {
+    name: "Colombia Perky",
+    boughtFrom: "Avo Coffee Roasters",
+    price: 15.43,
+    bagSize: {
       g: 251,
     },
     brewMethod: [
@@ -70,15 +97,15 @@ const formatPriceWithUnit = (price: number, bagSize: BagSize): string => {
   const weight = isOunceBag(bagSize) ? bagSize.oz : bagSize.g / 250;
   const pricePerUnit = (price / weight).toFixed(2);
 
+  if (pricePerUnit === price.toFixed(2)) {
+    return `/${isOunceBag(bagSize) ? "oz" : "250g"}`;
+  }
+
   // If the price matches the raw price, return an empty string; otherwise, return the appropriate unit
-  const unit =
-    pricePerUnit === price.toFixed(2)
-      ? String.empty
-      : isOunceBag(bagSize)
-        ? "oz"
-        : "250g";
+  const unit = isOunceBag(bagSize) ? "oz" : "250g";
   return ` ($${pricePerUnit}/${unit})`;
 };
+
 export default () => (
   <div className={styles.coffeeContainer}>
     {coffees.length === 0 ? (
