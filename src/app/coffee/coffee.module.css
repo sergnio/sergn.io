@@ -1,0 +1,33 @@
+.coffeeContainer {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2rem;
+    justify-content: center;
+    padding: 2rem;
+}
+
+.coffeeCard {
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    width: 300px;
+    text-align: center;
+    padding: 1rem;
+}
+
+.coffeeImage {
+    border-radius: 8px;
+}
+
+.coffeeDetails {
+    margin-top: 1rem;
+}
+
+.coffeeDetails h1 {
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.coffeeDetails p {
+    margin: 0.5rem 0;
+}
