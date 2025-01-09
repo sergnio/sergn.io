@@ -5,8 +5,9 @@ type Route = {
 
 const wings = "/wings";
 const syrup = "/syrup";
+const coffee = "/coffee";
 
-const routeList = [wings, syrup];
+const routeList = [wings, syrup, coffee];
 
 export const routes: Route[] = routeList.map((route) => {
   const trimmedRoute = route.replace("/", "");
