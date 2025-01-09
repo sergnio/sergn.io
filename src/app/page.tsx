@@ -1,6 +1,7 @@
 import styles from "./page.module.css";
 import { routes } from "@/lib/routes";
 import Link from "next/link";
+import "../utils/polyfills";
 
 export default () => (
   <div className={styles.page}>

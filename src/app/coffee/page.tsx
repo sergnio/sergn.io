@@ -4,7 +4,7 @@ import Image from "next/image";
 const Grinders = {
   manual: "Manual",
   niche: "Niche Zero",
-};
+} as const;
 
 type BagSize = { oz: number } | { g: number };
 
@@ -37,7 +37,7 @@ const coffees: Coffee[] = [
   {
     name: "Colombia Perky",
     boughtFrom: "Avo Coffee Roasters",
-    price: 19.99,
+    price: 15.43,
     bagSize: {
       g: 250,
     },
@@ -45,7 +45,7 @@ const coffees: Coffee[] = [
       {
         name: "Moka Pot",
         grinder: {
-          name: Grinders["manual"],
+          name: Grinders.manual,
           number: 4,
           rotations: 1,
         },
@@ -53,7 +53,7 @@ const coffees: Coffee[] = [
       {
         name: "Filter",
         grinder: {
-          name: Grinders["manual"],
+          name: Grinders.manual,
           number: 2,
           rotations: 1,
         },
@@ -63,8 +63,14 @@ const coffees: Coffee[] = [
   },
 ];
 
-const calculatePricePerOunce = (price: number, bagSize: BagSize) =>
-  `$${(price / ("oz" in bagSize) ? 16 : 1000).toFixed(2)}`;
+const isOunceBag = (bagSize: BagSize): bagSize is { oz: number } =>
+  "oz" in bagSize;
+
+const calculatePricePerOunce = (price: number, bagSize: BagSize) => {
+  const weight = isOunceBag(bagSize) ? bagSize.oz : bagSize.g / 250;
+  console.log("asdfadsf", String.empty);
+  return `$${(price / weight).toFixed(2)}`;
+};
 
 export default () => (
   <div className={styles.coffeeContainer}>
@@ -72,10 +78,7 @@ export default () => (
       <p>No coffees found</p>
     ) : (
       coffees.map(
-        (
-          { name, boughtFrom, price, grindSetting, grinderUsed, image },
-          index,
-        ) => (
+        ({ name, boughtFrom, price, bagSize, brewMethod, image }, index) => (
           <div key={index} className={styles.coffeeCard}>
             <Image
               src={image}
@@ -91,14 +94,44 @@ export default () => (
               </p>
               <p>
                 <strong>Price:</strong> ${price.toFixed(2)} (
-                {calculatePricePerOunce(price)}/oz)
+                {calculatePricePerOunce(price, bagSize)}/
+                <span className={styles.weight}>
+                  {isOunceBag(bagSize)
+                    ? ""
+                    : isOunceBag(bagSize)
+                      ? "oz"
+                      : "250g"}
+                  )
+                </span>
               </p>
-              <p>
-                <strong>Optimal Grind Setting:</strong> {grindSetting}
-              </p>
-              <p>
-                <strong>Grinder Used:</strong> {grinderUsed}
-              </p>
+              <div>
+                <strong>Brew Methods:</strong>
+                {brewMethod.map(({ name, grinder }, i) => (
+                  <div key={i} className={styles.brewMethod}>
+                    <p>
+                      <strong>Method:</strong> {name}
+                    </p>
+                    <p>
+                      <strong>Grinder:</strong> {grinder.name}
+                    </p>
+                    {grinder.name === Grinders.manual && (
+                      <>
+                        <p>
+                          <strong>Number:</strong> {grinder.number}
+                        </p>
+                        <p>
+                          <strong>Rotations:</strong> {grinder.rotations}
+                        </p>
+                      </>
+                    )}
+                    {grinder.name === Grinders.niche && (
+                      <p>
+                        <strong>Setting:</strong> {grinder.setting}
+                      </p>
+                    )}
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         ),

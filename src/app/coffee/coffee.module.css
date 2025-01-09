@@ -31,3 +31,13 @@
 .coffeeDetails p {
     margin: 0.5rem 0;
 }
+
+.brewMethod {
+    margin-top: 1rem;
+    padding: 0.5rem;
+    border-top: 1px solid #eee;
+}
+
+.weight {
+    font-size: .75rem;
+}
