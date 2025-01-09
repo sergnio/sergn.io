@@ -68,7 +68,6 @@ const isOunceBag = (bagSize: BagSize): bagSize is { oz: number } =>
 
 const calculatePricePerOunce = (price: number, bagSize: BagSize) => {
   const weight = isOunceBag(bagSize) ? bagSize.oz : bagSize.g / 250;
-  console.log("asdfadsf", String.empty);
   return `$${(price / weight).toFixed(2)}`;
 };
 
