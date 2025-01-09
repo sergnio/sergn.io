@@ -13,6 +13,4 @@ if (!("empty" in String)) {
   });
 }
 
-console.log(typeof String.empty); // string
-
 export {};
