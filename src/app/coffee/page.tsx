@@ -39,7 +39,7 @@ const coffees: Coffee[] = [
     boughtFrom: "Avo Coffee Roasters",
     price: 15.43,
     bagSize: {
-      g: 250,
+      g: 251,
     },
     brewMethod: [
       {
@@ -66,11 +66,19 @@ const coffees: Coffee[] = [
 const isOunceBag = (bagSize: BagSize): bagSize is { oz: number } =>
   "oz" in bagSize;
 
-const calculatePricePerOunce = (price: number, bagSize: BagSize) => {
+const formatPriceWithUnit = (price: number, bagSize: BagSize): string => {
   const weight = isOunceBag(bagSize) ? bagSize.oz : bagSize.g / 250;
-  return `$${(price / weight).toFixed(2)}`;
-};
+  const pricePerUnit = (price / weight).toFixed(2);
 
+  // If the price matches the raw price, return an empty string; otherwise, return the appropriate unit
+  const unit =
+    pricePerUnit === price.toFixed(2)
+      ? String.empty
+      : isOunceBag(bagSize)
+        ? "oz"
+        : "250g";
+  return ` ($${pricePerUnit}/${unit})`;
+};
 export default () => (
   <div className={styles.coffeeContainer}>
     {coffees.length === 0 ? (
@@ -92,15 +100,9 @@ export default () => (
                 <strong>Bought From:</strong> {boughtFrom}
               </p>
               <p>
-                <strong>Price:</strong> ${price.toFixed(2)} (
-                {calculatePricePerOunce(price, bagSize)}/
+                <strong>Price:</strong> ${price.toFixed(2)}
                 <span className={styles.weight}>
-                  {isOunceBag(bagSize)
-                    ? ""
-                    : isOunceBag(bagSize)
-                      ? "oz"
-                      : "250g"}
-                  )
+                  {formatPriceWithUnit(price, bagSize)}
                 </span>
               </p>
               <div>
