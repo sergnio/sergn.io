@@ -1,5 +1,4 @@
 import styles from "./syrup.module.css";
-import Image from "next/image";
 
 type Syrup = {
   name: string;
@@ -24,7 +23,7 @@ const syrups: Syrup[] = [
       price: 7.99,
       liters: 3,
     },
-    location: "Actual Canada",
+    location: "Actual Canada or Thomson Farms (website)",
     image: "/syrup/sweet_ontario_canada.jpg",
   },
   {
@@ -82,11 +81,9 @@ export default () => (
         .sort(sortByRating)
         .map(({ name, rating, reason, cost, location, image }, index) => (
           <div key={index} className={styles.syrupCard}>
-            <Image
-              src={"/syrup/hamel_jakes_house.png"}
+            <img
+              src={image}
               alt={`${name} image`}
-              width={200}
-              height={200}
               className={styles.syrupImage}
             />
             <div className={styles.syrupDetails}>

@@ -15,9 +15,8 @@
 }
 
 .syrupImage {
-  width: 13rem;
-  height: auto;
-  object-fit: cover;
+  border-radius: 0.5rem;
+  max-width: 12.5rem;
 }
 
 .syrupDetails {
