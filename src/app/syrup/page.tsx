@@ -12,7 +12,7 @@ type Syrup = {
   image: string;
 };
 
-const NO_RATING = "??";
+const UNKNOWN = "??";
 
 const syrups: Syrup[] = [
   {
@@ -61,8 +61,8 @@ const syrups: Syrup[] = [
   {
     name: "Hamel",
     reason: `Never tasted! I'm curious because Jake says it's good!`,
-    location: NO_RATING,
-    image: "/syrup/hamel_jakes_house.jpg",
+    location: UNKNOWN,
+    image: "/syrup/hamel.jpg",
   },
 ];
 
@@ -70,7 +70,7 @@ const sortByRating = (a: Syrup, b: Syrup): number =>
   (b.rating ?? 0) - (a.rating ?? 0);
 
 const calculatePricePerLiter = ({ cost }: Pick<Syrup, "cost">) =>
-  cost?.price ? `$${Number(cost.price / cost.liters).toFixed(2)}` : NO_RATING;
+  cost?.price ? `$${Number(cost.price / cost.liters).toFixed(2)}` : UNKNOWN;
 
 export default () => (
   <div className={styles.syrupContainer}>
@@ -82,6 +82,7 @@ export default () => (
         .map(({ name, rating, reason, cost, location, image }, index) => (
           <div key={index} className={styles.syrupCard}>
             <img
+              // src={"/coffee/perky.jpg"}
               src={image}
               alt={`${name} image`}
               className={styles.syrupImage}
@@ -89,7 +90,7 @@ export default () => (
             <div className={styles.syrupDetails}>
               <h1>{name}</h1>
               <p>
-                <strong>Rating:</strong> {rating ?? NO_RATING}
+                <strong>Rating:</strong> {rating ?? UNKNOWN}
               </p>
               <p>
                 <strong>Reason:</strong> {reason}
