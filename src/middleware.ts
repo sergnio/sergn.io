@@ -6,6 +6,7 @@ const routeRegex =
 export function middleware(req: NextRequest) {
   const url = req.nextUrl;
 
+  console.log("middleware");
   if (routeRegex.test(url.pathname)) {
     console.log("Page route:", url.pathname);
 
