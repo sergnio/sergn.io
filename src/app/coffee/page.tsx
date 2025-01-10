@@ -1,5 +1,4 @@
 import styles from "./coffee.module.css";
-import Image from "next/image";
 
 const Grinders = {
   manual: "Manual",
@@ -59,7 +58,7 @@ const coffees: Coffee[] = [
         },
       },
     ],
-    image: "/coffee/ethiopian_yirgacheffe.jpg",
+    image: "/coffee/perky.jpg",
   },
 ];
 
@@ -83,11 +82,9 @@ export default () => (
       coffees.map(
         ({ name, boughtFrom, price, bagSize, brewMethod, image }, index) => (
           <div key={index} className={styles.coffeeCard}>
-            <Image
+            <img
               src={image}
               alt={`${name} image`}
-              width={200}
-              height={200}
               className={styles.coffeeImage}
             />
             <div className={styles.coffeeDetails}>
