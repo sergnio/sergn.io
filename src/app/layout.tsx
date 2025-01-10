@@ -3,6 +3,7 @@ import localFont from "next/font/local";
 import "./globals.css";
 import { PropsWithChildren } from "react";
 import "../../globals";
+import Header from "@/components/header/header";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -24,6 +25,7 @@ export default function RootLayout({ children }: PropsWithChildren) {
   return (
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
+        <Header />
         {children}
       </body>
     </html>

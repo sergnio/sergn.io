@@ -1,0 +1,28 @@
+.header {
+    background-color: #f8f9fa;
+    padding: 1rem;
+    border-bottom: 1px solid #ddd;
+}
+
+.nav {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+}
+
+.link {
+    text-decoration: none;
+    color: #0070f3;
+    font-weight: 500;
+    transition: color 0.3s;
+}
+
+.link:hover {
+    color: #0056b3;
+}
+
+.active {
+    text-decoration: underline;
+    font-weight: bold;
+    color: #0056b3;
+}
