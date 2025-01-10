@@ -1,10 +1,11 @@
 import { routes } from "@/lib/routes";
 import Link from "next/link";
 import styles from "./header.module.css";
-import useServerRoute from "@/hooks/useServerRoute";
 
 export default () => {
-  const { currentRoute } = useServerRoute();
+  // const { currentRoute } = useServerRoute();
+  // todo get the route hightling to work??
+  const currentRoute = true;
   return (
     <header className={styles.header}>
       <nav className={styles.nav}>
