@@ -77,7 +77,7 @@ const formatPriceWithUnit = (price: number, bagSize: BagSize): string => {
 export default () => (
   <div className={styles.coffeeContainer}>
     {coffees.length === 0 ? (
-      <p>No coffees found</p>
+      <p>No coffees found!</p>
     ) : (
       coffees.map(
         ({ name, boughtFrom, price, bagSize, brewMethod, image }, index) => (
