@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as NotFoundRouteImport } from './routes/not-found'
 import { Route as RetiredContentRouteImport } from './routes/retired-content'
 import { Route as BlogIndexRouteImport } from './routes/blog/index'
 import { Route as BlogSlugRouteImport } from './routes/blog/$slug'
@@ -25,6 +26,11 @@ import { Route as WingsSlugRouteImport } from './routes/wings/$slug'
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const NotFoundRoute = NotFoundRouteImport.update({
+  id: '/not-found',
+  path: '/not-found',
   getParentRoute: () => rootRouteImport,
 } as any)
 const RetiredContentRoute = RetiredContentRouteImport.update({
@@ -85,6 +91,7 @@ const WingsSlugRoute = WingsSlugRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/not-found': typeof NotFoundRoute
   '/retired-content': typeof RetiredContentRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/coffee/$slug': typeof CoffeeSlugRoute
@@ -99,6 +106,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/not-found': typeof NotFoundRoute
   '/retired-content': typeof RetiredContentRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/coffee/$slug': typeof CoffeeSlugRoute
@@ -114,6 +122,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/not-found': typeof NotFoundRoute
   '/retired-content': typeof RetiredContentRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/coffee/$slug': typeof CoffeeSlugRoute
@@ -130,6 +139,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/not-found'
     | '/retired-content'
     | '/blog/$slug'
     | '/coffee/$slug'
@@ -144,6 +154,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/not-found'
     | '/retired-content'
     | '/blog/$slug'
     | '/coffee/$slug'
@@ -158,6 +169,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/not-found'
     | '/retired-content'
     | '/blog/$slug'
     | '/coffee/$slug'
@@ -173,6 +185,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  NotFoundRoute: typeof NotFoundRoute
   RetiredContentRoute: typeof RetiredContentRoute
   BlogSlugRoute: typeof BlogSlugRoute
   CoffeeSlugRoute: typeof CoffeeSlugRoute
@@ -193,6 +206,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/not-found': {
+      id: '/not-found'
+      path: '/not-found'
+      fullPath: '/not-found'
+      preLoaderRoute: typeof NotFoundRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/retired-content': {
@@ -277,6 +297,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  NotFoundRoute: NotFoundRoute,
   RetiredContentRoute: RetiredContentRoute,
   BlogSlugRoute: BlogSlugRoute,
   CoffeeSlugRoute: CoffeeSlugRoute,

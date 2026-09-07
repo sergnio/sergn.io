@@ -4,6 +4,7 @@ import {
   Scripts,
   createRootRoute,
 } from '@tanstack/react-router'
+import { NotFoundContent } from '#/components/not-found'
 import { SiteHeader } from '#/components/site-header'
 import { siteName } from '#/lib/metadata'
 import appCss from '../styles.css?url'
@@ -26,7 +27,7 @@ export const Route = createRootRoute({
       { rel: 'stylesheet', href: appCss },
     ],
   }),
-  notFoundComponent: NotFound,
+  notFoundComponent: NotFoundContent,
   shellComponent: RootDocument,
   component: RootLayout,
 })
@@ -59,18 +60,5 @@ function RootLayout() {
         <p>© {new Date().getFullYear()} sergn.io</p>
       </footer>
     </>
-  )
-}
-
-function NotFound() {
-  return (
-    <div className="not-found page-shell">
-      <p className="eyebrow">404</p>
-      <h1>That page is not here.</h1>
-      <p>Try one of the current collections instead.</p>
-      <a className="button-link" href="/">
-        Back home
-      </a>
-    </div>
   )
 }

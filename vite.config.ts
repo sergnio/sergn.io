@@ -8,6 +8,7 @@ export default defineConfig({
   plugins: [
     netlify(),
     tanstackStart({
+      pages: [{ path: '/not-found', sitemap: { exclude: true } }],
       prerender: {
         enabled: true,
         crawlLinks: true,
