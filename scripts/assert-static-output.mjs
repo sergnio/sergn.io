@@ -25,6 +25,7 @@ async function detailLinks(collection) {
 await Promise.all([
   requireFile('index.html'),
   requireFile('retired-content/index.html'),
+  requireFile('not-found/index.html'),
   requireFile('robots.txt'),
   requireFile('sitemap.xml'),
   ...collections.map((collection) => requireFile(`${collection}/index.html`)),
@@ -52,4 +53,7 @@ if (!sitemap.includes('https://sergn.io/coffee')) {
 }
 if (sitemap.includes('https://sergn.io/syrup')) {
   throw new Error('Retired syrup content must not appear in the sitemap.')
+}
+if (sitemap.includes('https://sergn.io/not-found')) {
+  throw new Error('The 404 page must not appear in the sitemap.')
 }
