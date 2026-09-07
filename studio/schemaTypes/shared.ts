@@ -136,26 +136,6 @@ export const rating = defineType({
       ),
 })
 
-export const reviewMeta = defineType({
-  name: 'reviewMeta',
-  title: 'Review metadata',
-  type: 'object',
-  fields: [
-    defineField({ name: 'visitedAt', title: 'Visited at', type: 'date' }),
-    defineField({
-      name: 'publishedAt',
-      title: 'Published at',
-      type: 'datetime',
-    }),
-    defineField({
-      name: 'featured',
-      title: 'Feature on the home page',
-      type: 'boolean',
-    }),
-    defineField({ name: 'notes', title: 'Notes', type: 'blockContent' }),
-  ],
-})
-
 export const gallery = defineType({
   name: 'gallery',
   title: 'Gallery',

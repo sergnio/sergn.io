@@ -8,7 +8,6 @@ import {
   money,
   packageSize,
   rating,
-  reviewMeta,
 } from './shared'
 
 export const schemaTypes = [
@@ -16,7 +15,6 @@ export const schemaTypes = [
   money,
   packageSize,
   rating,
-  reviewMeta,
   gallery,
   blockContent,
   ...coffeeSchemaTypes,
