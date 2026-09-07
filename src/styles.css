@@ -317,6 +317,7 @@ h3 {
 
 .content-image {
   width: 100%;
+  height: auto;
   aspect-ratio: 4 / 3;
   object-fit: cover;
   background: #d7d2c6;
@@ -660,6 +661,7 @@ figcaption {
   }
 
   .card-grid--single {
+    max-width: 34rem;
     grid-template-columns: minmax(0, 1fr);
   }
 }
