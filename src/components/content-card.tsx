@@ -43,9 +43,10 @@ export function ContentCard({ collection, document }: ContentCardProps) {
   return (
     <article className="content-card">
       <a
-        aria-label={`Read ${document.title}`}
+        aria-hidden="true"
         className="content-card__image-link"
         href={`/${collection}/${document.slug}`}
+        tabIndex={-1}
       >
         <ContentImage
           image={cardImage(document)}
