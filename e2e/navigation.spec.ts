@@ -41,6 +41,22 @@ test.describe('primary navigation', () => {
     }
   })
 
+  test('the current section is marked as active in the nav', async ({
+    page,
+  }) => {
+    await page.goto('/wings')
+
+    const nav = page.getByRole('navigation', { name: 'Primary navigation' })
+
+    await expect(nav.getByRole('link', { name: 'Wings' })).toHaveAttribute(
+      'aria-current',
+      'page',
+    )
+    await expect(nav.getByRole('link', { name: 'Coffee' })).not.toHaveAttribute(
+      'aria-current',
+    )
+  })
+
   test('wordmark link returns to the home page', async ({ page }) => {
     await page.goto('/coffee')
     await page.getByRole('link', { name: 'sergn.io home' }).click()
