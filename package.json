@@ -1,25 +1,54 @@
 {
   "name": "sergn.io",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22.12 <25"
+  },
+  "workspaces": [
+    "studio"
+  ],
+  "imports": {
+    "#/*": "./src/*"
+  },
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "lint": "next lint"
+    "dev": "vite --port 3000",
+    "build": "node scripts/validate-env.mjs && vite build && node scripts/assert-static-output.mjs",
+    "build:fixtures": "VITE_CONTENT_SOURCE=fixtures npm run build",
+    "preview": "vite preview",
+    "generate-routes": "tsr generate",
+    "typecheck": "tsc --noEmit && npm run typecheck --workspace studio",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "check:format": "prettier --check .",
+    "test": "vitest run",
+    "studio:dev": "npm run dev --workspace studio",
+    "studio:build": "npm run build --workspace studio"
   },
   "dependencies": {
-    "next": "14.2.11",
-    "prettier": "^3.3.3",
-    "react": "^18",
-    "react-dom": "^18"
+    "@portabletext/react": "8.0.1",
+    "@sanity/client": "8.5.0",
+    "@sanity/image-url": "2.1.1",
+    "@tanstack/react-router": "1.170.32",
+    "@tanstack/react-start": "1.168.49",
+    "@tanstack/start-static-server-functions": "1.167.32",
+    "react": "19.2.8",
+    "react-dom": "19.2.8"
   },
   "devDependencies": {
-    "@types/node": "^20",
-    "@types/react": "^18",
-    "@types/react-dom": "^18",
-    "eslint": "^8",
-    "eslint-config-next": "14.2.11",
-    "typescript": "^5"
+    "@netlify/vite-plugin-tanstack-start": "1.3.19",
+    "@sanity/vision": "6.12.0",
+    "@tanstack/eslint-config": "0.4.0",
+    "@tanstack/router-cli": "1.167.33",
+    "@types/node": "26.4.1",
+    "@types/react": "19.2.18",
+    "@types/react-dom": "19.2.7",
+    "@vitejs/plugin-react": "6.1.1",
+    "eslint": "10.10.0",
+    "prettier": "3.9.6",
+    "typescript": "6.0.2",
+    "vite": "8.2.2",
+    "vitest": "5.0.0"
   }
 }
