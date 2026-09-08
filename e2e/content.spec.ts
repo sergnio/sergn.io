@@ -176,6 +176,27 @@ test.describe('collection browsing flow', () => {
     await expect(card.locator('time')).toHaveText('Mar 21, 2025')
   })
 
+  test('coffee index card renders the hero image with descriptive alt text', async ({
+    page,
+  }) => {
+    await page.goto('/coffee')
+
+    const card = page
+      .locator('.content-card')
+      .filter({ hasText: 'Colombia Perky' })
+
+    const image = card.locator('img')
+    await expect(image).toHaveAttribute(
+      'alt',
+      'A cup of dark coffee beside a coffee brewer',
+    )
+    await expect(image).toHaveAttribute(
+      'src',
+      /images\.unsplash\.com\/photo-1495474472287-4d71bcdd2085/,
+    )
+    await expect(card.locator('.content-card__placeholder')).toHaveCount(0)
+  })
+
   test('blog index card shows a placeholder when a post has no cover image', async ({
     page,
   }) => {
