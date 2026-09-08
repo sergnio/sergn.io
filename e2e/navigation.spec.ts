@@ -127,4 +127,16 @@ test.describe('mobile navigation menu', () => {
       'false',
     )
   })
+
+  test('pressing Escape closes the open menu', async ({ page }) => {
+    await page.goto('/')
+
+    const menuButton = page.getByRole('button', { name: 'Menu' })
+
+    await menuButton.click()
+    await expect(menuButton).toHaveAttribute('aria-expanded', 'true')
+
+    await page.keyboard.press('Escape')
+    await expect(menuButton).toHaveAttribute('aria-expanded', 'false')
+  })
 })
