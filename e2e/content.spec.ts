@@ -232,7 +232,7 @@ test.describe('collection browsing flow', () => {
     await expect(tagList.getByText('Rituals', { exact: true })).toBeVisible()
   })
 
-  test('blog post rich text renders heading, blockquote, bullet list, number list, and code mark', async ({
+  test('blog post rich text renders heading, blockquote, bullet list, number list, code mark, and inline image', async ({
     page,
   }) => {
     await page.goto('/blog/a-table-for-two')
@@ -260,6 +260,14 @@ test.describe('collection browsing flow', () => {
     await expect(
       page.locator('.rich-text code', { hasText: 'two' }),
     ).toBeVisible()
+
+    const figure = page.locator('.rich-text figure.rich-text__image')
+    await expect(
+      figure.getByAltText('A rye sandwich cut in half on a wooden board'),
+    ).toBeVisible()
+    await expect(figure.locator('figcaption')).toHaveText(
+      'The rye, cut and ready.',
+    )
   })
 
   test('a link inside blog post rich text opens safely in a new tab', async ({

@@ -309,6 +309,15 @@ export const fixturePosts: Post[] = [
         ],
         style: 'normal',
       },
+      {
+        _key: 'inline-image',
+        _type: 'imageWithAlt' as const,
+        ...fixtureImage(
+          'photo-1414235077428-338989a2e8c0',
+          'A rye sandwich cut in half on a wooden board',
+        ),
+        caption: 'The rye, cut and ready.',
+      },
     ],
     tags: ['Food'],
   },
