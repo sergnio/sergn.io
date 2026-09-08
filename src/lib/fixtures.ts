@@ -206,10 +206,6 @@ export const fixturePosts: Post[] = [
     slug: 'a-table-for-two',
     publishedAt: '2025-03-12T12:00:00.000Z',
     excerpt: 'Notes from a lunch that was better than the sum of its parts.',
-    coverImage: fixtureImage(
-      'photo-1414235077428-338989a2e8c0',
-      'A warmly set table ready for a meal',
-    ),
     body: paragraph('The lunch was simple, slow, and worth remembering.'),
     tags: ['Food'],
   },
