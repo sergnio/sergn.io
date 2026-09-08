@@ -16,6 +16,9 @@ test.describe('collection browsing flow', () => {
     await expect(
       page.getByRole('heading', { name: 'Morning moka pot' }),
     ).toBeVisible()
+    await expect(
+      page.getByRole('link', { name: 'Avo Coffee Roasters' }),
+    ).toHaveAttribute('href', 'https://avocoffeeroasters.example.com')
   })
 
   test('wings index links into a detail page with the review', async ({

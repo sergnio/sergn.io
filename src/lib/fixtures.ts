@@ -38,6 +38,7 @@ export const fixtureCoffee: Coffee[] = [
     roaster: 'Avo Coffee Roasters',
     origin: 'Colombia',
     boughtFrom: 'Avo Coffee Roasters',
+    purchaseUrl: 'https://avocoffeeroasters.example.com',
     price: { amountCents: 1543, currency: 'USD' },
     bagSize: { amount: 250, unit: 'g' },
     heroImage: fixtureImage(
