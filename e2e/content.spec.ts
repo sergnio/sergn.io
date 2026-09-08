@@ -129,6 +129,23 @@ test.describe('collection browsing flow', () => {
     ).toBeVisible()
   })
 
+  test('blog index card shows the excerpt and published date', async ({
+    page,
+  }) => {
+    await page.goto('/blog')
+
+    const card = page
+      .locator('.content-card')
+      .filter({ hasText: 'Small rituals, better cups' })
+
+    await expect(
+      card.getByText(
+        'A few repeatable choices that make weekday coffee feel considered.',
+      ),
+    ).toBeVisible()
+    await expect(card.locator('time')).toHaveText('Mar 21, 2025')
+  })
+
   test('blog index links into a full post', async ({ page }) => {
     await page.goto('/blog')
 
