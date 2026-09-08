@@ -80,6 +80,17 @@ test.describe('primary navigation', () => {
     await expect(page).toHaveURL(/\/$/)
   })
 
+  test('unknown slug within a valid collection shows the styled 404 page', async ({
+    page,
+  }) => {
+    const response = await page.goto('/coffee/this-slug-does-not-exist')
+
+    expect(response?.status()).toBe(404)
+    await expect(
+      page.getByRole('heading', { name: 'That page is not here.' }),
+    ).toBeVisible()
+  })
+
   test('retired content route shows the retirement notice', async ({
     page,
   }) => {
