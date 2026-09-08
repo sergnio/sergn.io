@@ -232,10 +232,14 @@ test.describe('collection browsing flow', () => {
     await expect(tagList.getByText('Rituals', { exact: true })).toBeVisible()
   })
 
-  test('blog post rich text renders blockquote, bullet list, and code mark', async ({
+  test('blog post rich text renders heading, blockquote, bullet list, number list, and code mark', async ({
     page,
   }) => {
     await page.goto('/blog/a-table-for-two')
+
+    await expect(
+      page.locator('.rich-text h2', { hasText: 'The setting' }),
+    ).toBeVisible()
 
     await expect(
       page.locator('blockquote', {
@@ -248,6 +252,10 @@ test.describe('collection browsing flow', () => {
     await expect(
       bulletList.getByText('Ask for the sauce on the side'),
     ).toBeVisible()
+
+    const numberList = page.locator('.rich-text ol')
+    await expect(numberList.getByText('Arrive hungry')).toBeVisible()
+    await expect(numberList.getByText('Leave satisfied')).toBeVisible()
 
     await expect(
       page.locator('.rich-text code', { hasText: 'two' }),

@@ -208,6 +208,18 @@ export const fixturePosts: Post[] = [
     excerpt: 'Notes from a lunch that was better than the sum of its parts.',
     body: [
       {
+        _key: 'heading',
+        _type: 'block' as const,
+        children: [
+          {
+            _key: 'heading-span',
+            _type: 'span' as const,
+            text: 'The setting',
+          },
+        ],
+        style: 'h2',
+      },
+      {
         _key: 'paragraph',
         _type: 'block' as const,
         children: [
@@ -255,6 +267,32 @@ export const fixturePosts: Post[] = [
           },
         ],
         listItem: 'bullet',
+        style: 'normal',
+      },
+      {
+        _key: 'number-item-1',
+        _type: 'block' as const,
+        children: [
+          {
+            _key: 'number-span-1',
+            _type: 'span' as const,
+            text: 'Arrive hungry',
+          },
+        ],
+        listItem: 'number',
+        style: 'normal',
+      },
+      {
+        _key: 'number-item-2',
+        _type: 'block' as const,
+        children: [
+          {
+            _key: 'number-span-2',
+            _type: 'span' as const,
+            text: 'Leave satisfied',
+          },
+        ],
+        listItem: 'number',
         style: 'normal',
       },
       {
