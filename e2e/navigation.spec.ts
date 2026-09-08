@@ -23,6 +23,35 @@ test.describe('primary navigation', () => {
     )
   })
 
+  test('root layout renders global meta tags and the site footer', async ({
+    page,
+  }) => {
+    await page.goto('/')
+
+    await expect(page.locator('meta[charset]')).toHaveAttribute(
+      'charset',
+      'utf-8',
+    )
+    await expect(page.locator('meta[name="viewport"]')).toHaveAttribute(
+      'content',
+      'width=device-width, initial-scale=1',
+    )
+    await expect(page.locator('meta[property="og:site_name"]')).toHaveAttribute(
+      'content',
+      'sergn.io',
+    )
+    await expect(page.locator('link[rel="icon"]')).toHaveAttribute(
+      'href',
+      '/favicon.svg',
+    )
+
+    await expect(
+      page
+        .locator('footer.site-footer')
+        .getByText(new RegExp(`© ${new Date().getFullYear()} sergn\\.io`)),
+    ).toBeVisible()
+  })
+
   test('visiting each nav link lands on the matching collection page', async ({
     page,
   }) => {
