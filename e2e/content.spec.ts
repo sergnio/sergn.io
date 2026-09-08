@@ -32,6 +32,23 @@ test.describe('collection browsing flow', () => {
     await expect(
       page.getByRole('definition').filter({ hasText: '$15.43' }),
     ).toBeVisible()
+
+    await expect(page).toHaveTitle('Colombia Perky | sergn.io')
+    await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
+      'href',
+      'https://sergn.io/coffee/colombia-perky',
+    )
+    await expect(page.locator('meta[name="description"]')).toHaveAttribute(
+      'content',
+      'Avo Coffee Roasters · Colombia · Caramel, Citrus, Balanced',
+    )
+    await expect(page.locator('meta[property="og:type"]')).toHaveAttribute(
+      'content',
+      'website',
+    )
+    await expect(
+      page.locator('script[type="application/ld+json"]'),
+    ).toHaveCount(0)
   })
 
   test('wings index links into a detail page with the review', async ({
