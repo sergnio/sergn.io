@@ -258,4 +258,24 @@ test.describe('crawler files', () => {
       expect(body).toContain(`<loc>https://sergn.io/${collection}</loc>`)
     }
   })
+
+  test('sitemap.xml also lists every detail page permalink', async ({
+    request,
+  }) => {
+    const response = await request.get('/sitemap.xml')
+
+    expect(response.status()).toBe(200)
+    const body = await response.text()
+    for (const permalink of [
+      'coffee/ethiopia-direct-trade',
+      'coffee/colombia-perky',
+      'wings/neighborhood-buffalo-wings',
+      'na-beers/bright-lager',
+      'reubens/the-rye-house-reuben',
+      'blog/small-rituals-better-cups',
+      'blog/a-table-for-two',
+    ]) {
+      expect(body).toContain(`<loc>https://sergn.io/${permalink}</loc>`)
+    }
+  })
 })
