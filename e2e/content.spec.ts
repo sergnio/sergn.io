@@ -208,6 +208,40 @@ test.describe('collection browsing flow', () => {
     await expect(link).toHaveAttribute('rel', 'noreferrer')
   })
 
+  test('blog post renders SEO metadata and Article JSON-LD', async ({
+    page,
+  }) => {
+    await page.goto('/blog/small-rituals-better-cups')
+
+    await expect(page).toHaveTitle('Small rituals, better cups | sergn.io')
+    await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
+      'href',
+      'https://sergn.io/blog/small-rituals-better-cups',
+    )
+    await expect(page.locator('meta[name="description"]')).toHaveAttribute(
+      'content',
+      'A few repeatable choices that make weekday coffee feel considered.',
+    )
+    await expect(page.locator('meta[property="og:title"]')).toHaveAttribute(
+      'content',
+      'Small rituals, better cups',
+    )
+    await expect(page.locator('meta[property="og:type"]')).toHaveAttribute(
+      'content',
+      'article',
+    )
+
+    const jsonLd = await page
+      .locator('script[type="application/ld+json"]')
+      .textContent()
+    const data = JSON.parse(jsonLd ?? '{}')
+    expect(data['@type']).toBe('Article')
+    expect(data.headline).toBe('Small rituals, better cups')
+    expect(data.mainEntityOfPage).toBe(
+      'https://sergn.io/blog/small-rituals-better-cups',
+    )
+  })
+
   test('home page "See all" link reaches the full collection', async ({
     page,
   }) => {
