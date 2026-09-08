@@ -206,7 +206,72 @@ export const fixturePosts: Post[] = [
     slug: 'a-table-for-two',
     publishedAt: '2025-03-12T12:00:00.000Z',
     excerpt: 'Notes from a lunch that was better than the sum of its parts.',
-    body: paragraph('The lunch was simple, slow, and worth remembering.'),
+    body: [
+      {
+        _key: 'paragraph',
+        _type: 'block' as const,
+        children: [
+          {
+            _key: 'span',
+            _type: 'span' as const,
+            text: 'The lunch was simple, slow, and worth remembering.',
+          },
+        ],
+        style: 'normal',
+      },
+      {
+        _key: 'quote',
+        _type: 'block' as const,
+        children: [
+          {
+            _key: 'quote-span',
+            _type: 'span' as const,
+            text: 'Good food does not need to be complicated.',
+          },
+        ],
+        style: 'blockquote',
+      },
+      {
+        _key: 'list-item-1',
+        _type: 'block' as const,
+        children: [
+          {
+            _key: 'list-span-1',
+            _type: 'span' as const,
+            text: 'Order the rye',
+          },
+        ],
+        listItem: 'bullet',
+        style: 'normal',
+      },
+      {
+        _key: 'list-item-2',
+        _type: 'block' as const,
+        children: [
+          {
+            _key: 'list-span-2',
+            _type: 'span' as const,
+            text: 'Ask for the sauce on the side',
+          },
+        ],
+        listItem: 'bullet',
+        style: 'normal',
+      },
+      {
+        _key: 'code-paragraph',
+        _type: 'block' as const,
+        children: [
+          { _key: 'code-span-0', _type: 'span' as const, text: 'Table for ' },
+          {
+            _key: 'code-span-1',
+            _type: 'span' as const,
+            marks: ['code'],
+            text: 'two',
+          },
+        ],
+        style: 'normal',
+      },
+    ],
     tags: ['Food'],
   },
 ]

@@ -232,6 +232,28 @@ test.describe('collection browsing flow', () => {
     await expect(tagList.getByText('Rituals', { exact: true })).toBeVisible()
   })
 
+  test('blog post rich text renders blockquote, bullet list, and code mark', async ({
+    page,
+  }) => {
+    await page.goto('/blog/a-table-for-two')
+
+    await expect(
+      page.locator('blockquote', {
+        hasText: 'Good food does not need to be complicated.',
+      }),
+    ).toBeVisible()
+
+    const bulletList = page.locator('.rich-text ul')
+    await expect(bulletList.getByText('Order the rye')).toBeVisible()
+    await expect(
+      bulletList.getByText('Ask for the sauce on the side'),
+    ).toBeVisible()
+
+    await expect(
+      page.locator('.rich-text code', { hasText: 'two' }),
+    ).toBeVisible()
+  })
+
   test('a link inside blog post rich text opens safely in a new tab', async ({
     page,
   }) => {
