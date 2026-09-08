@@ -178,6 +178,28 @@ test.describe('collection browsing flow', () => {
     ).toBeVisible()
   })
 
+  test('coffee detail page falls back to "Not listed" roaster and plain-text bought-from when unset', async ({
+    page,
+  }) => {
+    await page.goto('/coffee/ethiopia-direct-trade')
+
+    await expect(
+      page.getByRole('heading', { level: 1, name: 'Ethiopia Direct Trade' }),
+    ).toBeVisible()
+    await expect(
+      page.getByRole('definition').filter({ hasText: 'Not listed' }),
+    ).toBeVisible()
+    await expect(
+      page.getByText('Farmer direct import', { exact: true }),
+    ).toBeVisible()
+    await expect(
+      page.getByRole('link', { name: 'Farmer direct import' }),
+    ).toHaveCount(0)
+    await expect(
+      page.getByRole('definition').filter({ hasText: '$' }),
+    ).toHaveCount(0)
+  })
+
   test('blog index card shows the excerpt and published date', async ({
     page,
   }) => {
