@@ -19,6 +19,12 @@ test.describe('collection browsing flow', () => {
     await expect(
       page.getByRole('link', { name: 'Avo Coffee Roasters' }),
     ).toHaveAttribute('href', 'https://avocoffeeroasters.example.com')
+    await expect(
+      page.getByRole('definition').filter({ hasText: 'Colombia' }),
+    ).toBeVisible()
+    await expect(
+      page.getByRole('definition').filter({ hasText: '$15.43' }),
+    ).toBeVisible()
   })
 
   test('wings index links into a detail page with the review', async ({
@@ -40,6 +46,12 @@ test.describe('collection browsing flow', () => {
     ).toBeVisible()
     await expect(page.getByText('Neighborhood Tavern')).toBeVisible()
     await expect(
+      page.getByRole('definition').filter({ hasText: 'Medium' }),
+    ).toBeVisible()
+    await expect(
+      page.getByRole('definition').filter({ hasText: '10' }),
+    ).toBeVisible()
+    await expect(
       page.getByRole('definition').filter({ hasText: '4.25 / 5' }),
     ).toBeVisible()
   })
@@ -56,6 +68,15 @@ test.describe('collection browsing flow', () => {
       page.getByRole('heading', { level: 1, name: 'Bright Lager' }),
     ).toBeVisible()
     await expect(page.getByText('Good Times Brewing')).toBeVisible()
+    await expect(
+      page.getByRole('definition').filter({ hasText: 'Lager' }),
+    ).toBeVisible()
+    await expect(
+      page.getByRole('definition').filter({ hasText: '0.5% ABV' }),
+    ).toBeVisible()
+    await expect(
+      page.getByRole('definition').filter({ hasText: '355 ml can' }),
+    ).toBeVisible()
     await expect(
       page.getByRole('definition').filter({ hasText: '4 / 5' }),
     ).toBeVisible()
@@ -76,6 +97,12 @@ test.describe('collection browsing flow', () => {
       page.getByRole('heading', { level: 1, name: 'The Rye House Reuben' }),
     ).toBeVisible()
     await expect(page.getByText('The Rye House', { exact: true })).toBeVisible()
+    await expect(
+      page.getByRole('definition').filter({ hasText: 'Corned beef' }),
+    ).toBeVisible()
+    await expect(
+      page.getByRole('definition').filter({ hasText: 'Marbled rye' }),
+    ).toBeVisible()
     await expect(
       page.getByRole('definition').filter({ hasText: '4.5 / 5' }),
     ).toBeVisible()
