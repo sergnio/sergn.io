@@ -41,10 +41,13 @@ export const fixtureCoffee: Coffee[] = [
     purchaseUrl: 'https://avocoffeeroasters.example.com',
     price: { amountCents: 1543, currency: 'USD' },
     bagSize: { amount: 250, unit: 'g' },
-    heroImage: fixtureImage(
-      'photo-1495474472287-4d71bcdd2085',
-      'A cup of dark coffee beside a coffee brewer',
-    ),
+    heroImage: {
+      ...fixtureImage(
+        'photo-1495474472287-4d71bcdd2085',
+        'A cup of dark coffee beside a coffee brewer',
+      ),
+      caption: 'Brewed fresh at the counter.',
+    },
     tastingNotes: ['Caramel', 'Citrus', 'Balanced'],
     notes: paragraph('A reliable coffee with a sweet, rounded cup.'),
     brewRecipes: [
