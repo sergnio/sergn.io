@@ -63,6 +63,20 @@ test.describe('collection browsing flow', () => {
     ).toBeVisible()
   })
 
+  test('wings index card shows the venue, rating, and visited date', async ({
+    page,
+  }) => {
+    await page.goto('/wings')
+
+    const card = page
+      .locator('.content-card')
+      .filter({ hasText: 'Neighborhood Buffalo Wings' })
+
+    await expect(card.getByText('Neighborhood Tavern')).toBeVisible()
+    await expect(card.getByText('4.25 / 5')).toBeVisible()
+    await expect(card.locator('time')).toHaveText('Feb 11, 2025')
+  })
+
   test('na-beers index links into a detail page with the notes', async ({
     page,
   }) => {
