@@ -351,12 +351,22 @@ export const fixturePosts: Post[] = [
   },
 ]
 
+function byPublishedDesc<
+  T extends { publishedAt?: string; _createdAt: string },
+>(documents: T[]): T[] {
+  return [...documents].sort(
+    (a, b) =>
+      new Date(b.publishedAt ?? b._createdAt).getTime() -
+      new Date(a.publishedAt ?? a._createdAt).getTime(),
+  )
+}
+
 const collections = {
-  coffee: fixtureCoffee,
-  wings: fixtureWings,
-  'na-beers': fixtureNaBeers,
-  reubens: fixtureReubens,
-  blog: fixturePosts,
+  coffee: byPublishedDesc(fixtureCoffee),
+  wings: byPublishedDesc(fixtureWings),
+  'na-beers': byPublishedDesc(fixtureNaBeers),
+  reubens: byPublishedDesc(fixtureReubens),
+  blog: byPublishedDesc(fixturePosts),
 } as const
 
 export function getFixtureCollection<T extends keyof typeof collections>(
@@ -374,10 +384,10 @@ export function getFixtureDocument(
 
 export function getFixtureHomeContent(): HomeContent {
   return {
-    coffee: fixtureCoffee.slice(0, 1),
-    wings: fixtureWings.slice(0, 1),
-    naBeers: fixtureNaBeers.slice(0, 1),
-    reubens: fixtureReubens.slice(0, 1),
-    posts: fixturePosts.slice(0, 3),
+    coffee: collections.coffee.slice(0, 1),
+    wings: collections.wings.slice(0, 1),
+    naBeers: collections['na-beers'].slice(0, 1),
+    reubens: collections.reubens.slice(0, 1),
+    posts: collections.blog.slice(0, 3),
   }
 }
