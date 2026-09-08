@@ -58,6 +58,10 @@ export const fixtureCoffee: Coffee[] = [
           number: 4,
           rotations: 1,
         },
+        doseGrams: 18,
+        waterGrams: 250,
+        ratio: '1:14',
+        steps: ['Fill the base with hot water', 'Add grounds, tamp lightly'],
       },
       {
         _key: 'filter',
