@@ -259,6 +259,32 @@ test.describe('collection browsing flow', () => {
     )
   })
 
+  test('collection index pages render their own title, description, and canonical link', async ({
+    page,
+  }) => {
+    await page.goto('/coffee')
+    await expect(page).toHaveTitle('Coffee | sergn.io')
+    await expect(page.locator('meta[name="description"]')).toHaveAttribute(
+      'content',
+      'Coffee notes and practical brew recipes.',
+    )
+    await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
+      'href',
+      'https://sergn.io/coffee',
+    )
+
+    await page.goto('/blog')
+    await expect(page).toHaveTitle('Blog | sergn.io')
+    await expect(page.locator('meta[name="description"]')).toHaveAttribute(
+      'content',
+      'Longer notes from sergn.io.',
+    )
+    await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
+      'href',
+      'https://sergn.io/blog',
+    )
+  })
+
   test('home page "See all" link reaches the full collection', async ({
     page,
   }) => {
