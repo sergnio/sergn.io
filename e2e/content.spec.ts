@@ -39,6 +39,9 @@ test.describe('collection browsing flow', () => {
       }),
     ).toBeVisible()
     await expect(page.getByText('Neighborhood Tavern')).toBeVisible()
+    await expect(
+      page.getByRole('definition').filter({ hasText: '4.25 / 5' }),
+    ).toBeVisible()
   })
 
   test('na-beers index links into a detail page with the notes', async ({
@@ -53,6 +56,9 @@ test.describe('collection browsing flow', () => {
       page.getByRole('heading', { level: 1, name: 'Bright Lager' }),
     ).toBeVisible()
     await expect(page.getByText('Good Times Brewing')).toBeVisible()
+    await expect(
+      page.getByRole('definition').filter({ hasText: '4 / 5' }),
+    ).toBeVisible()
   })
 
   test('reubens index links into a detail page with the order details', async ({
@@ -70,6 +76,9 @@ test.describe('collection browsing flow', () => {
       page.getByRole('heading', { level: 1, name: 'The Rye House Reuben' }),
     ).toBeVisible()
     await expect(page.getByText('The Rye House', { exact: true })).toBeVisible()
+    await expect(
+      page.getByRole('definition').filter({ hasText: '4.5 / 5' }),
+    ).toBeVisible()
   })
 
   test('blog index links into a full post', async ({ page }) => {
