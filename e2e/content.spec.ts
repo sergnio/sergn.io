@@ -159,6 +159,21 @@ test.describe('collection browsing flow', () => {
     await expect(card.locator('time')).toHaveText('Mar 21, 2025')
   })
 
+  test('blog index card shows a placeholder when a post has no cover image', async ({
+    page,
+  }) => {
+    await page.goto('/blog')
+
+    const card = page
+      .locator('.content-card')
+      .filter({ hasText: 'A table for two' })
+
+    await expect(card.locator('.content-card__placeholder')).toHaveText(
+      'From the blog',
+    )
+    await expect(card.locator('img')).toHaveCount(0)
+  })
+
   test('blog index links into a full post', async ({ page }) => {
     await page.goto('/blog')
 
