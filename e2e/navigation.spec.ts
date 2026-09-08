@@ -14,13 +14,29 @@ test.describe('primary navigation', () => {
       page.getByRole('heading', { level: 2, name: 'Coffee' }),
     ).toBeVisible()
     await expect(
-      page.getByRole('link', { name: 'Colombia Perky' }),
+      page.getByRole('link', { name: 'Ethiopia Direct Trade' }),
     ).toBeVisible()
 
     await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
       'href',
       'https://sergn.io/',
     )
+  })
+
+  test('home page shows only the single most recently published document per collection', async ({
+    page,
+  }) => {
+    await page.goto('/')
+
+    const coffeeSection = page.locator('section', {
+      has: page.getByRole('heading', { level: 2, name: 'Coffee' }),
+    })
+    await expect(
+      coffeeSection.getByRole('link', { name: 'Ethiopia Direct Trade' }),
+    ).toBeVisible()
+    await expect(
+      coffeeSection.getByRole('link', { name: 'Colombia Perky' }),
+    ).toHaveCount(0)
   })
 
   test('root layout renders global meta tags and the site footer', async ({
