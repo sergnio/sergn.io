@@ -58,6 +58,20 @@ test.describe('primary navigation', () => {
     await page.getByRole('link', { name: 'Back home' }).click()
     await expect(page).toHaveURL(/\/$/)
   })
+
+  test('retired content route shows the retirement notice', async ({
+    page,
+  }) => {
+    const response = await page.goto('/retired-content')
+
+    expect(response?.status()).toBe(200)
+    await expect(
+      page.getByRole('heading', { name: 'Syrup reviews have retired.' }),
+    ).toBeVisible()
+
+    await page.getByRole('link', { name: 'Explore current notes' }).click()
+    await expect(page).toHaveURL(/\/$/)
+  })
 })
 
 test.describe('mobile navigation menu', () => {
