@@ -75,6 +75,31 @@ export const fixtureCoffee: Coffee[] = [
       },
     ],
   },
+  {
+    _id: 'coffee-ethiopia',
+    _type: 'coffee',
+    _createdAt: '2025-02-02T12:00:00.000Z',
+    _updatedAt: '2025-02-02T12:00:00.000Z',
+    title: 'Ethiopia Direct Trade',
+    slug: 'ethiopia-direct-trade',
+    publishedAt: '2025-02-02T12:00:00.000Z',
+    origin: 'Ethiopia',
+    boughtFrom: 'Farmer direct import',
+    bagSize: { amount: 340, unit: 'g' },
+    notes: paragraph('A bright, unnamed-roaster bag picked up on a trip.'),
+    brewRecipes: [
+      {
+        _key: 'pourover',
+        method: 'Pour Over',
+        grinder: {
+          name: 'Manual grinder',
+          system: 'manual-number-rotations',
+          number: 6,
+          rotations: 1,
+        },
+      },
+    ],
+  },
 ]
 
 export const fixtureWings: WingReview[] = [
