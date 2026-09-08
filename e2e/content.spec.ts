@@ -283,6 +283,39 @@ test.describe('collection browsing flow', () => {
       'href',
       'https://sergn.io/blog',
     )
+
+    await page.goto('/wings')
+    await expect(page).toHaveTitle('Wings | sergn.io')
+    await expect(page.locator('meta[name="description"]')).toHaveAttribute(
+      'content',
+      'Wing reviews, flavor notes, and good plates.',
+    )
+    await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
+      'href',
+      'https://sergn.io/wings',
+    )
+
+    await page.goto('/na-beers')
+    await expect(page).toHaveTitle('N/A Beers | sergn.io')
+    await expect(page.locator('meta[name="description"]')).toHaveAttribute(
+      'content',
+      'N/A beer reviews for the beers worth drinking again.',
+    )
+    await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
+      'href',
+      'https://sergn.io/na-beers',
+    )
+
+    await page.goto('/reubens')
+    await expect(page).toHaveTitle('Reubens | sergn.io')
+    await expect(page.locator('meta[name="description"]')).toHaveAttribute(
+      'content',
+      'Reuben reviews with the sandwich details that matter.',
+    )
+    await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
+      'href',
+      'https://sergn.io/reubens',
+    )
   })
 
   test('home page "See all" link reaches the full collection', async ({
