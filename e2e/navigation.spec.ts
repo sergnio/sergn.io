@@ -16,6 +16,11 @@ test.describe('primary navigation', () => {
     await expect(
       page.getByRole('link', { name: 'Colombia Perky' }),
     ).toBeVisible()
+
+    await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
+      'href',
+      'https://sergn.io/',
+    )
   })
 
   test('visiting each nav link lands on the matching collection page', async ({
