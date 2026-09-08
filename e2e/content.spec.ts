@@ -49,6 +49,12 @@ test.describe('collection browsing flow', () => {
     await expect(
       page.locator('script[type="application/ld+json"]'),
     ).toHaveCount(0)
+
+    const heroImage = page.locator('.detail-hero__image img')
+    await expect(heroImage).toHaveAttribute('loading', 'eager')
+    await expect(page.locator('.detail-hero__image figcaption')).toHaveText(
+      'Brewed fresh at the counter.',
+    )
   })
 
   test('wings index links into a detail page with the review', async ({
@@ -91,6 +97,7 @@ test.describe('collection browsing flow', () => {
 
     await expect(card.getByText('Avo Coffee Roasters')).toBeVisible()
     await expect(card.locator('time')).toHaveText('Jan 10, 2025')
+    await expect(card.locator('img')).toHaveAttribute('loading', 'lazy')
   })
 
   test('coffee index card falls back to origin when roaster is unset', async ({
