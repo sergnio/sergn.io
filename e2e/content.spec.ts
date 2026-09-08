@@ -63,6 +63,19 @@ test.describe('collection browsing flow', () => {
     ).toBeVisible()
   })
 
+  test('coffee index card shows the roaster and published date', async ({
+    page,
+  }) => {
+    await page.goto('/coffee')
+
+    const card = page
+      .locator('.content-card')
+      .filter({ hasText: 'Colombia Perky' })
+
+    await expect(card.getByText('Avo Coffee Roasters')).toBeVisible()
+    await expect(card.locator('time')).toHaveText('Jan 10, 2025')
+  })
+
   test('wings index card shows the venue, rating, and visited date', async ({
     page,
   }) => {
