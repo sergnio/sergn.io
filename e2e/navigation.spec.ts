@@ -211,3 +211,35 @@ test.describe('mobile navigation menu', () => {
     await expect(menuButton).toHaveAttribute('aria-expanded', 'false')
   })
 })
+
+test.describe('crawler files', () => {
+  test('robots.txt allows crawling and points at the sitemap', async ({
+    request,
+  }) => {
+    const response = await request.get('/robots.txt')
+
+    expect(response.status()).toBe(200)
+    const body = await response.text()
+    expect(body).toContain('Allow: /')
+    expect(body).toContain('Sitemap: https://sergn.io/sitemap.xml')
+  })
+
+  test('sitemap.xml lists the home page and every collection index', async ({
+    request,
+  }) => {
+    const response = await request.get('/sitemap.xml')
+
+    expect(response.status()).toBe(200)
+    const body = await response.text()
+    expect(body).toContain('<loc>https://sergn.io/</loc>')
+    for (const collection of [
+      'coffee',
+      'wings',
+      'na-beers',
+      'reubens',
+      'blog',
+    ]) {
+      expect(body).toContain(`<loc>https://sergn.io/${collection}</loc>`)
+    }
+  })
+})
