@@ -38,6 +38,37 @@ test.describe('collection browsing flow', () => {
     await expect(page.getByText('Neighborhood Tavern')).toBeVisible()
   })
 
+  test('na-beers index links into a detail page with the notes', async ({
+    page,
+  }) => {
+    await page.goto('/na-beers')
+
+    await page.getByRole('link', { name: 'Bright Lager' }).first().click()
+
+    await expect(page).toHaveURL(/\/na-beers\/bright-lager\/?$/)
+    await expect(
+      page.getByRole('heading', { level: 1, name: 'Bright Lager' }),
+    ).toBeVisible()
+    await expect(page.getByText('Good Times Brewing')).toBeVisible()
+  })
+
+  test('reubens index links into a detail page with the order details', async ({
+    page,
+  }) => {
+    await page.goto('/reubens')
+
+    await page
+      .getByRole('link', { name: 'The Rye House Reuben' })
+      .first()
+      .click()
+
+    await expect(page).toHaveURL(/\/reubens\/the-rye-house-reuben\/?$/)
+    await expect(
+      page.getByRole('heading', { level: 1, name: 'The Rye House Reuben' }),
+    ).toBeVisible()
+    await expect(page.getByText('The Rye House', { exact: true })).toBeVisible()
+  })
+
   test('blog index links into a full post', async ({ page }) => {
     await page.goto('/blog')
 
