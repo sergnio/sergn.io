@@ -16,6 +16,13 @@ test.describe('collection browsing flow', () => {
     await expect(
       page.getByRole('heading', { name: 'Morning moka pot' }),
     ).toBeVisible()
+    await expect(page.getByText('18g dose · 250g water · 1:14')).toBeVisible()
+    await expect(
+      page.getByRole('listitem').filter({ hasText: 'Fill the base' }),
+    ).toBeVisible()
+    await expect(
+      page.getByRole('listitem').filter({ hasText: 'Add grounds' }),
+    ).toBeVisible()
     await expect(
       page.getByRole('link', { name: 'Avo Coffee Roasters' }),
     ).toHaveAttribute('href', 'https://avocoffeeroasters.example.com')
