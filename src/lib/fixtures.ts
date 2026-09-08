@@ -162,9 +162,34 @@ export const fixturePosts: Post[] = [
       'photo-1442512595331-e89e73853f31',
       'Coffee being poured from a ceramic dripper',
     ),
-    body: paragraph(
-      'The best routine is one that makes room for paying attention.',
-    ),
+    body: [
+      {
+        _key: 'paragraph',
+        _type: 'block' as const,
+        children: [
+          { _key: 'span-0', _type: 'span' as const, text: 'The best ' },
+          {
+            _key: 'span-1',
+            _type: 'span' as const,
+            marks: ['morning-ritual-link'],
+            text: 'morning ritual',
+          },
+          {
+            _key: 'span-2',
+            _type: 'span' as const,
+            text: ' is one that makes room for paying attention.',
+          },
+        ],
+        markDefs: [
+          {
+            _key: 'morning-ritual-link',
+            _type: 'link',
+            href: 'https://example.com/morning-rituals',
+          },
+        ],
+        style: 'normal',
+      },
+    ],
     tags: ['Coffee', 'Rituals'],
   },
   {

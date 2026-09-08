@@ -86,6 +86,20 @@ test.describe('collection browsing flow', () => {
     ).toBeVisible()
   })
 
+  test('a link inside blog post rich text opens safely in a new tab', async ({
+    page,
+  }) => {
+    await page.goto('/blog/small-rituals-better-cups')
+
+    const link = page.getByRole('link', { name: 'morning ritual' })
+    await expect(link).toHaveAttribute(
+      'href',
+      'https://example.com/morning-rituals',
+    )
+    await expect(link).toHaveAttribute('target', '_blank')
+    await expect(link).toHaveAttribute('rel', 'noreferrer')
+  })
+
   test('home page "See all" link reaches the full collection', async ({
     page,
   }) => {
