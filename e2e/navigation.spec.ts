@@ -101,6 +101,16 @@ test.describe('primary navigation', () => {
       page.getByRole('heading', { name: 'Syrup reviews have retired.' }),
     ).toBeVisible()
 
+    await expect(page).toHaveTitle('Retired content | sergn.io')
+    await expect(page.locator('meta[name="robots"]')).toHaveAttribute(
+      'content',
+      'noindex',
+    )
+    await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
+      'href',
+      'https://sergn.io/retired-content',
+    )
+
     await page.getByRole('link', { name: 'Explore current notes' }).click()
     await expect(page).toHaveURL(/\/$/)
   })
