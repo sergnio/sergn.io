@@ -93,6 +93,18 @@ test.describe('collection browsing flow', () => {
     await expect(card.locator('time')).toHaveText('Jan 10, 2025')
   })
 
+  test('coffee index card falls back to origin when roaster is unset', async ({
+    page,
+  }) => {
+    await page.goto('/coffee')
+
+    const card = page
+      .locator('.content-card')
+      .filter({ hasText: 'Ethiopia Direct Trade' })
+
+    await expect(card.getByText('Ethiopia', { exact: true })).toBeVisible()
+  })
+
   test('wings index card shows the venue, rating, and visited date', async ({
     page,
   }) => {
