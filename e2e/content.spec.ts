@@ -87,6 +87,9 @@ test.describe('collection browsing flow', () => {
         name: 'Small rituals, better cups',
       }),
     ).toBeVisible()
+    const tagList = page.getByRole('list', { name: 'Tags' })
+    await expect(tagList.getByText('Coffee', { exact: true })).toBeVisible()
+    await expect(tagList.getByText('Rituals', { exact: true })).toBeVisible()
   })
 
   test('a link inside blog post rich text opens safely in a new tab', async ({
