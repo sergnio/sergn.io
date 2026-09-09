@@ -447,4 +447,27 @@ test.describe('collection browsing flow', () => {
     ).toBeVisible()
     await expect(page.getByRole('link', { name: 'Bright Lager' })).toBeVisible()
   })
+
+  test('home page blog section shows every recent post and links to the full blog', async ({
+    page,
+  }) => {
+    await page.goto('/')
+
+    const blogSection = page.locator('section', {
+      has: page.getByRole('heading', { level: 2, name: 'From the blog' }),
+    })
+    await expect(
+      blogSection.getByRole('link', { name: 'Small rituals, better cups' }),
+    ).toBeVisible()
+    await expect(
+      blogSection.getByRole('link', { name: 'A table for two' }),
+    ).toBeVisible()
+
+    await blogSection.getByRole('link', { name: 'All posts' }).click()
+
+    await expect(page).toHaveURL(/\/blog\/?$/)
+    await expect(
+      page.getByRole('heading', { level: 1, name: 'Blog' }),
+    ).toBeVisible()
+  })
 })
