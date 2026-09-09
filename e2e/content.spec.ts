@@ -84,6 +84,10 @@ test.describe('collection browsing flow', () => {
     await expect(
       page.getByRole('definition').filter({ hasText: '4.25 / 5' }),
     ).toBeVisible()
+    await expect(page.locator('meta[name="description"]')).toHaveAttribute(
+      'content',
+      'Neighborhood Tavern - Buffalo',
+    )
   })
 
   test('coffee index card shows the roaster and published date', async ({
@@ -150,6 +154,10 @@ test.describe('collection browsing flow', () => {
     await expect(
       page.getByRole('definition').filter({ hasText: '4 / 5' }),
     ).toBeVisible()
+    await expect(page.locator('meta[name="description"]')).toHaveAttribute(
+      'content',
+      'Good Times Brewing · Lager',
+    )
   })
 
   test('reubens index links into a detail page with the order details', async ({
@@ -176,6 +184,10 @@ test.describe('collection browsing flow', () => {
     await expect(
       page.getByRole('definition').filter({ hasText: '4.5 / 5' }),
     ).toBeVisible()
+    await expect(page.locator('meta[name="description"]')).toHaveAttribute(
+      'content',
+      'The Rye House',
+    )
   })
 
   test('coffee detail page falls back to "Not listed" roaster and plain-text bought-from when unset', async ({
