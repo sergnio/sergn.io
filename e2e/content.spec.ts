@@ -323,6 +323,24 @@ test.describe('collection browsing flow', () => {
     )
   })
 
+  test('blog post without a cover image omits og:image/twitter:image and falls back to a summary twitter card', async ({
+    page,
+  }) => {
+    await page.goto('/blog/a-table-for-two')
+
+    await expect(page.locator('meta[property="og:image"]')).toHaveCount(0)
+    await expect(page.locator('meta[name="twitter:image"]')).toHaveCount(0)
+    await expect(page.locator('meta[name="twitter:card"]')).toHaveAttribute(
+      'content',
+      'summary',
+    )
+
+    const jsonLd = await page
+      .locator('script[type="application/ld+json"]')
+      .textContent()
+    expect(JSON.parse(jsonLd ?? '{}')).not.toHaveProperty('image')
+  })
+
   test('a link inside blog post rich text opens safely in a new tab', async ({
     page,
   }) => {
