@@ -448,6 +448,50 @@ test.describe('collection browsing flow', () => {
     )
   })
 
+  test('home page and collection indexes ship a full social preview', async ({
+    page,
+  }) => {
+    await page.goto('/')
+    await expect(page.locator('meta[property="og:title"]')).toHaveAttribute(
+      'content',
+      'sergn.io',
+    )
+    await expect(
+      page.locator('meta[property="og:description"]'),
+    ).toHaveAttribute(
+      'content',
+      'Coffee, wings, N/A beers, reubens, and notes from Sergio.',
+    )
+    await expect(page.locator('meta[property="og:url"]')).toHaveAttribute(
+      'content',
+      'https://sergn.io/',
+    )
+    await expect(page.locator('meta[name="twitter:card"]')).toHaveAttribute(
+      'content',
+      'summary',
+    )
+    await expect(page.locator('meta[name="twitter:title"]')).toHaveAttribute(
+      'content',
+      'sergn.io',
+    )
+
+    await page.goto('/coffee')
+    await expect(page.locator('meta[property="og:title"]')).toHaveAttribute(
+      'content',
+      'Coffee',
+    )
+    await expect(
+      page.locator('meta[property="og:description"]'),
+    ).toHaveAttribute('content', 'Coffee notes and practical brew recipes.')
+    await expect(page.locator('meta[property="og:url"]')).toHaveAttribute(
+      'content',
+      'https://sergn.io/coffee',
+    )
+    await expect(
+      page.locator('meta[name="twitter:description"]'),
+    ).toHaveAttribute('content', 'Coffee notes and practical brew recipes.')
+  })
+
   test('home page "See all" link reaches the full collection', async ({
     page,
   }) => {
