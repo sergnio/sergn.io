@@ -87,6 +87,20 @@ year, and every emitted asset filename must still carry a hash. `/__tsr/*` is
 deliberately left on Netlify's default, because those filenames hash the
 server-function call rather than the response.
 
+Every response also carries a baseline set of security headers from the same
+file: a Content-Security-Policy, `Referrer-Policy`, `Strict-Transport-Security`,
+`X-Content-Type-Options: nosniff`, and a `Permissions-Policy`. The CSP allows
+`'unsafe-inline'` for scripts because TanStack Start emits an inline hydration
+payload on every prerendered page and Netlify cannot mint a nonce for static
+files; it still restricts script, style, font, image, and connect sources to
+this origin plus Google Fonts and the Sanity CDN, and forbids framing entirely.
+The build asserts the header rule exists, that the locked-down directives are
+exactly as intended, that no directive allows `*` or `'unsafe-eval'`, and that
+every origin the prerendered pages actually load from is covered by the policy.
+`e2e/security.spec.ts` additionally replays the real policy from `netlify.toml`
+against the preview server, so a change that would break fonts or hydration
+fails locally rather than after a deploy.
+
 Configure Netlify with these public environment variables:
 
 - `VITE_SANITY_PROJECT_ID`
