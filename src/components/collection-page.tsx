@@ -1,5 +1,5 @@
 import type { CollectionName, ContentDocument } from '#/lib/content-types'
-import { ContentCard } from './content-card'
+import { cardImage, ContentCard } from './content-card'
 
 type CollectionPageProps = {
   collection: CollectionName
@@ -14,6 +14,13 @@ export function CollectionPage({
   documents,
   title,
 }: CollectionPageProps) {
+  // The topmost card that actually has an image is what this page paints its
+  // Largest Contentful Paint with. Left lazy it cannot start loading until
+  // layout runs, which measurably delays LCP on every collection index.
+  const priorityIndex = documents.findIndex((document) =>
+    Boolean(cardImage(document)),
+  )
+
   return (
     <div className="page-shell collection-page">
       <header className="page-intro">
@@ -23,12 +30,13 @@ export function CollectionPage({
       </header>
       {documents.length > 0 ? (
         <ul aria-label={title} className="card-grid">
-          {documents.map((document) => (
+          {documents.map((document, index) => (
             <li key={document._id}>
               <ContentCard
                 collection={collection}
                 document={document}
                 headingLevel={2}
+                priority={index === priorityIndex}
               />
             </li>
           ))}

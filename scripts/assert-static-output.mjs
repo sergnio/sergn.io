@@ -265,6 +265,77 @@ for (const pagePath of await prerenderedPages()) {
     }
   }
 
+  // Loading strategy is the difference between an image that starts in the
+  // preload scanner and one that cannot start until layout runs. A page has
+  // exactly one Largest Contentful Paint element, so at most one image may
+  // claim priority, it has to be the first image in document order (nothing
+  // above it can out-paint it), and eager and fetchpriority="high" have to
+  // agree: eager alone still queues behind the stylesheet, and high priority
+  // on a lazy image is a contradiction the browser ignores.
+  const images = [...body.matchAll(/<img\b[^>]*>/g)].map((match) => match[0])
+  for (const tag of images) {
+    const loading = tag.match(/\sloading="([^"]*)"/)?.[1]
+    if (loading !== 'lazy' && loading !== 'eager') {
+      throw new Error(
+        `Prerendered ${page} has an image with loading="${loading ?? ''}"; every image must declare lazy or eager: ${tag}`,
+      )
+    }
+    if ((loading === 'eager') !== /\sfetchpriority="high"/i.test(tag)) {
+      throw new Error(
+        `Prerendered ${page} has an image whose loading and fetchpriority disagree; an eager image must be fetchpriority="high" and a lazy one must not be: ${tag}`,
+      )
+    }
+    // Intrinsic dimensions are what stop the page reflowing when an image
+    // arrives, and they cost nothing: Sanity reports them with the asset.
+    if (!/\swidth="\d+"/.test(tag) || !/\sheight="\d+"/.test(tag)) {
+      throw new Error(
+        `Prerendered ${page} has an image without intrinsic width and height, so the page shifts when it loads: ${tag}`,
+      )
+    }
+  }
+
+  const eagerImages = images.filter((tag) => /\sloading="eager"/.test(tag))
+  if (eagerImages.length > 1) {
+    throw new Error(
+      `Prerendered ${page} marks ${eagerImages.length} images as eager; only the one Largest Contentful Paint candidate may skip lazy loading.`,
+    )
+  }
+  if (eagerImages.length === 1 && eagerImages[0] !== images[0]) {
+    throw new Error(
+      `Prerendered ${page} prioritises an image that is not the first on the page, so an unprioritised image paints above it: ${eagerImages[0]}`,
+    )
+  }
+
+  const segments = page.split('/')
+  const isCollectionPage = collections.includes(segments[0])
+  if (page === 'index.html' && eagerImages.length > 0) {
+    // The home page paints its LCP with the hero heading; every card sits
+    // below the fold, so prioritising one only competes with the text.
+    throw new Error(
+      'The prerendered home page prioritises a card image, but its Largest Contentful Paint is the hero heading.',
+    )
+  }
+  if (
+    isCollectionPage &&
+    segments.length === 2 &&
+    images.length > 0 &&
+    eagerImages.length === 0
+  ) {
+    throw new Error(
+      `Prerendered ${page} leaves its topmost card image lazy, so the collection's Largest Contentful Paint cannot start until layout.`,
+    )
+  }
+  if (
+    isCollectionPage &&
+    segments.length === 3 &&
+    body.includes('detail-hero__image') &&
+    eagerImages.length === 0
+  ) {
+    throw new Error(
+      `Prerendered ${page} has a hero image that is not prioritised, so its Largest Contentful Paint cannot start until layout.`,
+    )
+  }
+
   pageFacts.push({
     page,
     url: page === 'index.html' ? '/' : `/${path.dirname(page)}`,

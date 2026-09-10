@@ -4,6 +4,12 @@ import { imageDimensions, imageSrcSet, imageUrl } from '#/lib/sanity/image'
 type ContentImageProps = {
   image?: SanityImage
   sizes: string
+  /**
+   * Marks the one image a page paints its Largest Contentful Paint with.
+   * A priority image loads eagerly and at high fetch priority so the preload
+   * scanner can start it on first byte; everything else stays lazy. At most
+   * one image per page should carry it, or the priority means nothing.
+   */
   priority?: boolean
 }
 
@@ -23,6 +29,7 @@ export function ContentImage({
       alt={image.alt}
       className="content-image"
       decoding="async"
+      fetchPriority={priority ? 'high' : undefined}
       height={dimensions?.height}
       loading={priority ? 'eager' : 'lazy'}
       sizes={sizes}

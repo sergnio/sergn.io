@@ -252,6 +252,36 @@ preloads no font, preloads a URL no `@font-face` declares, or preloads without
 the fonts are served as `font/woff2`, that both families reach
 `status: 'loaded'`, and that no request leaves for a Google host.
 
+### Image loading priority
+
+Every page has exactly one Largest Contentful Paint element, and the only
+images allowed to skip lazy loading are the ones that can be it. A lazy image
+cannot start downloading until layout has run, so leaving the LCP candidate
+lazy costs the page its largest paint; every other image is off-screen on load
+and prioritising it only takes bandwidth from the one that matters.
+
+- Collection index pages prioritise the topmost card that actually _has_ an
+  image, which is not always the first card - a document with no hero leaves
+  its card image-less, and `CollectionPage` looks the index up with `cardImage`
+  rather than assuming zero.
+- Detail pages prioritise the hero image.
+- The home page prioritises nothing: its LCP is the hero heading, and every
+  card sits below the fold.
+
+`priority` sets `loading="eager"` **and** `fetchpriority="high"` together.
+Eager alone still queues the image behind the stylesheet; `fetchpriority` on a
+lazy image is a contradiction the browser ignores.
+
+The build fails if any image declares neither `lazy` nor `eager`, if an image's
+`loading` and `fetchpriority` disagree, if an image ships without intrinsic
+`width`/`height` (which is what stops the page reflowing when it arrives), if a
+page marks more than one image eager, if the eager image is not the first image
+in document order, if the home page prioritises a card, or if a collection
+index with cards or a detail page with a hero prioritises nothing. E2e tests
+pin the rendered attributes and, separately, that the element the browser
+reports as Largest Contentful Paint on a collection index really is the
+prioritised image.
+
 ## Hosting contract
 
 `netlify.toml` publishes `dist/client` from `npm run build` and serves
