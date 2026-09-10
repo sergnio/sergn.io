@@ -78,8 +78,16 @@ and the `fonts.gstatic.com` preconnect.
 
 ## Hosting contract
 
-`netlify.toml` publishes `dist/client` from `npm run build`. Configure Netlify
-with these public environment variables:
+`netlify.toml` publishes `dist/client` from `npm run build` and serves
+`/assets/*` with `Cache-Control: public, max-age=31536000, immutable`. Vite puts
+a content hash in every filename under `assets`, so a new build always produces
+a new URL and repeat visitors never pay a revalidation round trip. The build
+asserts both halves of that: the header rule must be immutable and at least a
+year, and every emitted asset filename must still carry a hash. `/__tsr/*` is
+deliberately left on Netlify's default, because those filenames hash the
+server-function call rather than the response.
+
+Configure Netlify with these public environment variables:
 
 - `VITE_SANITY_PROJECT_ID`
 - `VITE_SANITY_DATASET` set to `production`
