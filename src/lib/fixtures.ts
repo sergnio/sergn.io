@@ -48,6 +48,18 @@ export const fixtureCoffee: Coffee[] = [
       ),
       caption: 'Brewed fresh at the counter.',
     },
+    purchasedAt: '2025-01-08',
+    roastDate: '2025-01-05',
+    gallery: [
+      {
+        ...fixtureImage(
+          'photo-1559525839-b184a4d698c7',
+          'Ground coffee in a glass jar surrounded by roasted beans',
+        ),
+        caption: 'The bag, a week off roast.',
+        credit: 'Avo Coffee Roasters',
+      },
+    ],
     tastingNotes: ['Caramel', 'Citrus', 'Balanced'],
     notes: paragraph('A reliable coffee with a sweet, rounded cup.'),
     brewRecipes: [
@@ -115,9 +127,19 @@ export const fixtureWings: WingReview[] = [
     slug: 'neighborhood-buffalo-wings',
     publishedAt: '2025-02-12T12:00:00.000Z',
     venue: 'Neighborhood Tavern',
-    location: { city: 'Columbus' },
+    location: {
+      city: 'Columbus',
+      address: '18 Tavern Row',
+      url: 'https://neighborhood-tavern.example.com',
+    },
     visitedAt: '2025-02-11',
-    order: { styleOrFlavor: 'Buffalo', heat: 'Medium', pieceCount: 10 },
+    order: {
+      styleOrFlavor: 'Buffalo',
+      heat: 'Medium',
+      pieceCount: 10,
+      sides: ['Celery', 'Blue cheese'],
+    },
+    price: { amountCents: 1650, currency: 'USD' },
     rating: 4.25,
     heroImage: fixtureImage(
       'photo-1527477396000-e27163b481c2',
@@ -143,6 +165,9 @@ export const fixtureNaBeers: NaBeer[] = [
     abvPercent: 0.5,
     package: { amount: 355, unit: 'ml' },
     packageFormat: 'Can',
+    boughtFrom: 'Corner Bottle Shop',
+    purchasedAt: '2025-03-01',
+    price: { amountCents: 399, currency: 'USD' },
     rating: 4,
     heroImage: fixtureImage(
       'photo-1510812431401-41d2bd2722f3',
@@ -175,7 +200,19 @@ export const fixtureReubens: ReubenReview[] = [
       cheese: 'Swiss',
       sauerkraut: 'House-made',
       dressing: 'Thousand island',
+      portion: 'Half is plenty',
+      other: [{ label: 'Pickle', value: 'House dill spear' }],
     },
+    price: { amountCents: 1875, currency: 'USD' },
+    gallery: [
+      {
+        ...fixtureImage(
+          'photo-1509722747041-616f39b57569',
+          'A sandwich on a wooden board with fresh bread behind it',
+        ),
+        credit: 'The Rye House',
+      },
+    ],
     notes: paragraph('A tall, balanced sandwich with a proper griddled crust.'),
   },
 ]

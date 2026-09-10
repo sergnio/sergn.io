@@ -435,7 +435,12 @@ h3 {
 }
 
 .detail-hero__copy h1 {
-  max-width: 11ch;
+  /* The hero title shares its row with the image, so it caps smaller than a
+     full-width h1: at the global 6.5rem a word like "Neighborhood" is wider
+     than its own column and breaks mid-word. */
+  max-width: min(14ch, 100%);
+  font-size: clamp(2.5rem, 5.5vw, 4.5rem);
+  overflow-wrap: break-word;
 }
 
 .detail-hero__date {
@@ -463,6 +468,13 @@ figcaption {
   color: var(--muted);
   font-size: 0.9rem;
   line-height: 1.35;
+}
+
+.figcaption__credit {
+  display: block;
+  font-family: 'DM Mono', monospace;
+  font-size: 0.72rem;
+  text-transform: uppercase;
 }
 
 .detail-content {
@@ -546,6 +558,30 @@ figcaption {
 
 .detail-section {
   margin-top: 3.5rem;
+}
+
+.gallery {
+  display: grid;
+  gap: 1.25rem;
+  /* auto-fill, not auto-fit: a lone gallery image should sit at the size the
+     others would, not stretch across the whole column. */
+  grid-template-columns: repeat(auto-fill, minmax(min(18rem, 100%), 1fr));
+}
+
+.gallery__item {
+  margin: 0;
+}
+
+.gallery__item .content-image {
+  border-radius: 0.25rem;
+}
+
+.rich-text__image {
+  margin: 2rem 0;
+}
+
+.rich-text__image .content-image {
+  border-radius: 0.25rem;
 }
 
 .recipe-list {
