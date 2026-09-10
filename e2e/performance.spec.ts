@@ -21,7 +21,7 @@ test.describe('Performance', () => {
       /\/assets\/styles-[^/]+\.css$/.test(url),
     )
     const fontCss = [...requestedAt].find(([url]) =>
-      url.startsWith('https://fonts.googleapis.com/css2'),
+      /\/assets\/fonts-[^/]+\.css$/.test(url),
     )
 
     expect(appCss, 'the app stylesheet was never requested').toBeDefined()
@@ -33,28 +33,66 @@ test.describe('Performance', () => {
     )
   })
 
-  test('every page head links fonts directly and preconnects to gstatic', async ({
+  test('fonts are served from this origin and preloaded, never from Google', async ({
     page,
   }) => {
+    const requestedHosts = new Set<string>()
+    page.on('request', (request) => {
+      requestedHosts.add(new URL(request.url()).host)
+    })
+
     for (const path of ['/', '/coffee', '/coffee/colombia-perky']) {
       await page.goto(path)
 
       await expect(
-        page.locator(
-          'link[rel="stylesheet"][href^="https://fonts.googleapis.com"]',
-        ),
+        page.locator('link[rel="stylesheet"][href^="/assets/fonts-"]'),
       ).toHaveCount(1)
       await expect(
-        page.locator(
-          'link[rel="preconnect"][href="https://fonts.gstatic.com"]',
-        ),
-      ).toHaveAttribute('crossorigin', 'anonymous')
+        page.locator('link[rel="preload"][as="font"]'),
+      ).not.toHaveCount(0)
       await expect(
-        page.locator(
-          'link[rel="preconnect"][href="https://fonts.googleapis.com"]',
-        ),
-      ).toHaveCount(1)
+        page.locator('link[href*="fonts.googleapis.com"]'),
+      ).toHaveCount(0)
+      await expect(page.locator('link[href*="fonts.gstatic.com"]')).toHaveCount(
+        0,
+      )
     }
+
+    expect(
+      [...requestedHosts].filter((host) => host.endsWith('gstatic.com')),
+    ).toEqual([])
+    expect(
+      [...requestedHosts].filter((host) => host.endsWith('googleapis.com')),
+    ).toEqual([])
+  })
+
+  test('every preloaded font is served as woff2 and actually loads', async ({
+    page,
+  }) => {
+    await page.goto('/')
+
+    const hrefs = await page
+      .locator('link[rel="preload"][as="font"]')
+      .evaluateAll((links) =>
+        links.map((link) => (link as HTMLLinkElement).getAttribute('href')!),
+      )
+    expect(hrefs.length).toBeGreaterThan(0)
+
+    for (const href of hrefs) {
+      const response = await page.request.get(href)
+      expect(response.status(), `${href} was not served`).toBe(200)
+      expect(response.headers()['content-type']).toContain('font/woff2')
+    }
+
+    // A preload the page never uses is a wasted download on every visit.
+    const loadedFamilies = await page.evaluate(async () => {
+      await document.fonts.ready
+      return [...document.fonts]
+        .filter((face) => face.status === 'loaded')
+        .map((face) => face.family)
+    })
+    expect(loadedFamilies).toContain('Newsreader')
+    expect(loadedFamilies).toContain('DM Mono')
   })
 
   test('card images stay lazy while the detail hero loads eagerly', async ({

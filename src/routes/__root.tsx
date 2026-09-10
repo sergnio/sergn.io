@@ -12,10 +12,17 @@ import {
   siteDescription,
   siteName,
 } from '#/lib/metadata'
+import fontCss from '../fonts.css?url'
 import appCss from '../styles.css?url'
 
-const fontCss =
-  'https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600&display=swap'
+// The two faces every page paints with before anything else. They are named
+// here rather than discovered from the stylesheet so the preload scanner can
+// start them on first byte; scripts/assert-static-output.mjs fails the build
+// if either URL stops matching what src/fonts.css actually declares.
+const preloadedFonts = [
+  '/fonts/newsreader-v26-400-600-normal-latin.woff2',
+  '/fonts/dm-mono-v16-400-normal-latin.woff2',
+]
 
 export const Route = createRootRoute({
   head: () => ({
@@ -54,15 +61,19 @@ export const Route = createRootRoute({
         title: 'sergn.io blog',
         href: '/feed.xml',
       },
-      // Warm both font origins up front. Without these the browser only
-      // starts resolving fonts.gstatic.com after the googleapis stylesheet
-      // has been fetched and parsed.
-      { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
-      {
-        rel: 'preconnect',
-        href: 'https://fonts.gstatic.com',
-        crossOrigin: 'anonymous',
-      },
+      // Self-hosted from the site's own origin: a third-party font
+      // stylesheet costs two extra DNS + TLS handshakes and makes the woff2
+      // fetches wait on a cross-origin CSS response first.
+      ...preloadedFonts.map(
+        (href) =>
+          ({
+            rel: 'preload',
+            as: 'font',
+            type: 'font/woff2',
+            href,
+            crossOrigin: 'anonymous',
+          }) as const,
+      ),
       // Linked here rather than @import-ed from styles.css: an @import makes
       // this request wait for styles.css to download and parse first, which
       // pushed the actual woff2 fetches behind two serial round trips.

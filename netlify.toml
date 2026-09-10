@@ -33,6 +33,14 @@
   [headers.values]
     Cache-Control = "public, max-age=31536000, immutable"
 
+# Font filenames carry the family version Google publishes (v16, v26), so a
+# font that actually changes lands at a new URL. Regenerate with
+# scripts/generate-fonts.mjs.
+[[headers]]
+  for = "/fonts/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
 # Baseline security headers for every response. The site is fully static, so
 # these are the only place they can be set.
 # The CSP allows 'unsafe-inline' for scripts because TanStack Start emits an
@@ -42,7 +50,7 @@
 [[headers]]
   for = "/*"
   [headers.values]
-    Content-Security-Policy = "default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; form-action 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https://cdn.sanity.io; connect-src 'self' https://cdn.sanity.io https://*.api.sanity.io https://*.apicdn.sanity.io"
+    Content-Security-Policy = "default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; form-action 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data: https://cdn.sanity.io; connect-src 'self' https://cdn.sanity.io https://*.api.sanity.io https://*.apicdn.sanity.io"
     Referrer-Policy = "strict-origin-when-cross-origin"
     Strict-Transport-Security = "max-age=31536000; includeSubDomains"
     X-Content-Type-Options = "nosniff"

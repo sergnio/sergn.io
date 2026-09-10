@@ -1,4 +1,4 @@
-import { access, readdir, readFile } from 'node:fs/promises'
+import { access, readdir, readFile, stat } from 'node:fs/promises'
 import path from 'node:path'
 import { gzipSync } from 'node:zlib'
 
@@ -447,28 +447,114 @@ for (const asset of cssAssets) {
   }
 }
 
-for (const page of [
-  'index.html',
-  ...collections.map((c) => `${c}/index.html`),
-]) {
-  const head = (await readFile(path.join(outputDirectory, page), 'utf8')).split(
-    '</head>',
-  )[0]
+// Fonts are served from this origin. A third-party font stylesheet costs two
+// extra DNS + TLS handshakes and delays every woff2 behind a cross-origin CSS
+// response, and it hands every reader's IP to a third party - so no
+// prerendered page may reference Google's font hosts at all.
+for (const pagePath of await prerenderedPages()) {
+  const html = await readFile(pagePath, 'utf8')
+  const offendingHost = html.match(/fonts\.(?:googleapis|gstatic)\.com/)?.[0]
+  if (offendingHost) {
+    throw new Error(
+      `Prerendered ${path.relative(outputDirectory, pagePath)} references ${offendingHost}. Fonts must be self-hosted; regenerate with scripts/generate-fonts.mjs.`,
+    )
+  }
+}
+
+// The font stylesheet is emitted by Vite as its own CSS asset. Everything it
+// declares must resolve to a file the build actually shipped, or the page
+// silently falls back to system fonts in production while looking fine here.
+const fontFaceCss = []
+for (const asset of cssAssets) {
+  const css = await readFile(
+    path.join(outputDirectory, 'assets', asset),
+    'utf8',
+  )
+  if (css.includes('@font-face')) fontFaceCss.push({ asset, css })
+}
+if (fontFaceCss.length !== 1) {
+  throw new Error(
+    `Expected exactly one emitted CSS asset to declare @font-face, found ${fontFaceCss.length}.`,
+  )
+}
+const [{ asset: fontAsset, css: fontCss }] = fontFaceCss
+
+const declaredFonts = [...fontCss.matchAll(/url\(([^)]+)\)/g)].map((match) =>
+  match[1].replace(/['"]/g, ''),
+)
+if (declaredFonts.length === 0) {
+  throw new Error(`${fontAsset} declares @font-face but no font source URL.`)
+}
+for (const source of declaredFonts) {
+  if (!source.startsWith('/fonts/')) {
+    throw new Error(
+      `${fontAsset} loads a font from ${source}. Fonts must be self-hosted under /fonts/.`,
+    )
+  }
+  await requireFile(source.slice(1))
+}
+
+// An unreferenced woff2 is dead weight in the deploy and a sign the generator
+// and the checked-in stylesheet have drifted apart.
+for (const file of await readdir(path.join(outputDirectory, 'fonts'))) {
+  if (!declaredFonts.includes(`/fonts/${file}`)) {
+    throw new Error(
+      `/fonts/${file} is shipped but no @font-face references it. Re-run scripts/generate-fonts.mjs.`,
+    )
+  }
+}
+
+// The latin faces are what an English page paints with, so they are the font
+// bytes on the critical path. A ceiling, not a target: it exists to catch a
+// newly added family or a subset dropped from the generator request.
+let latinFontBytes = 0
+for (const source of declaredFonts) {
+  // woff2 carries its own compression, so its on-disk size is what ships.
+  const { size } = await stat(path.join(outputDirectory, source.slice(1)))
+  if (source.includes('-latin.')) latinFontBytes += size
+}
+const fontBudgetBytes = 180 * 1024
+if (latinFontBytes > fontBudgetBytes) {
+  throw new Error(
+    `Latin font faces total ${Math.round(latinFontBytes / 1024)} KB, over the ${fontBudgetBytes / 1024} KB budget.`,
+  )
+}
+
+// Preloads are hardcoded in the document head so the preload scanner can start
+// them on first byte, which means they can drift from the stylesheet. A
+// preload naming a URL no @font-face uses is a wasted download on every visit.
+for (const pagePath of await prerenderedPages()) {
+  const page = path.relative(outputDirectory, pagePath)
+  const head = (await readFile(pagePath, 'utf8')).split('</head>')[0]
+
   if (
-    !/<link rel="stylesheet" href="https:\/\/fonts\.googleapis\.com/.test(head)
+    !new RegExp(`<link rel="stylesheet" href="/assets/${fontAsset}"`).test(head)
   ) {
     throw new Error(
       `Prerendered ${page} does not link the font stylesheet from its head.`,
     )
   }
-  if (
-    !/<link rel="preconnect" href="https:\/\/fonts\.gstatic\.com"[^>]*crossorigin/.test(
-      head,
-    )
-  ) {
-    throw new Error(
-      `Prerendered ${page} is missing a crossorigin preconnect to fonts.gstatic.com.`,
-    )
+
+  const preloads = [...head.matchAll(/<link[^>]*rel="preload"[^>]*>/g)]
+    .map((match) => match[0])
+    .filter((tag) => tag.includes('as="font"'))
+  if (preloads.length === 0) {
+    throw new Error(`Prerendered ${page} preloads no font.`)
+  }
+  for (const tag of preloads) {
+    const href = tag.match(/href="([^"]+)"/)?.[1]
+    if (!href || !declaredFonts.includes(href)) {
+      throw new Error(
+        `Prerendered ${page} preloads ${href ?? 'a font with no href'}, which no @font-face declares. Update preloadedFonts in src/routes/__root.tsx.`,
+      )
+    }
+    // A font preload without crossorigin is fetched twice: once anonymously
+    // for the preload and again by the CSS in CORS mode.
+    if (!/\bcrossorigin\b/.test(tag)) {
+      throw new Error(
+        `Prerendered ${page} preloads ${href} without crossorigin, so the browser downloads it twice.`,
+      )
+    }
   }
 }
 
