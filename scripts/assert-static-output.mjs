@@ -202,3 +202,98 @@ if (maxAge < 31536000) {
     `The /assets/* Cache-Control max-age must be at least one year, got ${maxAge}.`,
   )
 }
+
+// Security headers are only settable in netlify.toml for a static site, so a
+// missing directive here is invisible until someone scans the deployed site.
+const headerBlock = (glob) =>
+  netlifyConfig
+    .split(/^\[\[headers\]\]$/m)
+    .slice(1)
+    .find((block) =>
+      new RegExp(
+        `^\\s*for\\s*=\\s*"${glob.replace('*', '\\*')}"\\s*$`,
+        'm',
+      ).test(block),
+    )
+
+const siteHeaders = headerBlock('/*')
+if (!siteHeaders) {
+  throw new Error('netlify.toml declares no [[headers]] rule for /*.')
+}
+const headerValue = (name) =>
+  siteHeaders.match(new RegExp(`${name}\\s*=\\s*"([^"]+)"`))?.[1]
+
+for (const header of [
+  'Content-Security-Policy',
+  'Referrer-Policy',
+  'Strict-Transport-Security',
+  'X-Content-Type-Options',
+  'Permissions-Policy',
+]) {
+  if (!headerValue(header)) {
+    throw new Error(`The /* header rule is missing ${header}.`)
+  }
+}
+if (headerValue('X-Content-Type-Options') !== 'nosniff') {
+  throw new Error('X-Content-Type-Options must be nosniff.')
+}
+
+const csp = headerValue('Content-Security-Policy')
+const directives = new Map(
+  csp
+    .split(';')
+    .map((part) => part.trim().split(/\s+/))
+    .filter((parts) => parts[0])
+    .map(([name, ...values]) => [name, values]),
+)
+for (const [directive, required] of [
+  ['default-src', "'self'"],
+  ['base-uri', "'self'"],
+  ['object-src', "'none'"],
+  ['frame-ancestors', "'none'"],
+  ['form-action', "'self'"],
+]) {
+  const values = directives.get(directive)
+  if (!values || values.join(' ') !== required) {
+    throw new Error(
+      `The CSP ${directive} must be exactly ${required}, got: ${values?.join(' ') ?? '(missing)'}`,
+    )
+  }
+}
+for (const [directive, values] of directives) {
+  if (values.includes('*') || values.includes("'unsafe-eval'")) {
+    throw new Error(
+      `The CSP ${directive} allows ${values.includes('*') ? 'any origin' : "'unsafe-eval'"}.`,
+    )
+  }
+}
+
+// Every origin the prerendered pages actually load from must be allowed by the
+// CSP, or the deployed site silently drops fonts, images, or styles. Fixture
+// builds reference throwaway image hosts that production never serves, so this
+// coverage check only applies to real content builds.
+if (contentSource === 'sanity') {
+  const allowedOrigins = new Set(
+    [...directives.values()].flat().filter((value) => value.startsWith('http')),
+  )
+  const pages = [
+    'index.html',
+    'retired-content/index.html',
+    'not-found/index.html',
+    ...collections.map((collection) => `${collection}/index.html`),
+  ]
+  for (const page of pages) {
+    const html = await readFile(path.join(outputDirectory, page), 'utf8')
+    for (const match of html.matchAll(
+      /(?:href|src|srcset)="(https:\/\/[^"/]+)/g,
+    )) {
+      const origin = match[1]
+      if (origin === 'https://sergn.io') continue
+      if (!allowedOrigins.has(origin)) {
+        throw new Error(
+          `Prerendered ${page} loads ${origin}, which the Content-Security-Policy does not allow.`,
+        )
+      }
+    }
+  }
+}
