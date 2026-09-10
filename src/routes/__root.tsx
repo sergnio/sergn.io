@@ -9,6 +9,9 @@ import { SiteHeader } from '#/components/site-header'
 import { siteDescription, siteName } from '#/lib/metadata'
 import appCss from '../styles.css?url'
 
+const fontCss =
+  'https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600&display=swap'
+
 export const Route = createRootRoute({
   head: () => ({
     meta: [
@@ -28,6 +31,19 @@ export const Route = createRootRoute({
     ],
     links: [
       { rel: 'icon', type: 'image/svg+xml', href: '/favicon.svg' },
+      // Warm both font origins up front. Without these the browser only
+      // starts resolving fonts.gstatic.com after the googleapis stylesheet
+      // has been fetched and parsed.
+      { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
+      {
+        rel: 'preconnect',
+        href: 'https://fonts.gstatic.com',
+        crossOrigin: 'anonymous',
+      },
+      // Linked here rather than @import-ed from styles.css: an @import makes
+      // this request wait for styles.css to download and parse first, which
+      // pushed the actual woff2 fetches behind two serial round trips.
+      { rel: 'stylesheet', href: fontCss },
       { rel: 'stylesheet', href: appCss },
     ],
   }),

@@ -67,7 +67,14 @@ runs this as the `build-live-sanity` job.
 `npm run test:e2e` runs the Playwright suite against a fixtures build, including
 `e2e/a11y.spec.ts`, which fails on any axe-core WCAG 2.2 A/AA violation across a
 representative page of each template and pins the landmark, single-`h1`, and
-skip-link focus contract.
+skip-link focus contract, and `e2e/performance.spec.ts`, which pins the font
+loading path and the hero image's eager/intrinsic-size attributes.
+
+Web fonts are linked from the document head in `src/routes/__root.tsx`, never
+`@import`-ed from `src/styles.css`. An `@import` hides the font stylesheet from
+the preload scanner, so the woff2 files cannot start downloading until
+`styles.css` has been fetched and parsed. The build asserts both the direct link
+and the `fonts.gstatic.com` preconnect.
 
 ## Hosting contract
 
