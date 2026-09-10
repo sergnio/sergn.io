@@ -64,6 +64,18 @@ no documents: `scripts/assert-static-output.mjs` then requires every collection
 index to prerender its heading and empty-state message instead of nothing. CI
 runs this as the `build-live-sanity` job.
 
+Content coming back from Sanity is checked against the shape the site renders
+with before anything is rendered. `src/lib/content-types.ts` declares fields
+like a coffee's `bagSize` or a post's `body` as non-optional, but GROQ returns
+whatever the dataset holds, so `src/lib/content-contract.ts` enforces that
+promise on every fetch: required fields must be present and non-blank, slugs
+must be URL-safe and unique within their collection, and every image must carry
+alt text. A violation fails the build naming the collection, slug, document id
+and field, and the message is printed to stderr because the prerenderer reports
+a throwing loader only as `Failed to fetch /coffee/: Internal Server Error`. An
+empty dataset passes trivially; the first real document that cannot render
+correctly fails loudly instead of shipping as a blank section or a dead URL.
+
 `npm run test:e2e` runs the Playwright suite against a fixtures build, including
 `e2e/a11y.spec.ts`, which fails on any axe-core WCAG 2.2 A/AA violation across a
 representative page of each template and pins the landmark, single-`h1`, and
