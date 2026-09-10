@@ -338,16 +338,22 @@ test.describe('collection browsing flow', () => {
     )
   })
 
-  test('blog post without a cover image omits og:image/twitter:image and falls back to a summary twitter card', async ({
+  test('blog post without a cover image falls back to the site preview image', async ({
     page,
   }) => {
     await page.goto('/blog/a-table-for-two')
 
-    await expect(page.locator('meta[property="og:image"]')).toHaveCount(0)
-    await expect(page.locator('meta[name="twitter:image"]')).toHaveCount(0)
+    await expect(page.locator('meta[property="og:image"]')).toHaveAttribute(
+      'content',
+      'https://sergn.io/og-image.png',
+    )
+    await expect(page.locator('meta[name="twitter:image"]')).toHaveAttribute(
+      'content',
+      'https://sergn.io/og-image.png',
+    )
     await expect(page.locator('meta[name="twitter:card"]')).toHaveAttribute(
       'content',
-      'summary',
+      'summary_large_image',
     )
 
     expect(await articleJsonLd(page)).not.toHaveProperty('image')
@@ -477,7 +483,7 @@ test.describe('collection browsing flow', () => {
     )
     await expect(page.locator('meta[name="twitter:card"]')).toHaveAttribute(
       'content',
-      'summary',
+      'summary_large_image',
     )
     await expect(page.locator('meta[name="twitter:title"]')).toHaveAttribute(
       'content',
@@ -499,6 +505,48 @@ test.describe('collection browsing flow', () => {
     await expect(
       page.locator('meta[name="twitter:description"]'),
     ).toHaveAttribute('content', 'Coffee notes and practical brew recipes.')
+  })
+
+  test('pages without a content image fall back to the site preview image', async ({
+    page,
+  }) => {
+    for (const path of ['/', '/coffee', '/retired-content']) {
+      await page.goto(path)
+      await expect(page.locator('meta[property="og:image"]')).toHaveAttribute(
+        'content',
+        'https://sergn.io/og-image.png',
+      )
+      await expect(page.locator('meta[name="twitter:image"]')).toHaveAttribute(
+        'content',
+        'https://sergn.io/og-image.png',
+      )
+      await expect(
+        page.locator('meta[property="og:image:alt"]'),
+      ).not.toHaveAttribute('content', '')
+    }
+
+    // The fallback is only a preview if the file is really served.
+    const response = await page.request.get('/og-image.png')
+    expect(response.status()).toBe(200)
+    expect(response.headers()['content-type']).toContain('image/png')
+  })
+
+  test('a detail page prefers its own image over the site fallback', async ({
+    page,
+  }) => {
+    await page.goto('/coffee')
+    await page.getByRole('link', { name: 'Colombia Perky' }).click()
+
+    const ogImage = page.locator('meta[property="og:image"]')
+    await expect(ogImage).not.toHaveAttribute(
+      'content',
+      'https://sergn.io/og-image.png',
+    )
+    await expect(ogImage).toHaveAttribute('content', /^https:\/\//)
+    await expect(page.locator('meta[name="twitter:card"]')).toHaveAttribute(
+      'content',
+      'summary_large_image',
+    )
   })
 
   test('home page "See all" link reaches the full collection', async ({

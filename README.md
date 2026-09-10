@@ -77,6 +77,15 @@ attribute (its visible text is a localised string). Card grids render as
 labelled `<ul>` lists so assistive tech announces an item count, and repeated
 links such as "See all" carry a per-collection `aria-label`.
 
+Every page ships a social preview image. `pageHead()` uses the content's own
+image when it has one and otherwise falls back to `public/og-image.png`, so the
+home page, the collection indexes, and any unillustrated entry still preview as
+a `summary_large_image` card instead of a bare line of text. That default is
+rendered by `node scripts/generate-og-image.mjs` (Playwright screenshots an HTML
+template in the site's own type and palette), and the build asserts the file
+ships, is a real PNG, is 1200x630, and that every prerendered page names an
+absolute `og:image`, `og:image:alt`, and `twitter:image`.
+
 Structured data is built in `src/lib/metadata.ts` and emitted from route heads:
 the home page carries a `WebSite` + `Person` graph, every collection index and
 detail page carries a `BreadcrumbList` ending at its own canonical URL, blog

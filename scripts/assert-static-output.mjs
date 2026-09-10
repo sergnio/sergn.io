@@ -74,6 +74,15 @@ const socialTags = [
   ['canonical', /<link rel="canonical" href="https:\/\/sergn\.io[^"]*"/],
 ]
 
+// A social card without an image previews as a bare line of text, so every
+// page must name one - either its own content image or the site default -
+// as an absolute URL, since crawlers do not resolve relative og:image paths.
+const socialImageTags = [
+  ['og:image', /<meta property="og:image" content="https:\/\/[^"]+"/],
+  ['og:image:alt', /<meta property="og:image:alt" content="[^"]+"/],
+  ['twitter:image', /<meta name="twitter:image" content="https:\/\/[^"]+"/],
+]
+
 for (const page of [
   'index.html',
   ...collections.map((c) => `${c}/index.html`),
@@ -85,6 +94,24 @@ for (const page of [
       throw new Error(`Prerendered ${page} is missing a ${label} tag.`)
     }
   }
+}
+
+// The default preview image is only useful if it actually ships, is a real
+// PNG, and matches the 1.91:1 / 1200x630 size the social platforms crop to.
+await requireFile('og-image.png')
+const ogImage = await readFile(path.join(outputDirectory, 'og-image.png'))
+const pngSignature = Buffer.from([
+  0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a,
+])
+if (!ogImage.subarray(0, 8).equals(pngSignature)) {
+  throw new Error('dist/client/og-image.png is not a PNG.')
+}
+const ogWidth = ogImage.readUInt32BE(16)
+const ogHeight = ogImage.readUInt32BE(20)
+if (ogWidth !== 1200 || ogHeight !== 630) {
+  throw new Error(
+    `dist/client/og-image.png is ${ogWidth}x${ogHeight}; social previews expect 1200x630.`,
+  )
 }
 
 const home = await readFile(path.join(outputDirectory, 'index.html'), 'utf8')
@@ -114,7 +141,14 @@ async function prerenderedPages(directory = outputDirectory) {
 for (const pagePath of await prerenderedPages()) {
   const page = path.relative(outputDirectory, pagePath)
   const html = await readFile(pagePath, 'utf8')
+  const head = html.split('</head>')[0]
   const body = html.split('<body')[1] ?? ''
+
+  for (const [label, matcher] of socialImageTags) {
+    if (!matcher.test(head)) {
+      throw new Error(`Prerendered ${page} is missing a ${label} tag.`)
+    }
+  }
 
   const levels = [...body.matchAll(/<h([1-6])[\s>]/g)].map((match) =>
     Number(match[1]),
