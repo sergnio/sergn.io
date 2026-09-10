@@ -6,7 +6,12 @@ import {
 } from '@tanstack/react-router'
 import { NotFoundContent } from '#/components/not-found'
 import { SiteHeader } from '#/components/site-header'
-import { defaultSocialImage, siteDescription, siteName } from '#/lib/metadata'
+import {
+  brandColor,
+  defaultSocialImage,
+  siteDescription,
+  siteName,
+} from '#/lib/metadata'
 import appCss from '../styles.css?url'
 
 const fontCss =
@@ -32,9 +37,16 @@ export const Route = createRootRoute({
       { name: 'twitter:description', content: siteDescription },
       { name: 'twitter:image', content: defaultSocialImage.url },
       { name: 'twitter:image:alt', content: defaultSocialImage.alt },
+      // Matches theme_color in site.webmanifest: mobile browser chrome and an
+      // installed shortcut should not disagree about the brand colour.
+      { name: 'theme-color', content: brandColor },
     ],
     links: [
       { rel: 'icon', type: 'image/svg+xml', href: '/favicon.svg' },
+      // Home-screen shortcuts ignore an SVG favicon: iOS needs an
+      // apple-touch-icon PNG and Android reads the manifest icons.
+      { rel: 'apple-touch-icon', href: '/apple-touch-icon.png' },
+      { rel: 'manifest', href: '/site.webmanifest' },
       // Warm both font origins up front. Without these the browser only
       // starts resolving fonts.gstatic.com after the googleapis stylesheet
       // has been fetched and parsed.

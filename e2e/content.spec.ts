@@ -531,6 +531,44 @@ test.describe('collection browsing flow', () => {
     expect(response.headers()['content-type']).toContain('image/png')
   })
 
+  test('every page template ships the home-screen install surface', async ({
+    page,
+  }) => {
+    for (const path of ['/', '/coffee', '/coffee/colombia-perky']) {
+      await page.goto(path)
+      await expect(
+        page.locator('link[rel="apple-touch-icon"]'),
+      ).toHaveAttribute('href', '/apple-touch-icon.png')
+      await expect(page.locator('link[rel="manifest"]')).toHaveAttribute(
+        'href',
+        '/site.webmanifest',
+      )
+      await expect(page.locator('meta[name="theme-color"]')).toHaveAttribute(
+        'content',
+        '#183f34',
+      )
+    }
+  })
+
+  test('the manifest and its icons are really served', async ({ page }) => {
+    const manifestResponse = await page.request.get('/site.webmanifest')
+    expect(manifestResponse.status()).toBe(200)
+
+    const manifest = await manifestResponse.json()
+    expect(manifest.start_url).toBe('/')
+    expect(manifest.theme_color).toBe('#183f34')
+
+    const sources = [
+      '/apple-touch-icon.png',
+      ...manifest.icons.map((icon: { src: string }) => icon.src),
+    ]
+    for (const source of sources) {
+      const response = await page.request.get(source)
+      expect(response.status(), source).toBe(200)
+      expect(response.headers()['content-type'], source).toContain('image/png')
+    }
+  })
+
   test('a detail page prefers its own image over the site fallback', async ({
     page,
   }) => {

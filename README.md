@@ -86,6 +86,16 @@ template in the site's own type and palette), and the build asserts the file
 ships, is a real PNG, is 1200x630, and that every prerendered page names an
 absolute `og:image`, `og:image:alt`, and `twitter:image`.
 
+Saving the site to a phone home screen is covered too. `public/favicon.svg` is
+ignored by both iOS and Android there, so the root head also links an
+`apple-touch-icon` and `public/site.webmanifest`, and declares a `theme-color`
+that matches the manifest's `theme_color`. The PNGs (180x180, 192x192, 512x512)
+are rendered by `node scripts/generate-app-icons.mjs` from the same mark as the
+favicon. The build asserts the manifest is valid JSON with a name, `start_url`
+and `theme_color`, that its 192 and 512 icons exist at exactly those sizes, that
+the apple-touch-icon is 180x180, and that every prerendered page links both and
+declares a `theme-color` equal to the manifest's.
+
 Structured data is built in `src/lib/metadata.ts` and emitted from route heads:
 the home page carries a `WebSite` + `Person` graph, every collection index and
 detail page carries a `BreadcrumbList` ending at its own canonical URL, blog

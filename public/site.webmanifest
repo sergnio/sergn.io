@@ -1,0 +1,22 @@
+{
+  "name": "sergn.io",
+  "short_name": "sergn.io",
+  "description": "Coffee, wings, N/A beers, reubens, and notes from Sergio.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "minimal-ui",
+  "theme_color": "#183f34",
+  "background_color": "#f7f3eb",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "/icon-512.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ]
+}

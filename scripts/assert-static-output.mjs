@@ -97,23 +97,86 @@ for (const page of [
   }
 }
 
-// The default preview image is only useful if it actually ships, is a real
-// PNG, and matches the 1.91:1 / 1200x630 size the social platforms crop to.
-await requireFile('og-image.png')
-const ogImage = await readFile(path.join(outputDirectory, 'og-image.png'))
 const pngSignature = Buffer.from([
   0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a,
 ])
-if (!ogImage.subarray(0, 8).equals(pngSignature)) {
-  throw new Error('dist/client/og-image.png is not a PNG.')
+
+// Reads the dimensions out of a PNG's IHDR chunk, which always starts at byte
+// 8, so an image regenerated at the wrong size fails the build rather than
+// shipping cropped or blurry.
+async function pngDimensions(relativePath) {
+  await requireFile(relativePath)
+  const png = await readFile(path.join(outputDirectory, relativePath))
+  if (!png.subarray(0, 8).equals(pngSignature)) {
+    throw new Error(`dist/client/${relativePath} is not a PNG.`)
+  }
+  return { width: png.readUInt32BE(16), height: png.readUInt32BE(20) }
 }
-const ogWidth = ogImage.readUInt32BE(16)
-const ogHeight = ogImage.readUInt32BE(20)
-if (ogWidth !== 1200 || ogHeight !== 630) {
-  throw new Error(
-    `dist/client/og-image.png is ${ogWidth}x${ogHeight}; social previews expect 1200x630.`,
+
+async function requirePngSize(relativePath, width, height, reason) {
+  const actual = await pngDimensions(relativePath)
+  if (actual.width !== width || actual.height !== height) {
+    throw new Error(
+      `dist/client/${relativePath} is ${actual.width}x${actual.height}; ${reason} expect ${width}x${height}.`,
+    )
+  }
+}
+
+// The default preview image is only useful if it actually ships, is a real
+// PNG, and matches the 1.91:1 / 1200x630 size the social platforms crop to.
+await requirePngSize('og-image.png', 1200, 630, 'social previews')
+
+// Home-screen shortcuts ignore the SVG favicon: iOS uses the apple-touch-icon
+// and Android reads the manifest, so a missing or mis-sized icon degrades to a
+// screenshot or a bare letter - invisible until someone installs the site.
+await requirePngSize('apple-touch-icon.png', 180, 180, 'iOS home screens')
+
+await requireFile('site.webmanifest')
+const manifestSource = await readFile(
+  path.join(outputDirectory, 'site.webmanifest'),
+  'utf8',
+)
+let manifest
+try {
+  manifest = JSON.parse(manifestSource)
+} catch (error) {
+  throw new Error(`dist/client/site.webmanifest is not valid JSON: ${error}.`)
+}
+for (const field of ['name', 'short_name', 'start_url', 'theme_color']) {
+  if (!manifest[field]) {
+    throw new Error(`dist/client/site.webmanifest is missing "${field}".`)
+  }
+}
+// Chrome only offers installation with a 192px and a 512px icon present, and
+// only if each one actually resolves.
+for (const size of [192, 512]) {
+  const icon = manifest.icons?.find(
+    (candidate) => candidate.sizes === `${size}x${size}`,
+  )
+  if (!icon) {
+    throw new Error(
+      `dist/client/site.webmanifest does not declare a ${size}x${size} icon.`,
+    )
+  }
+  await requirePngSize(
+    icon.src.replace(/^\//, ''),
+    size,
+    size,
+    `the manifest's ${icon.sizes} entry`,
   )
 }
+
+// Every page must carry the install surface, not just the home page: a
+// shortcut can be saved from any URL, and a page that omits these falls back
+// to a screenshot icon and the default browser chrome colour.
+const installTags = [
+  [
+    'apple-touch-icon',
+    /<link rel="apple-touch-icon" href="\/apple-touch-icon\.png"/,
+  ],
+  ['manifest', /<link rel="manifest" href="\/site\.webmanifest"/],
+  ['theme-color', /<meta name="theme-color" content="#[0-9a-fA-F]{6}"/],
+]
 
 const home = await readFile(path.join(outputDirectory, 'index.html'), 'utf8')
 if (!/<h1[^>]*>/.test(home)) {
@@ -149,6 +212,21 @@ for (const pagePath of await prerenderedPages()) {
     if (!matcher.test(head)) {
       throw new Error(`Prerendered ${page} is missing a ${label} tag.`)
     }
+  }
+
+  for (const [label, matcher] of installTags) {
+    if (!matcher.test(head)) {
+      throw new Error(`Prerendered ${page} is missing a ${label} tag.`)
+    }
+  }
+
+  const themeColor = head.match(
+    /<meta name="theme-color" content="([^"]+)"/,
+  )?.[1]
+  if (themeColor !== manifest.theme_color) {
+    throw new Error(
+      `Prerendered ${page} declares theme-color ${themeColor}, but the manifest declares ${manifest.theme_color}.`,
+    )
   }
 
   const levels = [...body.matchAll(/<h([1-6])[\s>]/g)].map((match) =>

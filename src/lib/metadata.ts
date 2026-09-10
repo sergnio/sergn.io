@@ -15,6 +15,12 @@ export const siteDescription =
   'Coffee, wings, N/A beers, reubens, and notes from Sergio.'
 
 /**
+ * The brand colour browsers paint their chrome with. Kept in sync with
+ * theme_color in public/site.webmanifest, which the build asserts.
+ */
+export const brandColor = '#183f34'
+
+/**
  * The social preview every page falls back to. Without it a shared link
  * previews as a bare text card, which is what happens on the home page, every
  * collection index, and any content item that has no image of its own.
