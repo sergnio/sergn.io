@@ -9,11 +9,8 @@ import type {
   WingReview,
 } from '../content-types'
 import { assertValidCollection, assertValidDocument } from '../content-contract'
-import {
-  getFixtureCollection,
-  getFixtureDocument,
-  getFixtureHomeContent,
-} from '../fixtures'
+import { getFixtureCollection, getFixtureDocument } from '../fixtures'
+import { homeSectionSizes, selectForHome } from '../home-selection'
 import { getPublishedSanityClient, usesFixtureContent } from './client'
 
 const imageProjection = `{
@@ -177,8 +174,6 @@ export async function fetchDocument(
 }
 
 export async function fetchHomeContent(): Promise<HomeContent> {
-  if (usesFixtureContent()) return getFixtureHomeContent()
-
   const [coffee, wings, naBeers, reubens, posts] = await Promise.all([
     fetchCollection('coffee'),
     fetchCollection('wings'),
@@ -188,10 +183,10 @@ export async function fetchHomeContent(): Promise<HomeContent> {
   ])
 
   return {
-    coffee: coffee.slice(0, 1),
-    wings: wings.slice(0, 1),
-    naBeers: naBeers.slice(0, 1),
-    reubens: reubens.slice(0, 1),
-    posts: posts.slice(0, 3),
+    coffee: selectForHome(coffee, homeSectionSizes.coffee),
+    wings: selectForHome(wings, homeSectionSizes.wings),
+    naBeers: selectForHome(naBeers, homeSectionSizes['na-beers']),
+    reubens: selectForHome(reubens, homeSectionSizes.reubens),
+    posts: selectForHome(posts, homeSectionSizes.blog),
   }
 }
