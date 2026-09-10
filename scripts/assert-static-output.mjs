@@ -209,6 +209,8 @@ async function prerenderedPages(directory = outputDirectory) {
   return pages
 }
 
+const pageFacts = []
+
 for (const pagePath of await prerenderedPages()) {
   const page = path.relative(outputDirectory, pagePath)
   const html = await readFile(pagePath, 'utf8')
@@ -262,6 +264,69 @@ for (const pagePath of await prerenderedPages()) {
       )
     }
   }
+
+  pageFacts.push({
+    page,
+    url: page === 'index.html' ? '/' : `/${path.dirname(page)}`,
+    canonical: head.match(/<link rel="canonical" href="([^"]+)"/)?.[1],
+    noindex: /<meta name="robots" content="[^"]*noindex/.test(head),
+    anchors: [...body.matchAll(/<a\b[^>]*\shref="([^"]*)"/g)].map(
+      (match) => match[1],
+    ),
+    ids: new Set(
+      [...html.matchAll(/\sid="([^"]+)"/g)].map((match) => match[1]),
+    ),
+  })
+}
+
+// The prerendered pages must agree with each other. An internal link that
+// resolves to nothing is a 404 the build could have caught, a fragment with no
+// matching id scrolls nowhere (the skip link is exactly this shape), and a
+// trailing slash points crawlers at a duplicate of a URL whose canonical form
+// has none.
+const pagesByUrl = new Map(pageFacts.map((facts) => [facts.url, facts]))
+
+for (const facts of pageFacts) {
+  for (const href of facts.anchors) {
+    if (href.startsWith('#')) {
+      if (!facts.ids.has(href.slice(1))) {
+        throw new Error(
+          `Prerendered ${facts.page} links to ${href}, but no element on the page has that id.`,
+        )
+      }
+      continue
+    }
+
+    // Only same-origin paths are the build's to guarantee.
+    if (!href.startsWith('/') || href.startsWith('//')) continue
+
+    const [pathname, fragment] = href.split('#')
+    const target = decodeURIComponent(pathname.split('?')[0])
+    if (target !== '/' && target.endsWith('/')) {
+      throw new Error(
+        `Prerendered ${facts.page} links to ${href}, but internal links must omit the trailing slash to match the canonical URL.`,
+      )
+    }
+
+    const targetPage = pagesByUrl.get(target)
+    if (!targetPage) {
+      // Not a page, so it must be a file the build emitted (/feed.xml).
+      try {
+        await access(path.join(outputDirectory, target.replace(/^\//, '')))
+      } catch {
+        throw new Error(
+          `Prerendered ${facts.page} links to ${href}, which the build never emitted.`,
+        )
+      }
+      continue
+    }
+
+    if (fragment && !targetPage.ids.has(fragment)) {
+      throw new Error(
+        `Prerendered ${facts.page} links to ${href}, but ${targetPage.page} has no element with that id.`,
+      )
+    }
+  }
 }
 
 const sitemap = await readFile(
@@ -286,6 +351,50 @@ for (const collection of collections) {
   if (sitemap.includes(`<loc>https://sergn.io/${collection}/</loc>`)) {
     throw new Error(
       `The sitemap lists a trailing-slash duplicate of /${collection}, which is not its canonical URL.`,
+    )
+  }
+}
+
+// Spot checks cannot notice a page that was never added to the sitemap, so the
+// sitemap and the prerendered output are compared as sets: every indexable page
+// appears exactly once under its own canonical URL, every noindex page is
+// absent, and the sitemap advertises nothing the build did not produce.
+const sitemapLocations = [...sitemap.matchAll(/<loc>([^<]+)<\/loc>/g)].map(
+  (match) => match[1],
+)
+const indexablePages = pageFacts.filter((facts) => !facts.noindex)
+
+for (const facts of indexablePages) {
+  const url = `https://sergn.io${facts.url}`
+  if (facts.canonical !== url) {
+    throw new Error(
+      `Prerendered ${facts.page} is served at ${url} but declares canonical ${facts.canonical}.`,
+    )
+  }
+  const listed = sitemapLocations.filter((location) => location === url).length
+  if (listed !== 1) {
+    throw new Error(
+      `The sitemap lists ${url} ${listed} time(s); every indexable page must appear exactly once.`,
+    )
+  }
+}
+
+for (const facts of pageFacts.filter((facts) => facts.noindex)) {
+  const url = `https://sergn.io${facts.url}`
+  if (sitemapLocations.includes(url)) {
+    throw new Error(
+      `The sitemap lists ${url}, but ${facts.page} is marked noindex.`,
+    )
+  }
+}
+
+const indexableUrls = new Set(
+  indexablePages.map((facts) => `https://sergn.io${facts.url}`),
+)
+for (const location of sitemapLocations) {
+  if (!indexableUrls.has(location)) {
+    throw new Error(
+      `The sitemap lists ${location}, which the build did not prerender as an indexable page.`,
     )
   }
 }

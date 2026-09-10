@@ -337,3 +337,55 @@ test.describe('crawler files', () => {
     )
   })
 })
+
+test.describe('link integrity', () => {
+  // Crawls the served site the way a link checker would. The build asserts the
+  // same graph over dist/client, but only a real HTTP crawl proves the host
+  // actually serves those URLs (extensionless paths included) rather than
+  // falling through to the 404 shell.
+  test('every internal link resolves to a served page', async ({ request }) => {
+    const queue = ['/']
+    const visited = new Set<string>()
+
+    while (queue.length > 0) {
+      const target = queue.shift()!
+      if (visited.has(target)) continue
+      visited.add(target)
+
+      const response = await request.get(target)
+      expect(response.status(), `${target} should be served`).toBe(200)
+
+      const html = await response.text()
+      if (!response.headers()['content-type'].includes('text/html')) continue
+      expect(
+        html,
+        `${target} should not fall through to the 404 page`,
+      ).not.toContain('<title>404 | sergn.io</title>')
+
+      const body = html.split('<body')[1] ?? ''
+      for (const match of body.matchAll(/<a\b[^>]*\shref="([^"]*)"/g)) {
+        const href = match[1]
+        if (href.startsWith('#')) {
+          expect(html, `${target} links to ${href}`).toContain(
+            `id="${href.slice(1)}"`,
+          )
+          continue
+        }
+        if (!href.startsWith('/') || href.startsWith('//')) continue
+        queue.push(href)
+      }
+    }
+
+    // Guards against a crawl that silently walks nothing.
+    for (const path of [
+      '/coffee',
+      '/wings',
+      '/na-beers',
+      '/reubens',
+      '/blog',
+      '/blog/a-table-for-two',
+    ]) {
+      expect([...visited]).toContain(path)
+    }
+  })
+})
