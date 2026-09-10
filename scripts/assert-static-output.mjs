@@ -79,3 +79,15 @@ if (sitemap.includes('https://sergn.io/syrup')) {
 if (sitemap.includes('https://sergn.io/not-found')) {
   throw new Error('The 404 page must not appear in the sitemap.')
 }
+if (sitemap.includes('https://sergn.io/retired-content')) {
+  throw new Error(
+    'The retired-content page is noindex and must not appear in the sitemap.',
+  )
+}
+for (const collection of collections) {
+  if (sitemap.includes(`<loc>https://sergn.io/${collection}/</loc>`)) {
+    throw new Error(
+      `The sitemap lists a trailing-slash duplicate of /${collection}, which is not its canonical URL.`,
+    )
+  }
+}
