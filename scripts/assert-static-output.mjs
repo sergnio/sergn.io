@@ -1,4 +1,4 @@
-import { access, readFile } from 'node:fs/promises'
+import { access, readdir, readFile } from 'node:fs/promises'
 import path from 'node:path'
 
 const outputDirectory = path.join(process.cwd(), 'dist', 'client')
@@ -114,6 +114,50 @@ for (const collection of collections) {
   if (sitemap.includes(`<loc>https://sergn.io/${collection}/</loc>`)) {
     throw new Error(
       `The sitemap lists a trailing-slash duplicate of /${collection}, which is not its canonical URL.`,
+    )
+  }
+}
+
+// Web fonts must be discoverable by the preload scanner on first byte. An
+// @import inside the bundled CSS instead makes the browser fetch and parse
+// styles.css before it even learns the font stylesheet exists, delaying every
+// woff2 by two serial round trips.
+const cssAssets = (await readdir(path.join(outputDirectory, 'assets'))).filter(
+  (file) => file.endsWith('.css'),
+)
+for (const asset of cssAssets) {
+  const css = await readFile(
+    path.join(outputDirectory, 'assets', asset),
+    'utf8',
+  )
+  if (/@import\s+url\(\s*['"]?https?:/i.test(css)) {
+    throw new Error(
+      `Bundled CSS ${asset} @imports a remote stylesheet. Link it from the document head instead.`,
+    )
+  }
+}
+
+for (const page of [
+  'index.html',
+  ...collections.map((c) => `${c}/index.html`),
+]) {
+  const head = (await readFile(path.join(outputDirectory, page), 'utf8')).split(
+    '</head>',
+  )[0]
+  if (
+    !/<link rel="stylesheet" href="https:\/\/fonts\.googleapis\.com/.test(head)
+  ) {
+    throw new Error(
+      `Prerendered ${page} does not link the font stylesheet from its head.`,
+    )
+  }
+  if (
+    !/<link rel="preconnect" href="https:\/\/fonts\.gstatic\.com"[^>]*crossorigin/.test(
+      head,
+    )
+  ) {
+    throw new Error(
+      `Prerendered ${page} is missing a crossorigin preconnect to fonts.gstatic.com.`,
     )
   }
 }
