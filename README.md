@@ -77,6 +77,16 @@ attribute (its visible text is a localised string). Card grids render as
 labelled `<ul>` lists so assistive tech announces an item count, and repeated
 links such as "See all" carry a per-collection `aria-label`.
 
+Structured data is built in `src/lib/metadata.ts` and emitted from route heads:
+the home page carries a `WebSite` + `Person` graph, every collection index and
+detail page carries a `BreadcrumbList` ending at its own canonical URL, blog
+posts add `Article`, and rated reviews (wings, N/A beers, reubens) add `Review`
+with a 1-5 `reviewRating`. Coffee entries have no rating field, so they are
+deliberately left with the breadcrumb only rather than shipping invalid `Review`
+markup. The build parses every JSON-LD block in the prerendered output and fails
+on a block that does not parse, a missing `@context`, or a breadcrumb that skips
+its collection index or does not end at the page it sits on.
+
 Web fonts are linked from the document head in `src/routes/__root.tsx`, never
 `@import`-ed from `src/styles.css`. An `@import` hides the font stylesheet from
 the preload scanner, so the woff2 files cannot start downloading until

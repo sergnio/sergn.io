@@ -1,4 +1,12 @@
-import type { ContentDocument, Post, SanityImage } from './content-types'
+import type {
+  CollectionName,
+  ContentDocument,
+  NaBeer,
+  Post,
+  ReubenReview,
+  SanityImage,
+  WingReview,
+} from './content-types'
 import { imageUrl } from './sanity/image'
 
 export const siteUrl = 'https://sergn.io'
@@ -102,6 +110,124 @@ export function contentHead(document: ContentDocument, path: string) {
   })
 }
 
+export const collectionTitles: Record<CollectionName, string> = {
+  blog: 'Blog',
+  coffee: 'Coffee',
+  'na-beers': 'N/A Beers',
+  reubens: 'Reubens',
+  wings: 'Wings',
+}
+
+const personId = `${siteUrl}/#person`
+
+const author = {
+  '@type': 'Person',
+  '@id': personId,
+  name: 'Sergio',
+  url: siteUrl,
+}
+
+/**
+ * The site's own identity, emitted once on the home page. Without a WebSite
+ * node a crawler has to infer the site name and owner from the title tag.
+ */
+export function siteJsonLd() {
+  return JSON.stringify({
+    '@context': 'https://schema.org',
+    '@graph': [
+      {
+        '@type': 'WebSite',
+        '@id': `${siteUrl}/#website`,
+        url: siteUrl,
+        name: siteName,
+        description: siteDescription,
+        publisher: { '@id': personId },
+      },
+      author,
+    ],
+  })
+}
+
+type Crumb = { name: string; path: string }
+
+/** A trail always starts at the home page, so callers pass only what follows. */
+export function breadcrumbJsonLd(trail: Crumb[]) {
+  return JSON.stringify({
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [{ name: 'Home', path: '/' }, ...trail].map(
+      (crumb, index) => ({
+        '@type': 'ListItem',
+        position: index + 1,
+        name: crumb.name,
+        item: canonicalUrl(crumb.path),
+      }),
+    ),
+  })
+}
+
+export function collectionJsonLd(collection: CollectionName) {
+  return breadcrumbJsonLd([
+    { name: collectionTitles[collection], path: `/${collection}` },
+  ])
+}
+
+type RatedDocument = NaBeer | ReubenReview | WingReview
+
+function isRated(document: ContentDocument): document is RatedDocument {
+  return document._type !== 'post' && document._type !== 'coffee'
+}
+
+function reviewedItem(document: RatedDocument) {
+  if (document._type === 'naBeer') {
+    return {
+      '@type': 'Product',
+      name: document.title,
+      brand: { '@type': 'Brand', name: document.brewery },
+    }
+  }
+
+  const name =
+    document._type === 'wingReview' ? document.venue : document.restaurant
+  const city = document.location?.city
+
+  return {
+    '@type': 'Restaurant',
+    name,
+    ...(city
+      ? { address: { '@type': 'PostalAddress', addressLocality: city } }
+      : {}),
+    ...(document.location?.url ? { sameAs: document.location.url } : {}),
+  }
+}
+
+/**
+ * Reviews are the bulk of the site, but only blog posts carried structured
+ * data. Coffee entries are brew notes with no rating field, and an unrated
+ * document would be invalid Review markup, so both are left unmarked rather
+ * than published with a missing reviewRating.
+ */
+export function reviewJsonLd(document: ContentDocument, path: string) {
+  if (!isRated(document) || document.rating === undefined) return undefined
+
+  return JSON.stringify({
+    '@context': 'https://schema.org',
+    '@type': 'Review',
+    name: document.title,
+    itemReviewed: reviewedItem(document),
+    reviewRating: {
+      '@type': 'Rating',
+      ratingValue: document.rating,
+      bestRating: 5,
+      worstRating: 1,
+    },
+    datePublished:
+      document._type === 'naBeer' ? document.publishedAt : document.visitedAt,
+    url: canonicalUrl(path),
+    author,
+  })
+}
+
 export function articleJsonLd(post: Post) {
   return JSON.stringify({
     '@context': 'https://schema.org',
@@ -112,6 +238,34 @@ export function articleJsonLd(post: Post) {
     dateModified: post._updatedAt,
     mainEntityOfPage: canonicalUrl(`/blog/${post.slug}`),
     ...(post.coverImage ? { image: socialImage(post.coverImage) } : {}),
-    author: { '@type': 'Person', name: 'Sergio' },
+    author,
   })
+}
+
+/**
+ * Head for one detail page: social tags plus the structured data that page
+ * type supports, so every detail route stays a one-liner.
+ */
+export function detailHead(
+  collection: CollectionName,
+  document: ContentDocument,
+) {
+  const path = `/${collection}/${document.slug}`
+  const jsonLd = [
+    breadcrumbJsonLd([
+      { name: collectionTitles[collection], path: `/${collection}` },
+      { name: document.title, path },
+    ]),
+    document._type === 'post'
+      ? articleJsonLd(document)
+      : reviewJsonLd(document, path),
+  ].filter((entry) => entry !== undefined)
+
+  return {
+    ...contentHead(document, path),
+    scripts: jsonLd.map((children) => ({
+      type: 'application/ld+json',
+      children,
+    })),
+  }
 }

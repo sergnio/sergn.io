@@ -349,3 +349,110 @@ if (contentSource === 'sanity') {
     }
   }
 }
+
+// Structured data is only useful if it parses and points at canonical URLs.
+// A JSON-LD block that throws on parse, or a breadcrumb whose last item is not
+// the page it sits on, is silently ignored by crawlers and shows up nowhere in
+// the rendered page, so nothing but a build check catches it.
+function jsonLdBlocks(html, page) {
+  return [
+    ...html.matchAll(
+      /<script[^>]*type="application\/ld\+json"[^>]*>([\s\S]*?)<\/script>/g,
+    ),
+  ].map((match) => {
+    try {
+      return JSON.parse(match[1])
+    } catch (error) {
+      throw new Error(
+        `Prerendered ${page} has a JSON-LD block that does not parse: ${error.message}`,
+      )
+    }
+  })
+}
+
+function breadcrumbTrail(blocks, page) {
+  const breadcrumb = blocks.find((block) => block['@type'] === 'BreadcrumbList')
+  if (!breadcrumb) {
+    throw new Error(`Prerendered ${page} is missing BreadcrumbList JSON-LD.`)
+  }
+
+  const items = breadcrumb.itemListElement
+  items.forEach((item, index) => {
+    if (item.position !== index + 1) {
+      throw new Error(
+        `Prerendered ${page} has a breadcrumb item at position ${item.position}, expected ${index + 1}.`,
+      )
+    }
+    if (!item.name || !item.item?.startsWith('https://sergn.io')) {
+      throw new Error(
+        `Prerendered ${page} has a breadcrumb item without a name or an absolute site URL.`,
+      )
+    }
+  })
+  if (items[0].item !== 'https://sergn.io/') {
+    throw new Error(
+      `Prerendered ${page} breadcrumb does not start at the home page.`,
+    )
+  }
+  return items
+}
+
+for (const pagePath of await prerenderedPages()) {
+  const page = path.relative(outputDirectory, pagePath)
+  const html = await readFile(pagePath, 'utf8')
+  for (const block of jsonLdBlocks(html, page)) {
+    if (block['@context'] !== 'https://schema.org') {
+      throw new Error(
+        `Prerendered ${page} has JSON-LD without an https://schema.org @context.`,
+      )
+    }
+    if (!block['@type'] && !block['@graph']) {
+      throw new Error(`Prerendered ${page} has JSON-LD without an @type.`)
+    }
+  }
+}
+
+const homeGraph = jsonLdBlocks(home, 'index.html').flatMap(
+  (block) => block['@graph'] ?? [block],
+)
+if (
+  !homeGraph.some(
+    (node) => node['@type'] === 'WebSite' && node.url === 'https://sergn.io',
+  )
+) {
+  throw new Error(
+    'The home page is missing WebSite JSON-LD for the site itself.',
+  )
+}
+
+for (const collection of collections) {
+  const indexHtml = await readFile(
+    path.join(outputDirectory, collection, 'index.html'),
+    'utf8',
+  )
+  const trail = breadcrumbTrail(
+    jsonLdBlocks(indexHtml, `${collection}/index.html`),
+    `${collection}/index.html`,
+  )
+  if (trail.at(-1).item !== `https://sergn.io/${collection}`) {
+    throw new Error(
+      `The /${collection} breadcrumb does not end at its own canonical URL.`,
+    )
+  }
+
+  for (const slug of await detailLinks(collection)) {
+    const page = `${collection}/${slug}/index.html`
+    const detailHtml = await readFile(path.join(outputDirectory, page), 'utf8')
+    const detailTrail = breadcrumbTrail(jsonLdBlocks(detailHtml, page), page)
+    if (detailTrail.at(-1).item !== `https://sergn.io/${collection}/${slug}`) {
+      throw new Error(
+        `The /${collection}/${slug} breadcrumb does not end at its own canonical URL.`,
+      )
+    }
+    if (detailTrail.at(-2)?.item !== `https://sergn.io/${collection}`) {
+      throw new Error(
+        `The /${collection}/${slug} breadcrumb does not pass through its collection index.`,
+      )
+    }
+  }
+}

@@ -1,4 +1,17 @@
+import type { Page } from '@playwright/test'
 import { expect, test } from '@playwright/test'
+
+async function jsonLdBlocks(page: Page) {
+  const blocks = await page
+    .locator('script[type="application/ld+json"]')
+    .allTextContents()
+  return blocks.map((block) => JSON.parse(block))
+}
+
+async function articleJsonLd(page: Page) {
+  const blocks = await jsonLdBlocks(page)
+  return blocks.find((block) => block['@type'] === 'Article')
+}
 
 test.describe('collection browsing flow', () => {
   test('coffee index links into a detail page with brew recipes', async ({
@@ -46,9 +59,11 @@ test.describe('collection browsing flow', () => {
       'content',
       'website',
     )
+    // Coffee entries have no rating field, so they carry no Review markup -
+    // only the breadcrumb trail every detail page gets.
     await expect(
       page.locator('script[type="application/ld+json"]'),
-    ).toHaveCount(0)
+    ).toHaveCount(1)
 
     const heroImage = page.locator('.detail-hero__image img')
     await expect(heroImage).toHaveAttribute('loading', 'eager')
@@ -335,10 +350,7 @@ test.describe('collection browsing flow', () => {
       'summary',
     )
 
-    const jsonLd = await page
-      .locator('script[type="application/ld+json"]')
-      .textContent()
-    expect(JSON.parse(jsonLd ?? '{}')).not.toHaveProperty('image')
+    expect(await articleJsonLd(page)).not.toHaveProperty('image')
   })
 
   test('a link inside blog post rich text opens safely in a new tab', async ({
@@ -378,10 +390,7 @@ test.describe('collection browsing flow', () => {
       'article',
     )
 
-    const jsonLd = await page
-      .locator('script[type="application/ld+json"]')
-      .textContent()
-    const data = JSON.parse(jsonLd ?? '{}')
+    const data = await articleJsonLd(page)
     expect(data['@type']).toBe('Article')
     expect(data.headline).toBe('Small rituals, better cups')
     expect(data.mainEntityOfPage).toBe(
@@ -531,5 +540,71 @@ test.describe('collection browsing flow', () => {
     await expect(
       page.getByRole('heading', { level: 1, name: 'Blog' }),
     ).toBeVisible()
+  })
+})
+
+test.describe('structured data', () => {
+  test('home page identifies the site and its owner', async ({ page }) => {
+    await page.goto('/')
+
+    const graph = (await jsonLdBlocks(page)).flatMap(
+      (block) => block['@graph'] ?? [block],
+    )
+    const website = graph.find((node) => node['@type'] === 'WebSite')
+    expect(website).toMatchObject({
+      name: 'sergn.io',
+      url: 'https://sergn.io',
+      publisher: { '@id': 'https://sergn.io/#person' },
+    })
+    expect(graph).toContainEqual(
+      expect.objectContaining({ '@type': 'Person', name: 'Sergio' }),
+    )
+  })
+
+  test('a review detail page carries its rating and breadcrumb trail', async ({
+    page,
+  }) => {
+    await page.goto('/wings/neighborhood-buffalo-wings')
+
+    const blocks = await jsonLdBlocks(page)
+    expect(blocks.find((block) => block['@type'] === 'Review')).toMatchObject({
+      itemReviewed: { '@type': 'Restaurant', name: 'Neighborhood Tavern' },
+      reviewRating: { ratingValue: 4.25, bestRating: 5, worstRating: 1 },
+      url: 'https://sergn.io/wings/neighborhood-buffalo-wings',
+    })
+    expect(
+      blocks.find((block) => block['@type'] === 'BreadcrumbList')
+        ?.itemListElement,
+    ).toEqual([
+      expect.objectContaining({ position: 1, item: 'https://sergn.io/' }),
+      expect.objectContaining({
+        position: 2,
+        name: 'Wings',
+        item: 'https://sergn.io/wings',
+      }),
+      expect.objectContaining({
+        position: 3,
+        name: 'Neighborhood Buffalo Wings',
+        item: 'https://sergn.io/wings/neighborhood-buffalo-wings',
+      }),
+    ])
+  })
+
+  test('a blog post keeps its Article markup alongside a breadcrumb', async ({
+    page,
+  }) => {
+    await page.goto('/blog/small-rituals-better-cups')
+
+    const types = (await jsonLdBlocks(page)).map((block) => block['@type'])
+    expect(types).toEqual(expect.arrayContaining(['BreadcrumbList', 'Article']))
+  })
+
+  test('an unrated coffee entry ships a breadcrumb but no Review markup', async ({
+    page,
+  }) => {
+    await page.goto('/coffee/colombia-perky')
+
+    const types = (await jsonLdBlocks(page)).map((block) => block['@type'])
+    expect(types).toEqual(['BreadcrumbList'])
   })
 })
