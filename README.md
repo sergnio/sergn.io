@@ -76,6 +76,15 @@ a throwing loader only as `Failed to fetch /coffee/: Internal Server Error`. An
 empty dataset passes trivially; the first real document that cannot render
 correctly fails loudly instead of shipping as a blank section or a dead URL.
 
+Anything authorable in the Studio has to reach the page. Every field the GROQ
+projections fetch is either rendered by `src/components/content-detail.tsx` or
+listed in the `notRenderedInBody` table in `src/components/content-detail.test.tsx`
+with a reason (Sanity system fields, head-only SEO overrides, image identity
+carried by `src` and `srcset`). The test walks each fixture document's leaf
+values, formats them the way the page would, and fails naming any value that
+never made it into the markup, so a new Studio field cannot be fetched and then
+silently dropped.
+
 `npm run test:e2e` runs the Playwright suite against a fixtures build, including
 `e2e/a11y.spec.ts`, which fails on any axe-core WCAG 2.2 A/AA violation across a
 representative page of each template and pins the landmark, single-`h1`, and

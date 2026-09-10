@@ -1,14 +1,24 @@
-import type { ContentDocument, Post } from '#/lib/content-types'
+import type { ReactNode } from 'react'
+import type {
+  ContentDocument,
+  Post,
+  ReubenReview,
+  SanityImage,
+  WingReview,
+} from '#/lib/content-types'
 import {
   formatAbv,
   formatBrewSettings,
   formatDate,
   formatGrinder,
+  formatList,
+  formatLocation,
+  formatMethod,
   formatMoney,
   formatPackageSize,
   formatRating,
 } from '#/lib/formatters'
-import { ContentImage } from './content-image'
+import { ImageFigure } from './content-image'
 import { RichText } from './rich-text'
 
 type ContentDetailProps = {
@@ -41,143 +51,134 @@ function publishedDate(document: ContentDocument) {
   return document.publishedAt
 }
 
-function ReviewFacts({ document }: ContentDetailProps) {
+type Fact = { label: string; value: ReactNode }
+
+/**
+ * The rows a document actually has. Everything authorable in the Studio is
+ * listed here, so a field someone fills in never silently disappears from the
+ * page; rows with no value drop out rather than rendering an empty term.
+ */
+function facts(document: ContentDocument): Fact[] {
   if (document._type === 'coffee') {
-    return (
-      <dl className="facts">
-        <div>
-          <dt>Roaster</dt>
-          <dd>{document.roaster ?? 'Not listed'}</dd>
-        </div>
-        {document.origin ? (
-          <div>
-            <dt>Origin</dt>
-            <dd>{document.origin}</dd>
-          </div>
-        ) : null}
-        <div>
-          <dt>Bought from</dt>
-          <dd>
-            {document.purchaseUrl ? (
-              <a href={document.purchaseUrl}>{document.boughtFrom}</a>
-            ) : (
-              document.boughtFrom
-            )}
-          </dd>
-        </div>
-        <div>
-          <dt>Bag</dt>
-          <dd>{formatPackageSize(document.bagSize)}</dd>
-        </div>
-        {document.price ? (
-          <div>
-            <dt>Price</dt>
-            <dd>{formatMoney(document.price)}</dd>
-          </div>
-        ) : null}
-      </dl>
-    )
+    return [
+      { label: 'Roaster', value: document.roaster ?? 'Not listed' },
+      { label: 'Origin', value: document.origin },
+      {
+        label: 'Bought from',
+        value: document.purchaseUrl ? (
+          <a href={document.purchaseUrl}>{document.boughtFrom}</a>
+        ) : (
+          document.boughtFrom
+        ),
+      },
+      { label: 'Bag', value: formatPackageSize(document.bagSize) },
+      { label: 'Tasting notes', value: formatList(document.tastingNotes) },
+      { label: 'Roasted', value: formatDate(document.roastDate) },
+      { label: 'Purchased', value: formatDate(document.purchasedAt) },
+      { label: 'Price', value: formatMoney(document.price) },
+    ]
   }
 
   if (document._type === 'wingReview') {
-    return (
-      <dl className="facts">
-        <div>
-          <dt>Venue</dt>
-          <dd>{document.venue}</dd>
-        </div>
-        <div>
-          <dt>Order</dt>
-          <dd>{document.order.styleOrFlavor}</dd>
-        </div>
-        {document.order.heat ? (
-          <div>
-            <dt>Heat</dt>
-            <dd>{document.order.heat}</dd>
-          </div>
-        ) : null}
-        {document.order.pieceCount ? (
-          <div>
-            <dt>Pieces</dt>
-            <dd>{document.order.pieceCount}</dd>
-          </div>
-        ) : null}
-        {document.rating !== undefined ? (
-          <div>
-            <dt>Rating</dt>
-            <dd>{formatRating(document.rating)}</dd>
-          </div>
-        ) : null}
-      </dl>
-    )
+    return [
+      { label: 'Venue', value: document.venue },
+      { label: 'Where', value: locationValue(document) },
+      { label: 'Order', value: document.order.styleOrFlavor },
+      { label: 'Heat', value: document.order.heat },
+      { label: 'Pieces', value: document.order.pieceCount },
+      { label: 'Sides', value: formatList(document.order.sides) },
+      { label: 'Price', value: formatMoney(document.price) },
+      { label: 'Rating', value: formatRating(document.rating) },
+    ]
   }
 
   if (document._type === 'naBeer') {
-    return (
-      <dl className="facts">
-        <div>
-          <dt>Brewery</dt>
-          <dd>{document.brewery}</dd>
-        </div>
-        {document.style ? (
-          <div>
-            <dt>Style</dt>
-            <dd>{document.style}</dd>
-          </div>
-        ) : null}
-        {formatAbv(document.abvPercent, document.abvNote) ? (
-          <div>
-            <dt>ABV</dt>
-            <dd>{formatAbv(document.abvPercent, document.abvNote)}</dd>
-          </div>
-        ) : null}
-        {document.package ? (
-          <div>
-            <dt>Package</dt>
-            <dd>
-              {formatPackageSize(document.package)}{' '}
-              {document.packageFormat?.toLowerCase()}
-            </dd>
-          </div>
-        ) : null}
-        {document.rating !== undefined ? (
-          <div>
-            <dt>Rating</dt>
-            <dd>{formatRating(document.rating)}</dd>
-          </div>
-        ) : null}
-      </dl>
-    )
+    return [
+      { label: 'Brewery', value: document.brewery },
+      { label: 'Style', value: document.style },
+      { label: 'ABV', value: formatAbv(document.abvPercent, document.abvNote) },
+      {
+        label: 'Package',
+        value: document.package
+          ? `${formatPackageSize(document.package)} ${document.packageFormat?.toLowerCase() ?? ''}`.trim()
+          : undefined,
+      },
+      { label: 'Bought from', value: document.boughtFrom },
+      { label: 'Purchased', value: formatDate(document.purchasedAt) },
+      { label: 'Price', value: formatMoney(document.price) },
+      { label: 'Rating', value: formatRating(document.rating) },
+    ]
   }
 
   if (document._type === 'reubenReview') {
-    const orderDetails = Object.entries(document.orderDetails ?? {}).filter(
-      ([key, value]) => key !== 'other' && Boolean(value),
-    )
+    const { other, ...namedDetails } = document.orderDetails ?? {}
 
-    return (
-      <dl className="facts">
-        <div>
-          <dt>Restaurant</dt>
-          <dd>{document.restaurant}</dd>
-        </div>
-        {orderDetails.map(([label, value]) => (
-          <div key={label}>
-            <dt>{label}</dt>
-            <dd>{value as string}</dd>
-          </div>
-        ))}
-        {document.rating !== undefined ? (
-          <div>
-            <dt>Rating</dt>
-            <dd>{formatRating(document.rating)}</dd>
-          </div>
-        ) : null}
-      </dl>
-    )
+    return [
+      { label: 'Restaurant', value: document.restaurant },
+      { label: 'Where', value: locationValue(document) },
+      ...Object.entries(namedDetails).map(([label, value]) => ({
+        label,
+        value,
+      })),
+      ...(other ?? []).map(({ label, value }) => ({ label, value })),
+      { label: 'Price', value: formatMoney(document.price) },
+      { label: 'Rating', value: formatRating(document.rating) },
+    ]
   }
 
-  return null
+  return []
+}
+
+/** A place, linked to whatever the Studio recorded as its site. */
+function locationValue(document: ReubenReview | WingReview) {
+  const place = formatLocation(document.location)
+  const url = document.location?.url
+
+  if (!place) return url ? <a href={url}>Website</a> : undefined
+  return url ? <a href={url}>{place}</a> : place
+}
+
+function ReviewFacts({ document }: ContentDetailProps) {
+  const rows = facts(document).filter((fact) => Boolean(fact.value))
+  if (!rows.length) return null
+
+  return (
+    <dl className="facts">
+      {rows.map((fact, index) => (
+        <div key={`${fact.label}-${index}`}>
+          <dt>{fact.label}</dt>
+          <dd>{fact.value}</dd>
+        </div>
+      ))}
+    </dl>
+  )
+}
+
+/**
+ * Every image beyond the hero. The Studio offers a gallery on coffee and on
+ * all three review types, so without this section those uploads are fetched
+ * and then dropped.
+ */
+function Gallery({ images }: { images?: SanityImage[] }) {
+  if (!images?.length) return null
+
+  return (
+    <section aria-labelledby="gallery-title" className="detail-section">
+      <div className="section-heading">
+        <h2 id="gallery-title">Gallery</h2>
+      </div>
+      <div className="gallery">
+        {images.map((image) => (
+          <ImageFigure
+            className="gallery__item"
+            image={image}
+            key={image.asset?._id ?? image.alt}
+            sizes="(min-width: 720px) 45vw, 100vw"
+          />
+        ))}
+      </div>
+    </section>
+  )
 }
 
 function CoffeeRecipes({
@@ -194,8 +195,8 @@ function CoffeeRecipes({
       <div className="recipe-list">
         {document.brewRecipes.map((recipe) => (
           <article className="recipe" key={recipe._key}>
-            <h3>{recipe.label ?? recipe.method}</h3>
-            <p className="recipe__method">{recipe.method}</p>
+            <h3>{recipe.label ?? formatMethod(recipe)}</h3>
+            <p className="recipe__method">{formatMethod(recipe)}</p>
             <p>{formatGrinder(recipe)}</p>
             {formatBrewSettings(recipe) ? (
               <p className="recipe__settings">{formatBrewSettings(recipe)}</p>
@@ -250,16 +251,12 @@ export function ContentDetail({ document }: ContentDetailProps) {
             <p className="lede">{document.excerpt}</p>
           ) : null}
         </div>
-        {image ? (
-          <figure className="detail-hero__image">
-            <ContentImage
-              image={image}
-              priority
-              sizes="(min-width: 900px) 50vw, 100vw"
-            />
-            {image.caption ? <figcaption>{image.caption}</figcaption> : null}
-          </figure>
-        ) : null}
+        <ImageFigure
+          className="detail-hero__image"
+          image={image}
+          priority
+          sizes="(min-width: 900px) 50vw, 100vw"
+        />
       </header>
       <div className="detail-content">
         {document._type === 'post' ? (
@@ -271,6 +268,7 @@ export function ContentDetail({ document }: ContentDetailProps) {
             {document._type === 'coffee' ? (
               <CoffeeRecipes document={document} />
             ) : null}
+            <Gallery images={document.gallery} />
           </>
         )}
       </div>

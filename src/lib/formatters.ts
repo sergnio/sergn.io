@@ -34,6 +34,27 @@ export function formatAbv(abv?: number, note?: string) {
   return `${formatNumber(abv)}% ABV`
 }
 
+/**
+ * The method a recipe is actually brewed with. The Studio's method list ends
+ * in "Other", which is a placeholder for the free-text methodOther beside it,
+ * so printing method alone would show a literal "Other" on the page.
+ */
+export function formatMethod(recipe: BrewRecipe) {
+  if (recipe.method === 'Other')
+    return (recipe.methodOther ?? '').trim() || recipe.method
+  return recipe.method
+}
+
+export function formatList(values?: string[]) {
+  if (!values?.length) return undefined
+  return values.join(', ')
+}
+
+export function formatLocation(location?: { city?: string; address?: string }) {
+  const parts = [location?.address, location?.city].filter(Boolean)
+  return parts.length ? parts.join(', ') : undefined
+}
+
 export function formatGrinder(recipe: BrewRecipe) {
   const { grinder } = recipe
   const model = grinder.model ? ` (${grinder.model})` : ''

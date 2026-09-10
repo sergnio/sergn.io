@@ -1,6 +1,6 @@
 import { PortableText } from '@portabletext/react'
-import type { PortableTextContent, SanityImage } from '#/lib/content-types'
-import { ContentImage } from './content-image'
+import type { PortableTextContent } from '#/lib/content-types'
+import { ImageFigure } from './content-image'
 
 type RichTextProps = {
   value?: PortableTextContent
@@ -32,20 +32,13 @@ export function RichText({ value }: RichTextProps) {
             code: ({ children }) => <code>{children}</code>,
           },
           types: {
-            imageWithAlt: ({ value: image }) => {
-              const imageWithAlt = image as SanityImage
-              return (
-                <figure className="rich-text__image">
-                  <ContentImage
-                    image={imageWithAlt}
-                    sizes="(min-width: 768px) 48rem, 100vw"
-                  />
-                  {imageWithAlt.caption ? (
-                    <figcaption>{imageWithAlt.caption}</figcaption>
-                  ) : null}
-                </figure>
-              )
-            },
+            imageWithAlt: ({ value: image }) => (
+              <ImageFigure
+                className="rich-text__image"
+                image={image}
+                sizes="(min-width: 768px) 48rem, 100vw"
+              />
+            ),
           },
         }}
         value={value}
