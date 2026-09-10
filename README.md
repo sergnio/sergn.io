@@ -70,6 +70,13 @@ representative page of each template and pins the landmark, single-`h1`, and
 skip-link focus contract, and `e2e/performance.spec.ts`, which pins the font
 loading path and the hero image's eager/intrinsic-size attributes.
 
+Beyond axe, the build asserts the screen-reader semantics axe cannot see in
+static markup: every prerendered page opens with exactly one `<h1>` and never
+skips a heading level, and every `<time>` carries a machine-readable `datetime`
+attribute (its visible text is a localised string). Card grids render as
+labelled `<ul>` lists so assistive tech announces an item count, and repeated
+links such as "See all" carry a per-collection `aria-label`.
+
 Web fonts are linked from the document head in `src/routes/__root.tsx`, never
 `@import`-ed from `src/styles.css`. An `@import` hides the font stylesheet from
 the preload scanner, so the woff2 files cannot start downloading until

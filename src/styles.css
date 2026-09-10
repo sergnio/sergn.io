@@ -78,6 +78,20 @@ img {
   outline: none;
 }
 
+/* Available to screen readers only: keeps terse visual meta (a bare "4.5 / 5")
+   understandable when read out of its visual context. */
+.visually-hidden {
+  position: absolute;
+  overflow: hidden;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  border: 0;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
 .skip-link {
   position: fixed;
   z-index: 20;
@@ -297,11 +311,21 @@ h3 {
 
 .card-grid {
   display: grid;
+  padding: 0;
+  margin: 0;
   gap: 1.25rem;
+  list-style: none;
+}
+
+/* The <li> is the grid item, so it - not the card - stretches to the row
+   height; make the card fill it so cards in a row stay the same height. */
+.card-grid > li {
+  display: flex;
 }
 
 .content-card {
   overflow: hidden;
+  width: 100%;
   background: var(--card);
   border: 1px solid var(--line);
   border-radius: 0.25rem;
@@ -348,7 +372,16 @@ h3 {
   font-size: 0.65rem;
 }
 
-.content-card__body h3 a {
+/* A card title's heading level varies with page context - h2 on a collection
+   index under the page h1, h3 under a home-page section h2 - so pin its look
+   here instead of inheriting the document heading scale. */
+.content-card__body :is(h2, h3) {
+  margin-bottom: 0.5rem;
+  font-size: 1.55rem;
+  line-height: 1.02;
+}
+
+.content-card__body :is(h2, h3) a {
   text-decoration: none;
 }
 
@@ -370,7 +403,7 @@ h3 {
   font-size: 0.68rem;
 }
 
-.content-card__meta span::before {
+.content-card__rating::before {
   content: '★ ';
   color: #b26d00;
 }

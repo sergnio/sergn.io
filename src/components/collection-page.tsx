@@ -22,15 +22,17 @@ export function CollectionPage({
         <p>{description}</p>
       </header>
       {documents.length > 0 ? (
-        <div className="card-grid">
+        <ul aria-label={title} className="card-grid">
           {documents.map((document) => (
-            <ContentCard
-              collection={collection}
-              document={document}
-              key={document._id}
-            />
+            <li key={document._id}>
+              <ContentCard
+                collection={collection}
+                document={document}
+                headingLevel={2}
+              />
+            </li>
           ))}
-        </div>
+        </ul>
       ) : (
         <p className="empty-state">
           Nothing published here yet. Check back soon.
