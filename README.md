@@ -51,6 +51,7 @@ npm run check:format
 npm test
 npm run build:fixtures
 npm run build
+npm run test:e2e
 ```
 
 `npm run build:fixtures` verifies static prerendering, dynamic detail-route
@@ -62,6 +63,11 @@ Sanity dataset over the network. It must succeed even while that dataset holds
 no documents: `scripts/assert-static-output.mjs` then requires every collection
 index to prerender its heading and empty-state message instead of nothing. CI
 runs this as the `build-live-sanity` job.
+
+`npm run test:e2e` runs the Playwright suite against a fixtures build, including
+`e2e/a11y.spec.ts`, which fails on any axe-core WCAG 2.2 A/AA violation across a
+representative page of each template and pins the landmark, single-`h1`, and
+skip-link focus contract.
 
 ## Hosting contract
 
