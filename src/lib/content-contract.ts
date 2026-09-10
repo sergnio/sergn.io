@@ -1,4 +1,5 @@
 import type { CollectionName } from './content-types'
+import { classifyLinkHref } from './links'
 
 /**
  * The shape the site renders with. `content-types.ts` declares these fields
@@ -66,6 +67,34 @@ function collectImagesMissingAlt(value: unknown, path: string): string[] {
   return nested
 }
 
+/**
+ * Rich text link destinations. The renderer refuses to emit an anchor it
+ * cannot classify, so an unchecked href would silently drop the link instead
+ * of publishing a broken or executable one - which is worse to debug than a
+ * failed build that names the document.
+ */
+function collectBadLinks(value: unknown, path: string): string[] {
+  if (Array.isArray(value)) {
+    return value.flatMap((entry, index) =>
+      collectBadLinks(entry, `${path}[${index}]`),
+    )
+  }
+
+  if (!value || typeof value !== 'object') return []
+
+  const record = value as Record<string, unknown>
+  const nested = Object.entries(record).flatMap(([key, entry]) =>
+    collectBadLinks(entry, path ? `${path}.${key}` : key),
+  )
+
+  if (record._type !== 'link') return nested
+
+  const destination = classifyLinkHref(record.href)
+  if (destination.kind !== 'unsafe') return nested
+
+  return [`at "${path}" that ${destination.reason}`, ...nested]
+}
+
 function describe(collection: CollectionName, document: unknown) {
   const record = (document ?? {}) as Record<string, unknown>
   const slug = typeof record.slug === 'string' ? record.slug : '(no slug)'
@@ -93,6 +122,9 @@ function violationsFor(collection: CollectionName, document: unknown) {
   return violations.concat(
     collectImagesMissingAlt(document, '').map(
       (path) => `${subject} has an image without alt text at "${path}"`,
+    ),
+    collectBadLinks(document, '').map(
+      (problem) => `${subject} has a rich text link ${problem}`,
     ),
   )
 }

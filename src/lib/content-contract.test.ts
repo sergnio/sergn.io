@@ -54,6 +54,43 @@ describe('content contract', () => {
     }
   })
 
+  it('rejects a rich text link the renderer would refuse to publish, naming its path', () => {
+    const post = (href: unknown) => ({
+      _id: 'post-1',
+      _type: 'post',
+      title: 'A post',
+      slug: 'a-post',
+      excerpt: 'An excerpt',
+      body: [
+        {
+          _key: 'p',
+          _type: 'block',
+          children: [{ _key: 's', _type: 'span', marks: ['l'], text: 'here' }],
+          markDefs: [{ _key: 'l', _type: 'link', href }],
+          style: 'normal',
+        },
+      ],
+    })
+
+    expect(() =>
+      assertValidCollection('blog', [post('javascript:alert(1)')]),
+    ).toThrow(/rich text link at "body\[0\]\.markDefs\[0\]".*javascript:/s)
+
+    for (const href of ['//example.com', 'coffee/a-coffee', '', undefined]) {
+      expect(() => assertValidCollection('blog', [post(href)])).toThrow(
+        /rich text link/,
+      )
+    }
+
+    for (const href of [
+      '/coffee/a-coffee',
+      'https://example.com',
+      'mailto:hello@sergn.io',
+    ]) {
+      expect(() => assertValidCollection('blog', [post(href)])).not.toThrow()
+    }
+  })
+
   it('rejects slugs that would not survive being used as a URL segment', () => {
     for (const slug of ['Not Lowercase', 'has/slash', 'trailing-', 'a--b']) {
       expect(() =>

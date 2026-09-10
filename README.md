@@ -142,6 +142,21 @@ crawls the same graph over HTTP against the preview server, which is what proves
 the host actually serves those extensionless paths instead of falling through to
 the 404 shell.
 
+Authored links get their destination classified in `src/lib/links.ts` before
+anything renders. A link into this site (a root-relative path, a fragment, or an
+absolute `https://sergn.io` URL) renders as a plain in-tab anchor, so it behaves
+like every other link on the site and joins the URL-graph check above. A link to
+anywhere else opens in a new tab with `rel="noopener noreferrer"` and a
+visually hidden "(opens in a new tab)" so the context switch is announced.
+Anything else - a `javascript:` or `data:` scheme, a protocol-relative
+`//host/path` that reads like an internal path but is not, a page-relative URL
+whose target depends on where the text is rendered, or a missing href - fails
+the content contract, because the Studio's URL validation is client-side only
+and content written by API or import never sees it. The build then re-checks the
+rendered result: no anchor may open a new tab without `rel="noopener"`, no
+internal link may open one at all, and no anchor anywhere may point at a scheme
+outside `http(s)`, `mailto` and `tel`.
+
 Structured data is built in `src/lib/metadata.ts` and emitted from route heads:
 the home page carries a `WebSite` + `Person` graph, every collection index and
 detail page carries a `BreadcrumbList` ending at its own canonical URL, blog

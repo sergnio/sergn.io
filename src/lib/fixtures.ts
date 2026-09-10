@@ -288,10 +288,24 @@ export const fixturePosts: Post[] = [
         _key: 'paragraph',
         _type: 'block' as const,
         children: [
+          { _key: 'span', _type: 'span' as const, text: 'The lunch was ' },
           {
-            _key: 'span',
+            _key: 'span-internal-link',
             _type: 'span' as const,
-            text: 'The lunch was simple, slow, and worth remembering.',
+            marks: ['colombia-perky-link'],
+            text: 'paired with a familiar coffee',
+          },
+          {
+            _key: 'span-tail',
+            _type: 'span' as const,
+            text: ', simple, slow, and worth remembering.',
+          },
+        ],
+        markDefs: [
+          {
+            _key: 'colombia-perky-link',
+            _type: 'link',
+            href: '/coffee/colombia-perky',
           },
         ],
         style: 'normal',
