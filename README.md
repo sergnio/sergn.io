@@ -96,6 +96,18 @@ and `theme_color`, that its 192 and 512 icons exist at exactly those sizes, that
 the apple-touch-icon is 180x180, and that every prerendered page links both and
 declares a `theme-color` equal to the manifest's.
 
+The blog publishes an RSS 2.0 feed at `/feed.xml`, and every page links it with
+a `rel="alternate"` autodiscovery tag so a reader can subscribe from whichever
+URL it is handed. `scripts/generate-feed.mjs` runs after `vite build` and builds
+the channel by reading the `Article` JSON-LD back out of the prerendered blog
+pages, so the feed can never describe a post the site does not serve and an
+empty dataset simply yields an empty channel. `lastBuildDate` comes from the
+newest post rather than the clock, so an unchanged rebuild produces a
+byte-identical feed. The build asserts the document is well-formed RSS 2.0 with
+a channel title, link, description and `atom:link` self reference, that its item
+count matches the number of prerendered blog posts, and that every item points
+at a real permalink with a matching `guid` and a parseable `pubDate`.
+
 Structured data is built in `src/lib/metadata.ts` and emitted from route heads:
 the home page carries a `WebSite` + `Person` graph, every collection index and
 detail page carries a `BreadcrumbList` ending at its own canonical URL, blog

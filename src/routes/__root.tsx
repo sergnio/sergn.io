@@ -47,6 +47,13 @@ export const Route = createRootRoute({
       // apple-touch-icon PNG and Android reads the manifest icons.
       { rel: 'apple-touch-icon', href: '/apple-touch-icon.png' },
       { rel: 'manifest', href: '/site.webmanifest' },
+      // Feed readers look for this on any page of the site, not just /blog.
+      {
+        rel: 'alternate',
+        type: 'application/rss+xml',
+        title: 'sergn.io blog',
+        href: '/feed.xml',
+      },
       // Warm both font origins up front. Without these the browser only
       // starts resolving fonts.gstatic.com after the googleapis stylesheet
       // has been fetched and parsed.

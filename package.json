@@ -14,7 +14,7 @@
   },
   "scripts": {
     "dev": "vite --port 3000",
-    "build": "node scripts/validate-env.mjs && vite build && node scripts/assert-static-output.mjs",
+    "build": "node scripts/validate-env.mjs && vite build && node scripts/generate-feed.mjs && node scripts/assert-static-output.mjs",
     "build:fixtures": "VITE_CONTENT_SOURCE=fixtures npm run build",
     "preview": "vite preview",
     "generate-routes": "tsr generate",

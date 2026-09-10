@@ -29,6 +29,7 @@ await Promise.all([
   requireFile('not-found/index.html'),
   requireFile('robots.txt'),
   requireFile('sitemap.xml'),
+  requireFile('feed.xml'),
   ...collections.map((collection) => requireFile(`${collection}/index.html`)),
 ])
 
@@ -176,6 +177,12 @@ const installTags = [
   ],
   ['manifest', /<link rel="manifest" href="\/site\.webmanifest"/],
   ['theme-color', /<meta name="theme-color" content="#[0-9a-fA-F]{6}"/],
+  // Feed autodiscovery: readers look for this on whichever page they are
+  // handed, so it belongs on every page rather than only on /blog.
+  [
+    'feed autodiscovery link',
+    /<link rel="alternate" type="application\/rss\+xml"[^>]*href="\/feed\.xml"/,
+  ],
 ]
 
 const home = await readFile(path.join(outputDirectory, 'index.html'), 'utf8')
@@ -620,5 +627,65 @@ for (const collection of collections) {
         `The /${collection}/${slug} breadcrumb does not pass through its collection index.`,
       )
     }
+  }
+}
+
+// The blog feed must describe exactly the posts the site actually serves.
+// It is generated from the prerendered pages (scripts/generate-feed.mjs), so
+// these assertions are what stop it from silently drifting into an empty or
+// half-written channel that feed readers would happily accept.
+const feed = await readFile(path.join(outputDirectory, 'feed.xml'), 'utf8')
+if (
+  !/^<\?xml version="1\.0" encoding="UTF-8"\?>\s*<rss version="2\.0"/.test(feed)
+) {
+  throw new Error('feed.xml is not a well-formed RSS 2.0 document.')
+}
+for (const [label, matcher] of [
+  ['channel title', /<channel>\s*<title>[^<]+<\/title>/],
+  ['channel link', /<link>https:\/\/sergn\.io\/blog<\/link>/],
+  ['channel description', /<description>[^<]+<\/description>/],
+  [
+    'atom self link',
+    /<atom:link href="https:\/\/sergn\.io\/feed\.xml" rel="self"/,
+  ],
+]) {
+  if (!matcher.test(feed)) {
+    throw new Error(`feed.xml is missing its ${label}.`)
+  }
+}
+
+const feedItems = [...feed.matchAll(/<item>(.*?)<\/item>/gs)].map(
+  (match) => match[1],
+)
+const blogSlugs = [...new Set(await detailLinks('blog'))]
+if (feedItems.length !== blogSlugs.length) {
+  throw new Error(
+    `feed.xml lists ${feedItems.length} item(s) but the site prerenders ${blogSlugs.length} blog post(s).`,
+  )
+}
+
+for (const item of feedItems) {
+  const link = item.match(/<link>([^<]+)<\/link>/)?.[1]
+  const slug = link?.replace('https://sergn.io/blog/', '')
+  if (!link || !slug || !blogSlugs.includes(slug)) {
+    throw new Error(
+      `feed.xml item links ${link ?? 'nothing'}, which is not a prerendered blog post.`,
+    )
+  }
+  await requireFile(`blog/${slug}/index.html`)
+
+  if (item.match(/<guid[^>]*>([^<]+)<\/guid>/)?.[1] !== link) {
+    throw new Error(
+      `feed.xml item for ${link} has a guid that is not its permalink.`,
+    )
+  }
+  if (!/<title>[^<]+<\/title>/.test(item)) {
+    throw new Error(`feed.xml item for ${link} has no title.`)
+  }
+  const pubDate = item.match(/<pubDate>([^<]+)<\/pubDate>/)?.[1]
+  if (!pubDate || Number.isNaN(new Date(pubDate).getTime())) {
+    throw new Error(
+      `feed.xml item for ${link} has an unparseable pubDate: ${pubDate ?? 'none'}.`,
+    )
   }
 }

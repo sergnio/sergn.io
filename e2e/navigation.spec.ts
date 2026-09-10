@@ -284,6 +284,45 @@ test.describe('crawler files', () => {
     }
   })
 
+  test('feed.xml is a valid RSS channel listing every blog post', async ({
+    request,
+  }) => {
+    const response = await request.get('/feed.xml')
+
+    expect(response.status()).toBe(200)
+    const body = await response.text()
+    expect(body).toContain('<rss version="2.0"')
+    expect(body).toContain('<title>sergn.io blog</title>')
+    expect(body).toContain('<link>https://sergn.io/blog</link>')
+    expect(body).toContain(
+      '<atom:link href="https://sergn.io/feed.xml" rel="self"',
+    )
+
+    const links = [
+      ...body.matchAll(/<item>[\s\S]*?<link>([^<]+)<\/link>/g),
+    ].map((match) => match[1])
+    expect(links).toEqual([
+      'https://sergn.io/blog/small-rituals-better-cups',
+      'https://sergn.io/blog/a-table-for-two',
+    ])
+    for (const item of body.matchAll(/<item>([\s\S]*?)<\/item>/g)) {
+      expect(
+        new Date(item[1].match(/<pubDate>([^<]+)<\/pubDate>/)![1]).getTime(),
+      ).not.toBeNaN()
+    }
+  })
+
+  test('every page template advertises the feed for autodiscovery', async ({
+    page,
+  }) => {
+    for (const path of ['/', '/blog', '/blog/a-table-for-two']) {
+      await page.goto(path)
+      await expect(
+        page.locator('link[rel="alternate"][type="application/rss+xml"]'),
+      ).toHaveAttribute('href', '/feed.xml')
+    }
+  })
+
   test('the retired-content page is still reachable and marked noindex', async ({
     page,
   }) => {
