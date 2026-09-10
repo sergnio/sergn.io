@@ -108,6 +108,19 @@ a channel title, link, description and `atom:link` self reference, that its item
 count matches the number of prerendered blog posts, and that every item points
 at a real permalink with a matching `guid` and a parseable `pubDate`.
 
+The build cross-checks the site's URL graph against itself. Every internal
+`<a href>` in the prerendered output must resolve to a page the build emitted or
+a file it wrote, every fragment link must match an element `id` on the page it
+points at (the skip link is exactly this shape), and no internal link may carry
+a trailing slash, which would send crawlers to a duplicate of a URL whose
+canonical form has none. The sitemap is compared as a set rather than spot
+checked: every indexable page appears exactly once under its own canonical URL,
+every `noindex` page is absent, and the sitemap advertises nothing the build did
+not prerender - so a new page cannot ship without being listed. `e2e/navigation.spec.ts`
+crawls the same graph over HTTP against the preview server, which is what proves
+the host actually serves those extensionless paths instead of falling through to
+the 404 shell.
+
 Structured data is built in `src/lib/metadata.ts` and emitted from route heads:
 the home page carries a `WebSite` + `Person` graph, every collection index and
 detail page carries a `BreadcrumbList` ending at its own canonical URL, blog
