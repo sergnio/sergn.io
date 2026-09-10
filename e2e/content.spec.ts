@@ -405,7 +405,32 @@ test.describe('collection browsing flow', () => {
       'https://example.com/morning-rituals',
     )
     await expect(link).toHaveAttribute('target', '_blank')
-    await expect(link).toHaveAttribute('rel', 'noreferrer')
+    // noopener is what keeps the opened page from reaching back through
+    // window.opener; noreferrer alone implies it, but only in newer browsers.
+    await expect(link).toHaveAttribute('rel', 'noopener noreferrer')
+    // A new tab is a context switch a sighted reader sees in the tab strip and
+    // a screen reader user otherwise does not.
+    await expect(link).toHaveAccessibleName(
+      'morning ritual (opens in a new tab)',
+    )
+  })
+
+  test('a rich text link to this site stays in the same tab and navigates', async ({
+    page,
+  }) => {
+    await page.goto('/blog/a-table-for-two')
+
+    const link = page.getByRole('link', {
+      name: 'paired with a familiar coffee',
+    })
+    await expect(link).toHaveAttribute('href', '/coffee/colombia-perky')
+    expect(await link.getAttribute('target')).toBeNull()
+    await expect(link).toHaveAccessibleName('paired with a familiar coffee')
+
+    await link.click()
+    await expect(
+      page.getByRole('heading', { level: 1, name: 'Colombia Perky' }),
+    ).toBeVisible()
   })
 
   test('blog post renders SEO metadata and Article JSON-LD', async ({

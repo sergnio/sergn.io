@@ -270,9 +270,10 @@ for (const pagePath of await prerenderedPages()) {
     url: page === 'index.html' ? '/' : `/${path.dirname(page)}`,
     canonical: head.match(/<link rel="canonical" href="([^"]+)"/)?.[1],
     noindex: /<meta name="robots" content="[^"]*noindex/.test(head),
-    anchors: [...body.matchAll(/<a\b[^>]*\shref="([^"]*)"/g)].map(
-      (match) => match[1],
-    ),
+    anchors: [...body.matchAll(/<a\b[^>]*>/g)].map((match) => ({
+      tag: match[0],
+      href: match[0].match(/\shref="([^"]*)"/)?.[1] ?? '',
+    })),
     ids: new Set(
       [...html.matchAll(/\sid="([^"]+)"/g)].map((match) => match[1]),
     ),
@@ -286,8 +287,36 @@ for (const pagePath of await prerenderedPages()) {
 // has none.
 const pagesByUrl = new Map(pageFacts.map((facts) => [facts.url, facts]))
 
+// Authored links carry a destination the renderer cannot infer, so the built
+// anchors are the only place their rendering can be proved: a new tab must not
+// hand the opener over, a link to this site must not open one at all, and no
+// anchor may point at a scheme the browser executes rather than navigates to.
+const navigableScheme = /^(?:https?|mailto|tel):/i
+
 for (const facts of pageFacts) {
-  for (const href of facts.anchors) {
+  for (const { tag, href } of facts.anchors) {
+    if (/\starget="_blank"/.test(tag)) {
+      const rel = tag.match(/\srel="([^"]*)"/)?.[1] ?? ''
+      if (!/\bnoopener\b|\bnoreferrer\b/.test(rel)) {
+        throw new Error(
+          `Prerendered ${facts.page} opens ${href} in a new tab without rel="noopener": ${tag}`,
+        )
+      }
+      if (href.startsWith('/') && !href.startsWith('//')) {
+        throw new Error(
+          `Prerendered ${facts.page} opens the internal link ${href} in a new tab; links within the site must stay in the same tab.`,
+        )
+      }
+    }
+
+    if (href !== '' && !href.startsWith('/') && !href.startsWith('#')) {
+      if (!navigableScheme.test(href)) {
+        throw new Error(
+          `Prerendered ${facts.page} links to "${href}", which is not an http(s), mailto or tel URL.`,
+        )
+      }
+    }
+
     if (href.startsWith('#')) {
       if (!facts.ids.has(href.slice(1))) {
         throw new Error(
