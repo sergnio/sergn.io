@@ -69,8 +69,8 @@ test.describe('Content Security Policy', () => {
       await menuButton.click()
       await expect(menuButton).toHaveAttribute('aria-expanded', 'true')
 
-      // Fonts and stylesheets are cross-origin; make sure the policy admits
-      // them rather than silently downgrading the page to system fonts.
+      // Fonts and stylesheets are same-origin now, but Sanity images are not;
+      // make sure the policy admits everything the page actually loads.
       await page.waitForLoadState('networkidle')
       expect(violations).toEqual([])
     })

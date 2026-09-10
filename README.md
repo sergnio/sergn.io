@@ -191,11 +191,39 @@ label never claims a recency the card does not have. `src/lib/home-selection.tes
 pins the ordering rules and an e2e test proves the featured fixture coffee beats
 the more recently published one on the built home page.
 
-Web fonts are linked from the document head in `src/routes/__root.tsx`, never
-`@import`-ed from `src/styles.css`. An `@import` hides the font stylesheet from
-the preload scanner, so the woff2 files cannot start downloading until
-`styles.css` has been fetched and parsed. The build asserts both the direct link
-and the `fonts.gstatic.com` preconnect.
+### Fonts
+
+Web fonts are self-hosted. `scripts/generate-fonts.mjs` mirrors the Google Fonts
+CSS API into `public/fonts/` and writes `src/fonts.css`; both are committed, and
+re-running the script is the only supported way to change them. Serving them
+from this origin removes two DNS + TLS handshakes and a serial round trip from
+the critical path (`HTML` -> googleapis CSS -> gstatic woff2), lets the CSP drop
+both Google origins, and keeps reader IP addresses off a third party. Browser
+cache partitioning means a shared Google cache hit was never available anyway.
+
+The generator collapses faces that share a family, style and subset with a
+byte-identical file into one `@font-face` declaring a weight _range_. Newsreader
+is variable, so Google serves the same 131 KB binary under three URLs for
+weights 400/500/600 - a page using two of them downloaded it twice.
+
+Font filenames carry the family version Google publishes (`v16`, `v26`), so a
+font that actually changes lands at a new URL; that is what makes the
+`immutable` cache header for `/fonts/*` in `netlify.toml` safe.
+
+`src/routes/__root.tsx` links `src/fonts.css` from the document head rather than
+`@import`-ing it from `src/styles.css` - an `@import` hides it from the preload
+scanner, so the woff2 files cannot start until `styles.css` has been fetched and
+parsed - and preloads the two latin faces every page paints with.
+
+The build fails if any prerendered page mentions `fonts.googleapis.com` or
+`fonts.gstatic.com`, if more or fewer than one emitted CSS asset declares
+`@font-face`, if a declared font source is off-origin or missing from the
+output, if a shipped woff2 is referenced by no `@font-face`, if the latin faces
+exceed a 180 KB budget, or if any page fails to link the font stylesheet,
+preloads no font, preloads a URL no `@font-face` declares, or preloads without
+`crossorigin` (which makes the browser download the file twice). E2e tests prove
+the fonts are served as `font/woff2`, that both families reach
+`status: 'loaded'`, and that no request leaves for a Google host.
 
 ## Hosting contract
 
