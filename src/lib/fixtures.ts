@@ -1,7 +1,6 @@
 import type {
   Coffee,
   ContentDocument,
-  HomeContent,
   NaBeer,
   Post,
   ReubenReview,
@@ -35,6 +34,7 @@ export const fixtureCoffee: Coffee[] = [
     title: 'Colombia Perky',
     slug: 'colombia-perky',
     publishedAt: '2025-01-10T12:00:00.000Z',
+    featured: true,
     roaster: 'Avo Coffee Roasters',
     origin: 'Colombia',
     boughtFrom: 'Avo Coffee Roasters',
@@ -417,14 +417,4 @@ export function getFixtureDocument(
   slug: string,
 ): ContentDocument | undefined {
   return collections[collection].find((document) => document.slug === slug)
-}
-
-export function getFixtureHomeContent(): HomeContent {
-  return {
-    coffee: collections.coffee.slice(0, 1),
-    wings: collections.wings.slice(0, 1),
-    naBeers: collections['na-beers'].slice(0, 1),
-    reubens: collections.reubens.slice(0, 1),
-    posts: collections.blog.slice(0, 3),
-  }
 }

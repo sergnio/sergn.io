@@ -14,7 +14,7 @@ test.describe('primary navigation', () => {
       page.getByRole('heading', { level: 2, name: 'Coffee' }),
     ).toBeVisible()
     await expect(
-      page.getByRole('link', { name: 'Ethiopia Direct Trade' }),
+      page.getByRole('link', { name: 'Colombia Perky' }),
     ).toBeVisible()
 
     await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
@@ -23,7 +23,7 @@ test.describe('primary navigation', () => {
     )
   })
 
-  test('home page shows only the single most recently published document per collection', async ({
+  test('home page shows only one document per highlight collection', async ({
     page,
   }) => {
     await page.goto('/')
@@ -31,12 +31,44 @@ test.describe('primary navigation', () => {
     const coffeeSection = page.locator('section', {
       has: page.getByRole('heading', { level: 2, name: 'Coffee' }),
     })
-    await expect(
-      coffeeSection.getByRole('link', { name: 'Ethiopia Direct Trade' }),
-    ).toBeVisible()
+    await expect(coffeeSection.locator('.card-grid > li')).toHaveCount(1)
+  })
+
+  test('home page leads with the featured document, not the newest one', async ({
+    page,
+  }) => {
+    await page.goto('/')
+
+    const coffeeSection = page.locator('section', {
+      has: page.getByRole('heading', { level: 2, name: 'Coffee' }),
+    })
+    // Colombia Perky is featured; Ethiopia Direct Trade is published later.
     await expect(
       coffeeSection.getByRole('link', { name: 'Colombia Perky' }),
+    ).toBeVisible()
+    await expect(
+      coffeeSection.getByRole('link', { name: 'Ethiopia Direct Trade' }),
     ).toHaveCount(0)
+    await expect(coffeeSection.getByText('Featured')).toBeVisible()
+
+    // A collection with nothing featured still says, and shows, the latest.
+    const wingsSection = page.locator('section', {
+      has: page.getByRole('heading', { level: 2, name: 'Wings' }),
+    })
+    await expect(wingsSection.getByText('Latest')).toBeVisible()
+  })
+
+  test('the featured document is still reachable through its collection', async ({
+    page,
+  }) => {
+    await page.goto('/coffee')
+
+    await expect(
+      page.getByRole('link', { name: 'Ethiopia Direct Trade' }),
+    ).toBeVisible()
+    await expect(
+      page.getByRole('link', { name: 'Colombia Perky' }).first(),
+    ).toBeVisible()
   })
 
   test('root layout renders global meta tags and the site footer', async ({

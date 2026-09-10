@@ -13,6 +13,14 @@ export const Route = createFileRoute('/')({
   component: HomePage,
 })
 
+/**
+ * Sections lead with author-featured documents, so the label has to say which
+ * one it is rather than always claiming the newest.
+ */
+function sectionLabel(documents: Array<{ featured?: boolean }>) {
+  return documents.some((document) => document.featured) ? 'Featured' : 'Latest'
+}
+
 function HomePage() {
   const content = Route.useLoaderData()
   const highlights = [
@@ -49,7 +57,7 @@ function HomePage() {
           <section aria-labelledby={`${collection}-heading`} key={collection}>
             <div className="section-heading section-heading--link">
               <div>
-                <p className="eyebrow">Latest</p>
+                <p className="eyebrow">{sectionLabel(documents)}</p>
                 <h2 id={`${collection}-heading`}>{title}</h2>
               </div>
               <a
@@ -61,7 +69,7 @@ function HomePage() {
             </div>
             {documents.length ? (
               <ul
-                aria-label={`Latest ${title.toLowerCase()}`}
+                aria-label={`${sectionLabel(documents)} ${title.toLowerCase()}`}
                 className="card-grid card-grid--single"
               >
                 {documents.map((document) => (
@@ -79,13 +87,16 @@ function HomePage() {
       <section aria-labelledby="blog-heading" className="home-blog">
         <div className="section-heading section-heading--link">
           <div>
-            <p className="eyebrow">Latest writing</p>
+            <p className="eyebrow">{sectionLabel(content.posts)} writing</p>
             <h2 id="blog-heading">From the blog</h2>
           </div>
           <a href="/blog">All posts</a>
         </div>
         {content.posts.length ? (
-          <ul aria-label="Latest posts" className="card-grid">
+          <ul
+            aria-label={`${sectionLabel(content.posts)} posts`}
+            className="card-grid"
+          >
             {content.posts.map((post) => (
               <li key={post._id}>
                 <ContentCard collection="blog" document={post} />
