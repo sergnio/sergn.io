@@ -191,6 +191,33 @@ label never claims a recency the card does not have. `src/lib/home-selection.tes
 pins the ordering rules and an e2e test proves the featured fixture coffee beats
 the more recently published one on the built home page.
 
+### Accessible geometry
+
+axe covers rules a machine can decide from the DOM. Three WCAG 2.2 AA criteria
+are decided by rendered geometry instead, and axe either reports them only as
+"incomplete" (target size) or has no rule for them at all (reflow, resize
+text), so the axe pass was green on pages that failed all three.
+
+`e2e/a11y.spec.ts` measures the rendered boxes on every page template:
+
+- **2.5.8 Target Size (Minimum)** - every link, button and form control is at
+  least 24x24 CSS px on both a 390px and a 1280px viewport. The criterion's
+  exception for a target "in a sentence or block of text" is encoded as: skip a
+  link whose containing block holds text the link itself does not, which is the
+  authored-prose case where padding a link out would collide with the line
+  above. This found two real failures: the header wordmark (22px tall) and the
+  links inside a detail page's fact rows (18px tall), both fixed in
+  `src/styles.css` by growing the hit area without moving the layout.
+- **1.4.10 Reflow** - nothing overflows horizontally at 320 CSS px. Checking
+  `scrollWidth` alone would miss an element overflowing into a clipped
+  ancestor, so every rendered box is also checked against the viewport.
+- **1.4.4 Resize Text** - doubling the root font size loses no content and
+  forces no horizontal scrolling. This is the text-only case, which is stricter
+  than page zoom and is what the rem-based type scale has to survive.
+
+All three assertions were negative-tested against mutated CSS, and all three
+pass against a build of the live empty dataset as well as the fixtures.
+
 ### Fonts
 
 Web fonts are self-hosted. `scripts/generate-fonts.mjs` mirrors the Google Fonts

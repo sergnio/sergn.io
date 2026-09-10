@@ -127,7 +127,16 @@ img {
   gap: 1rem;
 }
 
+/*
+ * WCAG 2.2 SC 2.5.8 (Target Size, Minimum) wants 24x24 CSS px. The wordmark's
+ * own text box is only 22px tall, so it is grown to the height of the nav
+ * links beside it - past the 24px floor, and short enough that the header row
+ * (already 28px on desktop, 44px next to the menu button) does not move.
+ */
 .wordmark {
+  display: inline-flex;
+  align-items: center;
+  min-height: 1.75rem;
   color: var(--evergreen);
   font-family: 'DM Mono', monospace;
   font-size: 1.1rem;
@@ -505,6 +514,16 @@ figcaption {
 .facts dd {
   margin: 0;
   font-size: 1.1rem;
+}
+
+/*
+ * A fact row's link is the whole value (a roaster's site, a venue's map), not
+ * a word inside a sentence, so SC 2.5.8's inline-in-text exception does not
+ * cover it and its 18px text box is too small a target. Block padding grows
+ * the hit area past 24px; the link stays inline so a long address still wraps.
+ */
+.facts dd a {
+  padding-block: 0.3rem;
 }
 
 .rich-text {
