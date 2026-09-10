@@ -26,3 +26,21 @@ jobs:
       - run: npm run build:fixtures
       - run: npx playwright install --with-deps chromium
       - run: npm run test:e2e
+
+  build-live-sanity:
+    name: Build against the live Sanity dataset
+    runs-on: ubuntu-latest
+    # Pins the production content path: the build must succeed against the real,
+    # public Sanity project over the network, including while it has no
+    # documents at all. Fixture builds never exercise this.
+    env:
+      VITE_SANITY_PROJECT_ID: 0vbjaawm
+      VITE_SANITY_DATASET: production
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run build
