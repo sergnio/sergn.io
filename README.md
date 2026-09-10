@@ -96,6 +96,19 @@ markup. The build parses every JSON-LD block in the prerendered output and fails
 on a block that does not parse, a missing `@context`, or a breadcrumb that skips
 its collection index or does not end at the page it sits on.
 
+The build also enforces an initial-payload budget. For every prerendered page it
+gzips each local stylesheet and module script the document head loads up front
+(the entry bundle plus everything it `modulepreload`s) and fails above 140 KB
+combined - roughly 30 KB of headroom over the current ~110 KB. The budget is a
+ceiling meant to catch a dependency that silently doubles the bundle, not a
+target to optimise against. The same pass fails on a `/assets/` reference the
+build never emitted, which would cost a wasted 404 round trip on every visit.
+
+A Lighthouse pass (desktop and mobile, home page, a collection index, and both
+detail templates) scores 100 for accessibility, best practices, and SEO. The one
+deliberate exception is `/retired-content`, which scores lower on SEO purely
+because it is `noindex` on purpose.
+
 Web fonts are linked from the document head in `src/routes/__root.tsx`, never
 `@import`-ed from `src/styles.css`. An `@import` hides the font stylesheet from
 the preload scanner, so the woff2 files cannot start downloading until

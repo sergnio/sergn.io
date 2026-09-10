@@ -1,5 +1,6 @@
 import { access, readdir, readFile } from 'node:fs/promises'
 import path from 'node:path'
+import { gzipSync } from 'node:zlib'
 
 const outputDirectory = path.join(process.cwd(), 'dist', 'client')
 const contentSource = process.env.VITE_CONTENT_SOURCE ?? 'sanity'
@@ -244,6 +245,59 @@ for (const page of [
   ) {
     throw new Error(
       `Prerendered ${page} is missing a crossorigin preconnect to fonts.gstatic.com.`,
+    )
+  }
+}
+
+// A Lighthouse pass measures the payload the browser actually downloads before
+// the page is interactive, but nothing in CI runs Lighthouse. Pin the same
+// number here instead: every prerendered page's render-blocking stylesheets and
+// module scripts (the entry plus everything it modulepreloads) must stay under
+// budget once gzipped, which is how Netlify serves them. The budget is a
+// ceiling, not a target - it exists to catch a dependency that silently doubles
+// the bundle, not to police normal drift.
+const initialPayloadBudgetBytes = 140 * 1024
+
+const gzippedAssetSize = new Map()
+async function gzippedSize(reference, page) {
+  if (!gzippedAssetSize.has(reference)) {
+    let contents
+    try {
+      contents = await readFile(path.join(outputDirectory, reference))
+    } catch {
+      throw new Error(
+        `Page ${page} references ${reference}, which the build did not emit. A dangling preload or script costs a wasted 404 round trip on every visit.`,
+      )
+    }
+    gzippedAssetSize.set(reference, gzipSync(contents).length)
+  }
+  return gzippedAssetSize.get(reference)
+}
+
+for (const pagePath of await prerenderedPages()) {
+  const page = path.relative(outputDirectory, pagePath)
+  const head = (await readFile(pagePath, 'utf8')).split('</head>')[0]
+  const references = new Set(
+    [
+      ...head.matchAll(
+        /<(?:link|script)\b[^>]*\b(?:href|src)="(\/assets\/[^"]+)"[^>]*>/g,
+      ),
+    ].map((match) => match[1]),
+  )
+
+  let payload = 0
+  for (const reference of references) {
+    payload += await gzippedSize(reference, page)
+  }
+
+  if (references.size === 0) {
+    throw new Error(
+      `Page ${page} loads no local stylesheet or module script, so the payload budget cannot be measured.`,
+    )
+  }
+  if (payload > initialPayloadBudgetBytes) {
+    throw new Error(
+      `Page ${page} ships ${Math.round(payload / 1024)} KB of gzipped CSS and JS up front, over the ${initialPayloadBudgetBytes / 1024} KB budget.`,
     )
   }
 }
