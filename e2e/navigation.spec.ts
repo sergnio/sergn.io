@@ -278,4 +278,38 @@ test.describe('crawler files', () => {
       expect(body).toContain(`<loc>https://sergn.io/${permalink}</loc>`)
     }
   })
+
+  test('sitemap.xml omits noindex pages and trailing-slash duplicates', async ({
+    request,
+  }) => {
+    const response = await request.get('/sitemap.xml')
+
+    expect(response.status()).toBe(200)
+    const body = await response.text()
+    expect(body).not.toContain('https://sergn.io/retired-content')
+    expect(body).not.toContain('https://sergn.io/not-found')
+    for (const collection of [
+      'coffee',
+      'wings',
+      'na-beers',
+      'reubens',
+      'blog',
+    ]) {
+      expect(body).not.toContain(`<loc>https://sergn.io/${collection}/</loc>`)
+    }
+  })
+
+  test('the retired-content page is still reachable and marked noindex', async ({
+    page,
+  }) => {
+    await page.goto('/retired-content')
+
+    await expect(
+      page.getByRole('heading', { name: 'Syrup reviews have retired.' }),
+    ).toBeVisible()
+    await expect(page.locator('meta[name="robots"]')).toHaveAttribute(
+      'content',
+      'noindex',
+    )
+  })
 })
