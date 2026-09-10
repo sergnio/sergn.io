@@ -8,6 +8,7 @@ import type {
   ReubenReview,
   WingReview,
 } from '../content-types'
+import { assertValidCollection, assertValidDocument } from '../content-contract'
 import {
   getFixtureCollection,
   getFixtureDocument,
@@ -152,27 +153,27 @@ export async function fetchCollection(
 ): Promise<ReubenReview[]>
 export async function fetchCollection(collection: 'blog'): Promise<Post[]>
 export async function fetchCollection(collection: CollectionName) {
-  if (usesFixtureContent()) {
-    return getFixtureCollection(collection)
-  }
+  const documents = usesFixtureContent()
+    ? getFixtureCollection(collection)
+    : await getPublishedSanityClient().fetch(collectionQuery(collection), {
+        type: sanityTypes[collection],
+      })
 
-  return getPublishedSanityClient().fetch(collectionQuery(collection), {
-    type: sanityTypes[collection],
-  })
+  return assertValidCollection(collection, documents)
 }
 
 export async function fetchDocument(
   collection: CollectionName,
   slug: string,
 ): Promise<ContentDocument | undefined> {
-  if (usesFixtureContent()) {
-    return getFixtureDocument(collection, slug)
-  }
+  const document = usesFixtureContent()
+    ? getFixtureDocument(collection, slug)
+    : await getPublishedSanityClient().fetch(documentQuery(collection), {
+        type: sanityTypes[collection],
+        slug,
+      })
 
-  return getPublishedSanityClient().fetch(documentQuery(collection), {
-    type: sanityTypes[collection],
-    slug,
-  })
+  return assertValidDocument(collection, document)
 }
 
 export async function fetchHomeContent(): Promise<HomeContent> {
