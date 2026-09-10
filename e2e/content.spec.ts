@@ -116,7 +116,6 @@ test.describe('collection browsing flow', () => {
 
     await expect(card.getByText('Avo Coffee Roasters')).toBeVisible()
     await expect(card.locator('time')).toHaveText('Jan 10, 2025')
-    await expect(card.locator('img')).toHaveAttribute('loading', 'lazy')
   })
 
   test('coffee index card falls back to origin when roaster is unset', async ({

@@ -95,16 +95,83 @@ test.describe('Performance', () => {
     expect(loadedFamilies).toContain('DM Mono')
   })
 
-  test('card images stay lazy while the detail hero loads eagerly', async ({
-    page,
-  }) => {
+  test('the detail hero loads eagerly at high priority', async ({ page }) => {
     await page.goto('/coffee/colombia-perky')
     const hero = page.locator('.detail-hero__image img')
     await expect(hero).toHaveAttribute('loading', 'eager')
+    await expect(hero).toHaveAttribute('fetchpriority', 'high')
     await expect(hero).toHaveAttribute('decoding', 'async')
     // Intrinsic dimensions must be present or the hero shifts layout on load.
     await expect(hero).toHaveAttribute('width', /\d+/)
     await expect(hero).toHaveAttribute('height', /\d+/)
     await expect(hero).toHaveAttribute('srcset', /400w.*800w.*1200w/)
+  })
+
+  test('a collection index prioritises its topmost card image only', async ({
+    page,
+  }) => {
+    await page.goto('/coffee')
+    const images = page.locator('.content-card img')
+    const count = await images.count()
+    test.skip(count === 0, 'The dataset has no coffee card with an image.')
+
+    await expect(images.first()).toHaveAttribute('loading', 'eager')
+    await expect(images.first()).toHaveAttribute('fetchpriority', 'high')
+    for (let index = 1; index < count; index += 1) {
+      // Everything below the first card is off-screen on load; prioritising
+      // it would only take bandwidth away from the LCP image.
+      await expect(images.nth(index)).toHaveAttribute('loading', 'lazy')
+      await expect(images.nth(index)).not.toHaveAttribute(
+        'fetchpriority',
+        'high',
+      )
+    }
+  })
+
+  test('the home page leaves its card images to the hero heading', async ({
+    page,
+  }) => {
+    await page.goto('/')
+    // The home hero heading is this page's LCP element, so no card image
+    // below the fold should compete with it for the connection.
+    const eager = page.locator('.content-card img[loading="eager"]')
+    await expect(eager).toHaveCount(0)
+  })
+
+  test('a collection index paints its LCP with the prioritised image', async ({
+    page,
+  }) => {
+    // The attribute tests above pin the markup; this pins the consequence -
+    // that the element the browser actually reports as Largest Contentful
+    // Paint is the one image the page chose to prioritise.
+    await page.addInitScript(() => {
+      new PerformanceObserver((list) => {
+        const entries = list.getEntries()
+        const last = entries[entries.length - 1] as
+          (PerformanceEntry & { element?: Element }) | undefined
+        if (last?.element) {
+          Object.assign(window, { __lcpElement: last.element })
+        }
+      }).observe({ buffered: true, type: 'largest-contentful-paint' })
+    })
+
+    await page.goto('/wings')
+    const hasCardImage = (await page.locator('.content-card img').count()) > 0
+    test.skip(!hasCardImage, 'The dataset has no wings card with an image.')
+
+    await expect
+      .poll(async () =>
+        page.evaluate(() => {
+          const element = (window as unknown as { __lcpElement?: Element })
+            .__lcpElement
+          if (!element) return null
+          return {
+            fetchpriority: element.getAttribute('fetchpriority'),
+            loading: element.getAttribute('loading'),
+            tag: element.tagName,
+          }
+        }),
+      )
+      .toEqual({ fetchpriority: 'high', loading: 'eager', tag: 'IMG' })
   })
 })
