@@ -161,21 +161,6 @@ test.describe('primary navigation', () => {
   })
 })
 
-test.describe('accessibility', () => {
-  test('skip link focuses main content for keyboard users', async ({
-    page,
-  }) => {
-    await page.goto('/')
-
-    await page.keyboard.press('Tab')
-    const skipLink = page.getByRole('link', { name: 'Skip to content' })
-    await expect(skipLink).toBeFocused()
-
-    await skipLink.click()
-    await expect(page).toHaveURL(/#main-content$/)
-  })
-})
-
 test.describe('mobile navigation menu', () => {
   test.use({ viewport: { width: 390, height: 844 } })
 

@@ -73,6 +73,13 @@ img {
   outline-offset: 3px;
 }
 
+/* #main-content is focusable only so the skip link can move focus into it.
+   It is not an interactive control, so it gets no focus ring of its own. */
+#main-content:focus,
+#main-content:focus-visible {
+  outline: none;
+}
+
 .skip-link {
   position: fixed;
   z-index: 20;
