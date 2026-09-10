@@ -1,7 +1,7 @@
 import { createFileRoute, notFound } from '@tanstack/react-router'
 import { ContentDetail } from '#/components/content-detail'
 import { getDocument } from '#/lib/content.functions'
-import { contentHead } from '#/lib/metadata'
+import { detailHead } from '#/lib/metadata'
 
 export const Route = createFileRoute('/coffee/$slug')({
   loader: async ({ params }) => {
@@ -12,7 +12,7 @@ export const Route = createFileRoute('/coffee/$slug')({
     return document
   },
   head: ({ loaderData }) =>
-    loaderData ? contentHead(loaderData, `/coffee/${loaderData.slug}`) : {},
+    loaderData ? detailHead('coffee', loaderData) : {},
   component: CoffeeDetail,
 })
 

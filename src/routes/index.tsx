@@ -1,13 +1,14 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { ContentCard } from '#/components/content-card'
 import { getHomeContent } from '#/lib/content.functions'
-import { canonicalUrl } from '#/lib/metadata'
+import { canonicalUrl, siteJsonLd } from '#/lib/metadata'
 
 export const Route = createFileRoute('/')({
   loader: () => getHomeContent(),
   head: () => ({
     meta: [{ property: 'og:url', content: canonicalUrl('/') }],
     links: [{ rel: 'canonical', href: canonicalUrl('/') }],
+    scripts: [{ type: 'application/ld+json', children: siteJsonLd() }],
   }),
   component: HomePage,
 })
