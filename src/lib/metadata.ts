@@ -14,6 +14,16 @@ export const siteName = 'sergn.io'
 export const siteDescription =
   'Coffee, wings, N/A beers, reubens, and notes from Sergio.'
 
+/**
+ * The social preview every page falls back to. Without it a shared link
+ * previews as a bare text card, which is what happens on the home page, every
+ * collection index, and any content item that has no image of its own.
+ */
+export const defaultSocialImage = {
+  url: `${siteUrl}/og-image.png`,
+  alt: 'sergn.io - coffee, wings, N/A beers, reubens.',
+}
+
 export function canonicalUrl(path: string) {
   return new URL(path, siteUrl).toString()
 }
@@ -73,6 +83,9 @@ export function pageHead({
   title,
 }: SocialMetaOptions) {
   const url = canonicalUrl(path)
+  const preview = image
+    ? { url: image, alt: title }
+    : { ...defaultSocialImage, alt: `${title} - ${siteName}` }
 
   return {
     meta: [
@@ -82,14 +95,13 @@ export function pageHead({
       { property: 'og:description', content: description },
       { property: 'og:type', content: ogType },
       { property: 'og:url', content: url },
-      ...(image ? [{ property: 'og:image', content: image }] : []),
-      {
-        name: 'twitter:card',
-        content: image ? 'summary_large_image' : 'summary',
-      },
+      { property: 'og:image', content: preview.url },
+      { property: 'og:image:alt', content: preview.alt },
+      { name: 'twitter:card', content: 'summary_large_image' },
       { name: 'twitter:title', content: title },
       { name: 'twitter:description', content: description },
-      ...(image ? [{ name: 'twitter:image', content: image }] : []),
+      { name: 'twitter:image', content: preview.url },
+      { name: 'twitter:image:alt', content: preview.alt },
     ],
     links: [{ rel: 'canonical', href: url }],
   }

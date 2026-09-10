@@ -6,7 +6,7 @@ import {
 } from '@tanstack/react-router'
 import { NotFoundContent } from '#/components/not-found'
 import { SiteHeader } from '#/components/site-header'
-import { siteDescription, siteName } from '#/lib/metadata'
+import { defaultSocialImage, siteDescription, siteName } from '#/lib/metadata'
 import appCss from '../styles.css?url'
 
 const fontCss =
@@ -25,9 +25,13 @@ export const Route = createRootRoute({
       // override these by tag name in TanStack's head merge.
       { property: 'og:title', content: siteName },
       { property: 'og:description', content: siteDescription },
-      { name: 'twitter:card', content: 'summary' },
+      { property: 'og:image', content: defaultSocialImage.url },
+      { property: 'og:image:alt', content: defaultSocialImage.alt },
+      { name: 'twitter:card', content: 'summary_large_image' },
       { name: 'twitter:title', content: siteName },
       { name: 'twitter:description', content: siteDescription },
+      { name: 'twitter:image', content: defaultSocialImage.url },
+      { name: 'twitter:image:alt', content: defaultSocialImage.alt },
     ],
     links: [
       { rel: 'icon', type: 'image/svg+xml', href: '/favicon.svg' },
