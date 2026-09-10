@@ -92,6 +92,58 @@ if (!/<h1[^>]*>/.test(home)) {
   throw new Error('The home page did not prerender a heading.')
 }
 
+// Screen-reader semantics that axe cannot see in the prerendered markup:
+// a page outline that skips a level (h1 -> h3) misleads anyone navigating by
+// heading, and a <time> without a datetime attribute is not machine readable
+// by assistive tech or crawlers, since the visible text is a localised string.
+async function prerenderedPages(directory = outputDirectory) {
+  const entries = await readdir(directory, { withFileTypes: true })
+  const pages = []
+  for (const entry of entries) {
+    const entryPath = path.join(directory, entry.name)
+    if (entry.isDirectory()) {
+      if (entry.name === 'assets' || entry.name === '__tsr') continue
+      pages.push(...(await prerenderedPages(entryPath)))
+    } else if (entry.name.endsWith('.html')) {
+      pages.push(entryPath)
+    }
+  }
+  return pages
+}
+
+for (const pagePath of await prerenderedPages()) {
+  const page = path.relative(outputDirectory, pagePath)
+  const html = await readFile(pagePath, 'utf8')
+  const body = html.split('<body')[1] ?? ''
+
+  const levels = [...body.matchAll(/<h([1-6])[\s>]/g)].map((match) =>
+    Number(match[1]),
+  )
+  if (levels.filter((level) => level === 1).length !== 1) {
+    throw new Error(`Prerendered ${page} must contain exactly one <h1>.`)
+  }
+  if (levels[0] !== 1) {
+    throw new Error(`Prerendered ${page} does not open its outline with <h1>.`)
+  }
+  let deepest = 1
+  for (const level of levels) {
+    if (level > deepest + 1) {
+      throw new Error(
+        `Prerendered ${page} skips from <h${deepest}> to <h${level}>; heading levels must not jump.`,
+      )
+    }
+    deepest = Math.max(deepest, level)
+  }
+
+  for (const [tag] of body.matchAll(/<time\b[^>]*>/g)) {
+    if (!/\sdatetime="[^"]+"/i.test(tag)) {
+      throw new Error(
+        `Prerendered ${page} has a <time> element without a datetime attribute.`,
+      )
+    }
+  }
+}
+
 const sitemap = await readFile(
   path.join(outputDirectory, 'sitemap.xml'),
   'utf8',

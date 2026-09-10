@@ -51,18 +51,24 @@ function HomePage() {
                 <p className="eyebrow">Latest</p>
                 <h2 id={`${collection}-heading`}>{title}</h2>
               </div>
-              <a href={`/${collection}`}>See all</a>
+              <a
+                aria-label={`See all ${title.toLowerCase()}`}
+                href={`/${collection}`}
+              >
+                See all
+              </a>
             </div>
             {documents.length ? (
-              <div className="card-grid card-grid--single">
+              <ul
+                aria-label={`Latest ${title.toLowerCase()}`}
+                className="card-grid card-grid--single"
+              >
                 {documents.map((document) => (
-                  <ContentCard
-                    collection={collection}
-                    document={document}
-                    key={document._id}
-                  />
+                  <li key={document._id}>
+                    <ContentCard collection={collection} document={document} />
+                  </li>
                 ))}
-              </div>
+              </ul>
             ) : (
               <p className="empty-state">Nothing published here yet.</p>
             )}
@@ -78,11 +84,13 @@ function HomePage() {
           <a href="/blog">All posts</a>
         </div>
         {content.posts.length ? (
-          <div className="card-grid">
+          <ul aria-label="Latest posts" className="card-grid">
             {content.posts.map((post) => (
-              <ContentCard collection="blog" document={post} key={post._id} />
+              <li key={post._id}>
+                <ContentCard collection="blog" document={post} />
+              </li>
             ))}
-          </div>
+          </ul>
         ) : (
           <p className="empty-state">Nothing published here yet.</p>
         )}

@@ -241,7 +241,9 @@ export function ContentDetail({ document }: ContentDetailProps) {
           <h1>{document.title}</h1>
           {publishedDate(document) ? (
             <p className="detail-hero__date">
-              <time>{formatDate(publishedDate(document))}</time>
+              <time dateTime={publishedDate(document)}>
+                {formatDate(publishedDate(document))}
+              </time>
             </p>
           ) : null}
           {document._type === 'post' ? (
