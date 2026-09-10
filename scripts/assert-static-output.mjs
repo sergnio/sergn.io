@@ -161,3 +161,44 @@ for (const page of [
     )
   }
 }
+
+// Long-lived caching for /assets is only safe while every filename in there
+// carries a content hash. Assert both halves of that contract together, so a
+// build config change that drops hashing can never quietly ship alongside an
+// immutable Cache-Control.
+const assetFiles = await readdir(path.join(outputDirectory, 'assets'), {
+  recursive: true,
+  withFileTypes: true,
+})
+for (const entry of assetFiles) {
+  if (!entry.isFile()) continue
+  if (!/-[A-Za-z0-9_-]{8}\.[A-Za-z0-9]+$/.test(entry.name)) {
+    throw new Error(
+      `Asset ${entry.name} has no content hash in its filename, so it must not be served with an immutable Cache-Control.`,
+    )
+  }
+}
+
+const netlifyConfig = await readFile(
+  path.join(process.cwd(), 'netlify.toml'),
+  'utf8',
+)
+const assetHeaderRule = netlifyConfig
+  .split(/^\[\[headers\]\]$/m)
+  .slice(1)
+  .find((block) => /^\s*for\s*=\s*"\/assets\/\*"\s*$/m.test(block))
+if (!assetHeaderRule) {
+  throw new Error('netlify.toml declares no [[headers]] rule for /assets/*.')
+}
+const cacheControl = assetHeaderRule.match(/Cache-Control\s*=\s*"([^"]+)"/)?.[1]
+if (!/\bimmutable\b/.test(cacheControl ?? '')) {
+  throw new Error(
+    `The /assets/* Cache-Control must be immutable, got: ${cacheControl ?? '(none)'}`,
+  )
+}
+const maxAge = Number(cacheControl.match(/max-age=(\d+)/)?.[1] ?? 0)
+if (maxAge < 31536000) {
+  throw new Error(
+    `The /assets/* Cache-Control max-age must be at least one year, got ${maxAge}.`,
+  )
+}
