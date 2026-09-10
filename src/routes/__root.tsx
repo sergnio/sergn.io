@@ -6,7 +6,7 @@ import {
 } from '@tanstack/react-router'
 import { NotFoundContent } from '#/components/not-found'
 import { SiteHeader } from '#/components/site-header'
-import { siteName } from '#/lib/metadata'
+import { siteDescription, siteName } from '#/lib/metadata'
 import appCss from '../styles.css?url'
 
 export const Route = createRootRoute({
@@ -15,12 +15,16 @@ export const Route = createRootRoute({
       { charSet: 'utf-8' },
       { name: 'viewport', content: 'width=device-width, initial-scale=1' },
       { title: siteName },
-      {
-        name: 'description',
-        content: 'Coffee, wings, N/A beers, reubens, and notes from Sergio.',
-      },
+      { name: 'description', content: siteDescription },
       { property: 'og:site_name', content: siteName },
       { property: 'og:type', content: 'website' },
+      // Social defaults every page inherits; routes with their own copy
+      // override these by tag name in TanStack's head merge.
+      { property: 'og:title', content: siteName },
+      { property: 'og:description', content: siteDescription },
+      { name: 'twitter:card', content: 'summary' },
+      { name: 'twitter:title', content: siteName },
+      { name: 'twitter:description', content: siteDescription },
     ],
     links: [
       { rel: 'icon', type: 'image/svg+xml', href: '/favicon.svg' },

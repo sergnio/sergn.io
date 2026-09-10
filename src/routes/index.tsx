@@ -5,7 +5,10 @@ import { canonicalUrl } from '#/lib/metadata'
 
 export const Route = createFileRoute('/')({
   loader: () => getHomeContent(),
-  head: () => ({ links: [{ rel: 'canonical', href: canonicalUrl('/') }] }),
+  head: () => ({
+    meta: [{ property: 'og:url', content: canonicalUrl('/') }],
+    links: [{ rel: 'canonical', href: canonicalUrl('/') }],
+  }),
   component: HomePage,
 })
 

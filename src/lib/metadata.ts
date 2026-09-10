@@ -3,6 +3,8 @@ import { imageUrl } from './sanity/image'
 
 export const siteUrl = 'https://sergn.io'
 export const siteName = 'sergn.io'
+export const siteDescription =
+  'Coffee, wings, N/A beers, reubens, and notes from Sergio.'
 
 export function canonicalUrl(path: string) {
   return new URL(path, siteUrl).toString()
@@ -42,13 +44,27 @@ export function contentDescription(document: ContentDocument) {
   return document.restaurant
 }
 
-export function contentHead(document: ContentDocument, path: string) {
-  const title =
-    document._type === 'post'
-      ? (document.seo?.title ?? document.title)
-      : document.title
-  const description = contentDescription(document)
-  const image = socialImage(contentImage(document))
+type SocialMetaOptions = {
+  description: string
+  image?: string
+  ogType?: 'article' | 'website'
+  path: string
+  title: string
+}
+
+/**
+ * Title, description, canonical, Open Graph, and Twitter card tags for one
+ * page. Every indexable page goes through here so a shared URL always
+ * previews with a real title and description, not just the site name.
+ */
+export function pageHead({
+  description,
+  image,
+  ogType = 'website',
+  path,
+  title,
+}: SocialMetaOptions) {
+  const url = canonicalUrl(path)
 
   return {
     meta: [
@@ -56,10 +72,8 @@ export function contentHead(document: ContentDocument, path: string) {
       { name: 'description', content: description },
       { property: 'og:title', content: title },
       { property: 'og:description', content: description },
-      {
-        property: 'og:type',
-        content: document._type === 'post' ? 'article' : 'website',
-      },
+      { property: 'og:type', content: ogType },
+      { property: 'og:url', content: url },
       ...(image ? [{ property: 'og:image', content: image }] : []),
       {
         name: 'twitter:card',
@@ -69,8 +83,23 @@ export function contentHead(document: ContentDocument, path: string) {
       { name: 'twitter:description', content: description },
       ...(image ? [{ name: 'twitter:image', content: image }] : []),
     ],
-    links: [{ rel: 'canonical', href: canonicalUrl(path) }],
+    links: [{ rel: 'canonical', href: url }],
   }
+}
+
+export function contentHead(document: ContentDocument, path: string) {
+  const title =
+    document._type === 'post'
+      ? (document.seo?.title ?? document.title)
+      : document.title
+
+  return pageHead({
+    description: contentDescription(document),
+    image: socialImage(contentImage(document)),
+    ogType: document._type === 'post' ? 'article' : 'website',
+    path,
+    title,
+  })
 }
 
 export function articleJsonLd(post: Post) {

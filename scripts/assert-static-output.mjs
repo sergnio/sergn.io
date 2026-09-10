@@ -61,6 +61,32 @@ for (const collection of collections) {
   }
 }
 
+// Every indexable page must ship a complete social preview in its prerendered
+// HTML: a title, description, Open Graph title/description/url, and a Twitter
+// card. Missing tags only show up when a URL is shared, long after deploy.
+const socialTags = [
+  ['<title>', /<title>[^<]+<\/title>/],
+  ['meta description', /<meta name="description" content="[^"]+"/],
+  ['og:title', /<meta property="og:title" content="[^"]+"/],
+  ['og:description', /<meta property="og:description" content="[^"]+"/],
+  ['og:url', /<meta property="og:url" content="https:\/\/sergn\.io[^"]*"/],
+  ['twitter:card', /<meta name="twitter:card" content="[^"]+"/],
+  ['canonical', /<link rel="canonical" href="https:\/\/sergn\.io[^"]*"/],
+]
+
+for (const page of [
+  'index.html',
+  ...collections.map((c) => `${c}/index.html`),
+]) {
+  const html = await readFile(path.join(outputDirectory, page), 'utf8')
+  const head = html.split('</head>')[0]
+  for (const [label, matcher] of socialTags) {
+    if (!matcher.test(head)) {
+      throw new Error(`Prerendered ${page} is missing a ${label} tag.`)
+    }
+  }
+}
+
 const home = await readFile(path.join(outputDirectory, 'index.html'), 'utf8')
 if (!/<h1[^>]*>/.test(home)) {
   throw new Error('The home page did not prerender a heading.')
