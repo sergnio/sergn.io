@@ -1,14 +1,19 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { canonicalUrl } from '#/lib/metadata'
+import { pageHead } from '#/lib/metadata'
 
 export const Route = createFileRoute('/retired-content')({
-  head: () => ({
-    meta: [
-      { title: 'Retired content | sergn.io' },
-      { name: 'robots', content: 'noindex' },
-    ],
-    links: [{ rel: 'canonical', href: canonicalUrl('/retired-content') }],
-  }),
+  head: () => {
+    const head = pageHead({
+      description:
+        'Syrup reviews have retired. sergn.io now covers coffee, wings, N/A beers, reubens, and the blog.',
+      path: '/retired-content',
+      title: 'Retired content',
+    })
+    return {
+      ...head,
+      meta: [...head.meta, { name: 'robots', content: 'noindex' }],
+    }
+  },
   component: RetiredContent,
 })
 
