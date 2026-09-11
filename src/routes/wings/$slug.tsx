@@ -1,7 +1,7 @@
 import { createFileRoute, notFound } from '@tanstack/react-router'
 import { ContentDetail } from '#/components/content-detail'
 import { getDocument } from '#/lib/content.functions'
-import { contentHead } from '#/lib/metadata'
+import { detailHead } from '#/lib/metadata'
 
 export const Route = createFileRoute('/wings/$slug')({
   loader: async ({ params }) => {
@@ -11,8 +11,7 @@ export const Route = createFileRoute('/wings/$slug')({
     if (!document || document._type !== 'wingReview') throw notFound()
     return document
   },
-  head: ({ loaderData }) =>
-    loaderData ? contentHead(loaderData, `/wings/${loaderData.slug}`) : {},
+  head: ({ loaderData }) => (loaderData ? detailHead('wings', loaderData) : {}),
   component: WingsDetail,
 })
 

@@ -1,13 +1,25 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { ContentCard } from '#/components/content-card'
 import { getHomeContent } from '#/lib/content.functions'
-import { canonicalUrl } from '#/lib/metadata'
+import { canonicalUrl, siteJsonLd } from '#/lib/metadata'
 
 export const Route = createFileRoute('/')({
   loader: () => getHomeContent(),
-  head: () => ({ links: [{ rel: 'canonical', href: canonicalUrl('/') }] }),
+  head: () => ({
+    meta: [{ property: 'og:url', content: canonicalUrl('/') }],
+    links: [{ rel: 'canonical', href: canonicalUrl('/') }],
+    scripts: [{ type: 'application/ld+json', children: siteJsonLd() }],
+  }),
   component: HomePage,
 })
+
+/**
+ * Sections lead with author-featured documents, so the label has to say which
+ * one it is rather than always claiming the newest.
+ */
+function sectionLabel(documents: Array<{ featured?: boolean }>) {
+  return documents.some((document) => document.featured) ? 'Featured' : 'Latest'
+}
 
 function HomePage() {
   const content = Route.useLoaderData()
@@ -45,21 +57,27 @@ function HomePage() {
           <section aria-labelledby={`${collection}-heading`} key={collection}>
             <div className="section-heading section-heading--link">
               <div>
-                <p className="eyebrow">Latest</p>
+                <p className="eyebrow">{sectionLabel(documents)}</p>
                 <h2 id={`${collection}-heading`}>{title}</h2>
               </div>
-              <a href={`/${collection}`}>See all</a>
+              <a
+                aria-label={`See all ${title.toLowerCase()}`}
+                href={`/${collection}`}
+              >
+                See all
+              </a>
             </div>
             {documents.length ? (
-              <div className="card-grid card-grid--single">
+              <ul
+                aria-label={`${sectionLabel(documents)} ${title.toLowerCase()}`}
+                className="card-grid card-grid--single"
+              >
                 {documents.map((document) => (
-                  <ContentCard
-                    collection={collection}
-                    document={document}
-                    key={document._id}
-                  />
+                  <li key={document._id}>
+                    <ContentCard collection={collection} document={document} />
+                  </li>
                 ))}
-              </div>
+              </ul>
             ) : (
               <p className="empty-state">Nothing published here yet.</p>
             )}
@@ -69,17 +87,22 @@ function HomePage() {
       <section aria-labelledby="blog-heading" className="home-blog">
         <div className="section-heading section-heading--link">
           <div>
-            <p className="eyebrow">Latest writing</p>
+            <p className="eyebrow">{sectionLabel(content.posts)} writing</p>
             <h2 id="blog-heading">From the blog</h2>
           </div>
           <a href="/blog">All posts</a>
         </div>
         {content.posts.length ? (
-          <div className="card-grid">
+          <ul
+            aria-label={`${sectionLabel(content.posts)} posts`}
+            className="card-grid"
+          >
             {content.posts.map((post) => (
-              <ContentCard collection="blog" document={post} key={post._id} />
+              <li key={post._id}>
+                <ContentCard collection="blog" document={post} />
+              </li>
             ))}
-          </div>
+          </ul>
         ) : (
           <p className="empty-state">Nothing published here yet.</p>
         )}

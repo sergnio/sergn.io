@@ -8,11 +8,9 @@ import type {
   ReubenReview,
   WingReview,
 } from '../content-types'
-import {
-  getFixtureCollection,
-  getFixtureDocument,
-  getFixtureHomeContent,
-} from '../fixtures'
+import { assertValidCollection, assertValidDocument } from '../content-contract'
+import { getFixtureCollection, getFixtureDocument } from '../fixtures'
+import { homeSectionSizes, selectForHome } from '../home-selection'
 import { getPublishedSanityClient, usesFixtureContent } from './client'
 
 const imageProjection = `{
@@ -152,32 +150,30 @@ export async function fetchCollection(
 ): Promise<ReubenReview[]>
 export async function fetchCollection(collection: 'blog'): Promise<Post[]>
 export async function fetchCollection(collection: CollectionName) {
-  if (usesFixtureContent()) {
-    return getFixtureCollection(collection)
-  }
+  const documents = usesFixtureContent()
+    ? getFixtureCollection(collection)
+    : await getPublishedSanityClient().fetch(collectionQuery(collection), {
+        type: sanityTypes[collection],
+      })
 
-  return getPublishedSanityClient().fetch(collectionQuery(collection), {
-    type: sanityTypes[collection],
-  })
+  return assertValidCollection(collection, documents)
 }
 
 export async function fetchDocument(
   collection: CollectionName,
   slug: string,
 ): Promise<ContentDocument | undefined> {
-  if (usesFixtureContent()) {
-    return getFixtureDocument(collection, slug)
-  }
+  const document = usesFixtureContent()
+    ? getFixtureDocument(collection, slug)
+    : await getPublishedSanityClient().fetch(documentQuery(collection), {
+        type: sanityTypes[collection],
+        slug,
+      })
 
-  return getPublishedSanityClient().fetch(documentQuery(collection), {
-    type: sanityTypes[collection],
-    slug,
-  })
+  return assertValidDocument(collection, document)
 }
 
 export async function fetchHomeContent(): Promise<HomeContent> {
-  if (usesFixtureContent()) return getFixtureHomeContent()
-
   const [coffee, wings, naBeers, reubens, posts] = await Promise.all([
     fetchCollection('coffee'),
     fetchCollection('wings'),
@@ -187,10 +183,10 @@ export async function fetchHomeContent(): Promise<HomeContent> {
   ])
 
   return {
-    coffee: coffee.slice(0, 1),
-    wings: wings.slice(0, 1),
-    naBeers: naBeers.slice(0, 1),
-    reubens: reubens.slice(0, 1),
-    posts: posts.slice(0, 3),
+    coffee: selectForHome(coffee, homeSectionSizes.coffee),
+    wings: selectForHome(wings, homeSectionSizes.wings),
+    naBeers: selectForHome(naBeers, homeSectionSizes['na-beers']),
+    reubens: selectForHome(reubens, homeSectionSizes.reubens),
+    posts: selectForHome(posts, homeSectionSizes.blog),
   }
 }

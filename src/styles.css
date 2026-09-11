@@ -1,5 +1,3 @@
-@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600&display=swap');
-
 :root {
   --paper: #f7f3eb;
   --ink: #1c2924;
@@ -73,6 +71,27 @@ img {
   outline-offset: 3px;
 }
 
+/* #main-content is focusable only so the skip link can move focus into it.
+   It is not an interactive control, so it gets no focus ring of its own. */
+#main-content:focus,
+#main-content:focus-visible {
+  outline: none;
+}
+
+/* Available to screen readers only: keeps terse visual meta (a bare "4.5 / 5")
+   understandable when read out of its visual context. */
+.visually-hidden {
+  position: absolute;
+  overflow: hidden;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  border: 0;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
 .skip-link {
   position: fixed;
   z-index: 20;
@@ -108,7 +127,16 @@ img {
   gap: 1rem;
 }
 
+/*
+ * WCAG 2.2 SC 2.5.8 (Target Size, Minimum) wants 24x24 CSS px. The wordmark's
+ * own text box is only 22px tall, so it is grown to the height of the nav
+ * links beside it - past the 24px floor, and short enough that the header row
+ * (already 28px on desktop, 44px next to the menu button) does not move.
+ */
 .wordmark {
+  display: inline-flex;
+  align-items: center;
+  min-height: 1.75rem;
   color: var(--evergreen);
   font-family: 'DM Mono', monospace;
   font-size: 1.1rem;
@@ -292,11 +320,21 @@ h3 {
 
 .card-grid {
   display: grid;
+  padding: 0;
+  margin: 0;
   gap: 1.25rem;
+  list-style: none;
+}
+
+/* The <li> is the grid item, so it - not the card - stretches to the row
+   height; make the card fill it so cards in a row stay the same height. */
+.card-grid > li {
+  display: flex;
 }
 
 .content-card {
   overflow: hidden;
+  width: 100%;
   background: var(--card);
   border: 1px solid var(--line);
   border-radius: 0.25rem;
@@ -343,7 +381,16 @@ h3 {
   font-size: 0.65rem;
 }
 
-.content-card__body h3 a {
+/* A card title's heading level varies with page context - h2 on a collection
+   index under the page h1, h3 under a home-page section h2 - so pin its look
+   here instead of inheriting the document heading scale. */
+.content-card__body :is(h2, h3) {
+  margin-bottom: 0.5rem;
+  font-size: 1.55rem;
+  line-height: 1.02;
+}
+
+.content-card__body :is(h2, h3) a {
   text-decoration: none;
 }
 
@@ -365,7 +412,7 @@ h3 {
   font-size: 0.68rem;
 }
 
-.content-card__meta span::before {
+.content-card__rating::before {
   content: '★ ';
   color: #b26d00;
 }
@@ -397,7 +444,12 @@ h3 {
 }
 
 .detail-hero__copy h1 {
-  max-width: 11ch;
+  /* The hero title shares its row with the image, so it caps smaller than a
+     full-width h1: at the global 6.5rem a word like "Neighborhood" is wider
+     than its own column and breaks mid-word. */
+  max-width: min(14ch, 100%);
+  font-size: clamp(2.5rem, 5.5vw, 4.5rem);
+  overflow-wrap: break-word;
 }
 
 .detail-hero__date {
@@ -425,6 +477,13 @@ figcaption {
   color: var(--muted);
   font-size: 0.9rem;
   line-height: 1.35;
+}
+
+.figcaption__credit {
+  display: block;
+  font-family: 'DM Mono', monospace;
+  font-size: 0.72rem;
+  text-transform: uppercase;
 }
 
 .detail-content {
@@ -455,6 +514,16 @@ figcaption {
 .facts dd {
   margin: 0;
   font-size: 1.1rem;
+}
+
+/*
+ * A fact row's link is the whole value (a roaster's site, a venue's map), not
+ * a word inside a sentence, so SC 2.5.8's inline-in-text exception does not
+ * cover it and its 18px text box is too small a target. Block padding grows
+ * the hit area past 24px; the link stays inline so a long address still wraps.
+ */
+.facts dd a {
+  padding-block: 0.3rem;
 }
 
 .rich-text {
@@ -508,6 +577,30 @@ figcaption {
 
 .detail-section {
   margin-top: 3.5rem;
+}
+
+.gallery {
+  display: grid;
+  gap: 1.25rem;
+  /* auto-fill, not auto-fit: a lone gallery image should sit at the size the
+     others would, not stretch across the whole column. */
+  grid-template-columns: repeat(auto-fill, minmax(min(18rem, 100%), 1fr));
+}
+
+.gallery__item {
+  margin: 0;
+}
+
+.gallery__item .content-image {
+  border-radius: 0.25rem;
+}
+
+.rich-text__image {
+  margin: 2rem 0;
+}
+
+.rich-text__image .content-image {
+  border-radius: 0.25rem;
 }
 
 .recipe-list {

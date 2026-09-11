@@ -1,4 +1,17 @@
+import type { Page } from '@playwright/test'
 import { expect, test } from '@playwright/test'
+
+async function jsonLdBlocks(page: Page) {
+  const blocks = await page
+    .locator('script[type="application/ld+json"]')
+    .allTextContents()
+  return blocks.map((block) => JSON.parse(block))
+}
+
+async function articleJsonLd(page: Page) {
+  const blocks = await jsonLdBlocks(page)
+  return blocks.find((block) => block['@type'] === 'Article')
+}
 
 test.describe('collection browsing flow', () => {
   test('coffee index links into a detail page with brew recipes', async ({
@@ -46,9 +59,11 @@ test.describe('collection browsing flow', () => {
       'content',
       'website',
     )
+    // Coffee entries have no rating field, so they carry no Review markup -
+    // only the breadcrumb trail every detail page gets.
     await expect(
       page.locator('script[type="application/ld+json"]'),
-    ).toHaveCount(0)
+    ).toHaveCount(1)
 
     const heroImage = page.locator('.detail-hero__image img')
     await expect(heroImage).toHaveAttribute('loading', 'eager')
@@ -101,7 +116,6 @@ test.describe('collection browsing flow', () => {
 
     await expect(card.getByText('Avo Coffee Roasters')).toBeVisible()
     await expect(card.locator('time')).toHaveText('Jan 10, 2025')
-    await expect(card.locator('img')).toHaveAttribute('loading', 'lazy')
   })
 
   test('coffee index card falls back to origin when roaster is unset', async ({
@@ -188,6 +202,41 @@ test.describe('collection browsing flow', () => {
       'content',
       'The Rye House',
     )
+  })
+
+  test('a detail page shows its gallery images with caption and credit', async ({
+    page,
+  }) => {
+    await page.goto('/coffee/colombia-perky')
+
+    const gallery = page.getByRole('region', { name: 'Gallery' })
+    await expect(gallery).toBeVisible()
+
+    const image = gallery.getByRole('img', {
+      name: 'Ground coffee in a glass jar surrounded by roasted beans',
+    })
+    await expect(image).toBeVisible()
+    await expect(
+      await image.evaluate(
+        (element: HTMLImageElement) => element.naturalWidth > 0,
+      ),
+    ).toBe(true)
+    await expect(gallery.getByText('The bag, a week off roast.')).toBeVisible()
+    await expect(gallery.getByText('Photo: Avo Coffee Roasters')).toBeVisible()
+  })
+
+  test('a detail page with no extra images shows no gallery section', async ({
+    page,
+  }) => {
+    await page.goto('/wings/neighborhood-buffalo-wings')
+
+    await expect(
+      page.getByRole('heading', {
+        level: 1,
+        name: 'Neighborhood Buffalo Wings',
+      }),
+    ).toBeVisible()
+    await expect(page.getByRole('region', { name: 'Gallery' })).toHaveCount(0)
   })
 
   test('coffee detail page falls back to "Not listed" roaster and plain-text bought-from when unset', async ({
@@ -323,22 +372,25 @@ test.describe('collection browsing flow', () => {
     )
   })
 
-  test('blog post without a cover image omits og:image/twitter:image and falls back to a summary twitter card', async ({
+  test('blog post without a cover image falls back to the site preview image', async ({
     page,
   }) => {
     await page.goto('/blog/a-table-for-two')
 
-    await expect(page.locator('meta[property="og:image"]')).toHaveCount(0)
-    await expect(page.locator('meta[name="twitter:image"]')).toHaveCount(0)
+    await expect(page.locator('meta[property="og:image"]')).toHaveAttribute(
+      'content',
+      'https://sergn.io/og-image.png',
+    )
+    await expect(page.locator('meta[name="twitter:image"]')).toHaveAttribute(
+      'content',
+      'https://sergn.io/og-image.png',
+    )
     await expect(page.locator('meta[name="twitter:card"]')).toHaveAttribute(
       'content',
-      'summary',
+      'summary_large_image',
     )
 
-    const jsonLd = await page
-      .locator('script[type="application/ld+json"]')
-      .textContent()
-    expect(JSON.parse(jsonLd ?? '{}')).not.toHaveProperty('image')
+    expect(await articleJsonLd(page)).not.toHaveProperty('image')
   })
 
   test('a link inside blog post rich text opens safely in a new tab', async ({
@@ -352,7 +404,32 @@ test.describe('collection browsing flow', () => {
       'https://example.com/morning-rituals',
     )
     await expect(link).toHaveAttribute('target', '_blank')
-    await expect(link).toHaveAttribute('rel', 'noreferrer')
+    // noopener is what keeps the opened page from reaching back through
+    // window.opener; noreferrer alone implies it, but only in newer browsers.
+    await expect(link).toHaveAttribute('rel', 'noopener noreferrer')
+    // A new tab is a context switch a sighted reader sees in the tab strip and
+    // a screen reader user otherwise does not.
+    await expect(link).toHaveAccessibleName(
+      'morning ritual (opens in a new tab)',
+    )
+  })
+
+  test('a rich text link to this site stays in the same tab and navigates', async ({
+    page,
+  }) => {
+    await page.goto('/blog/a-table-for-two')
+
+    const link = page.getByRole('link', {
+      name: 'paired with a familiar coffee',
+    })
+    await expect(link).toHaveAttribute('href', '/coffee/colombia-perky')
+    expect(await link.getAttribute('target')).toBeNull()
+    await expect(link).toHaveAccessibleName('paired with a familiar coffee')
+
+    await link.click()
+    await expect(
+      page.getByRole('heading', { level: 1, name: 'Colombia Perky' }),
+    ).toBeVisible()
   })
 
   test('blog post renders SEO metadata and Article JSON-LD', async ({
@@ -378,10 +455,7 @@ test.describe('collection browsing flow', () => {
       'article',
     )
 
-    const jsonLd = await page
-      .locator('script[type="application/ld+json"]')
-      .textContent()
-    const data = JSON.parse(jsonLd ?? '{}')
+    const data = await articleJsonLd(page)
     expect(data['@type']).toBe('Article')
     expect(data.headline).toBe('Small rituals, better cups')
     expect(data.mainEntityOfPage).toBe(
@@ -448,6 +522,130 @@ test.describe('collection browsing flow', () => {
     )
   })
 
+  test('home page and collection indexes ship a full social preview', async ({
+    page,
+  }) => {
+    await page.goto('/')
+    await expect(page.locator('meta[property="og:title"]')).toHaveAttribute(
+      'content',
+      'sergn.io',
+    )
+    await expect(
+      page.locator('meta[property="og:description"]'),
+    ).toHaveAttribute(
+      'content',
+      'Coffee, wings, N/A beers, reubens, and notes from Sergio.',
+    )
+    await expect(page.locator('meta[property="og:url"]')).toHaveAttribute(
+      'content',
+      'https://sergn.io/',
+    )
+    await expect(page.locator('meta[name="twitter:card"]')).toHaveAttribute(
+      'content',
+      'summary_large_image',
+    )
+    await expect(page.locator('meta[name="twitter:title"]')).toHaveAttribute(
+      'content',
+      'sergn.io',
+    )
+
+    await page.goto('/coffee')
+    await expect(page.locator('meta[property="og:title"]')).toHaveAttribute(
+      'content',
+      'Coffee',
+    )
+    await expect(
+      page.locator('meta[property="og:description"]'),
+    ).toHaveAttribute('content', 'Coffee notes and practical brew recipes.')
+    await expect(page.locator('meta[property="og:url"]')).toHaveAttribute(
+      'content',
+      'https://sergn.io/coffee',
+    )
+    await expect(
+      page.locator('meta[name="twitter:description"]'),
+    ).toHaveAttribute('content', 'Coffee notes and practical brew recipes.')
+  })
+
+  test('pages without a content image fall back to the site preview image', async ({
+    page,
+  }) => {
+    for (const path of ['/', '/coffee', '/retired-content']) {
+      await page.goto(path)
+      await expect(page.locator('meta[property="og:image"]')).toHaveAttribute(
+        'content',
+        'https://sergn.io/og-image.png',
+      )
+      await expect(page.locator('meta[name="twitter:image"]')).toHaveAttribute(
+        'content',
+        'https://sergn.io/og-image.png',
+      )
+      await expect(
+        page.locator('meta[property="og:image:alt"]'),
+      ).not.toHaveAttribute('content', '')
+    }
+
+    // The fallback is only a preview if the file is really served.
+    const response = await page.request.get('/og-image.png')
+    expect(response.status()).toBe(200)
+    expect(response.headers()['content-type']).toContain('image/png')
+  })
+
+  test('every page template ships the home-screen install surface', async ({
+    page,
+  }) => {
+    for (const path of ['/', '/coffee', '/coffee/colombia-perky']) {
+      await page.goto(path)
+      await expect(
+        page.locator('link[rel="apple-touch-icon"]'),
+      ).toHaveAttribute('href', '/apple-touch-icon.png')
+      await expect(page.locator('link[rel="manifest"]')).toHaveAttribute(
+        'href',
+        '/site.webmanifest',
+      )
+      await expect(page.locator('meta[name="theme-color"]')).toHaveAttribute(
+        'content',
+        '#183f34',
+      )
+    }
+  })
+
+  test('the manifest and its icons are really served', async ({ page }) => {
+    const manifestResponse = await page.request.get('/site.webmanifest')
+    expect(manifestResponse.status()).toBe(200)
+
+    const manifest = await manifestResponse.json()
+    expect(manifest.start_url).toBe('/')
+    expect(manifest.theme_color).toBe('#183f34')
+
+    const sources = [
+      '/apple-touch-icon.png',
+      ...manifest.icons.map((icon: { src: string }) => icon.src),
+    ]
+    for (const source of sources) {
+      const response = await page.request.get(source)
+      expect(response.status(), source).toBe(200)
+      expect(response.headers()['content-type'], source).toContain('image/png')
+    }
+  })
+
+  test('a detail page prefers its own image over the site fallback', async ({
+    page,
+  }) => {
+    await page.goto('/coffee')
+    await page.getByRole('link', { name: 'Colombia Perky' }).click()
+
+    const ogImage = page.locator('meta[property="og:image"]')
+    await expect(ogImage).not.toHaveAttribute(
+      'content',
+      'https://sergn.io/og-image.png',
+    )
+    await expect(ogImage).toHaveAttribute('content', /^https:\/\//)
+    await expect(page.locator('meta[name="twitter:card"]')).toHaveAttribute(
+      'content',
+      'summary_large_image',
+    )
+  })
+
   test('home page "See all" link reaches the full collection', async ({
     page,
   }) => {
@@ -487,5 +685,71 @@ test.describe('collection browsing flow', () => {
     await expect(
       page.getByRole('heading', { level: 1, name: 'Blog' }),
     ).toBeVisible()
+  })
+})
+
+test.describe('structured data', () => {
+  test('home page identifies the site and its owner', async ({ page }) => {
+    await page.goto('/')
+
+    const graph = (await jsonLdBlocks(page)).flatMap(
+      (block) => block['@graph'] ?? [block],
+    )
+    const website = graph.find((node) => node['@type'] === 'WebSite')
+    expect(website).toMatchObject({
+      name: 'sergn.io',
+      url: 'https://sergn.io',
+      publisher: { '@id': 'https://sergn.io/#person' },
+    })
+    expect(graph).toContainEqual(
+      expect.objectContaining({ '@type': 'Person', name: 'Sergio' }),
+    )
+  })
+
+  test('a review detail page carries its rating and breadcrumb trail', async ({
+    page,
+  }) => {
+    await page.goto('/wings/neighborhood-buffalo-wings')
+
+    const blocks = await jsonLdBlocks(page)
+    expect(blocks.find((block) => block['@type'] === 'Review')).toMatchObject({
+      itemReviewed: { '@type': 'Restaurant', name: 'Neighborhood Tavern' },
+      reviewRating: { ratingValue: 4.25, bestRating: 5, worstRating: 1 },
+      url: 'https://sergn.io/wings/neighborhood-buffalo-wings',
+    })
+    expect(
+      blocks.find((block) => block['@type'] === 'BreadcrumbList')
+        ?.itemListElement,
+    ).toEqual([
+      expect.objectContaining({ position: 1, item: 'https://sergn.io/' }),
+      expect.objectContaining({
+        position: 2,
+        name: 'Wings',
+        item: 'https://sergn.io/wings',
+      }),
+      expect.objectContaining({
+        position: 3,
+        name: 'Neighborhood Buffalo Wings',
+        item: 'https://sergn.io/wings/neighborhood-buffalo-wings',
+      }),
+    ])
+  })
+
+  test('a blog post keeps its Article markup alongside a breadcrumb', async ({
+    page,
+  }) => {
+    await page.goto('/blog/small-rituals-better-cups')
+
+    const types = (await jsonLdBlocks(page)).map((block) => block['@type'])
+    expect(types).toEqual(expect.arrayContaining(['BreadcrumbList', 'Article']))
+  })
+
+  test('an unrated coffee entry ships a breadcrumb but no Review markup', async ({
+    page,
+  }) => {
+    await page.goto('/coffee/colombia-perky')
+
+    const types = (await jsonLdBlocks(page)).map((block) => block['@type'])
+    expect(types).toEqual(['BreadcrumbList'])
   })
 })

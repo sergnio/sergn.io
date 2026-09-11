@@ -1,7 +1,7 @@
 import { createFileRoute, notFound } from '@tanstack/react-router'
 import { ContentDetail } from '#/components/content-detail'
 import { getDocument } from '#/lib/content.functions'
-import { articleJsonLd, contentHead } from '#/lib/metadata'
+import { detailHead } from '#/lib/metadata'
 
 export const Route = createFileRoute('/blog/$slug')({
   loader: async ({ params }) => {
@@ -11,18 +11,7 @@ export const Route = createFileRoute('/blog/$slug')({
     if (!document || document._type !== 'post') throw notFound()
     return document
   },
-  head: ({ loaderData }) =>
-    loaderData
-      ? {
-          ...contentHead(loaderData, `/blog/${loaderData.slug}`),
-          scripts: [
-            {
-              type: 'application/ld+json',
-              children: articleJsonLd(loaderData),
-            },
-          ],
-        }
-      : {},
+  head: ({ loaderData }) => (loaderData ? detailHead('blog', loaderData) : {}),
   component: BlogDetail,
 })
 

@@ -5,6 +5,11 @@ import { ContentImage } from './content-image'
 type ContentCardProps = {
   collection: CollectionName
   document: ContentDocument
+  /** Heading level for the card title, so cards never skip a level in the
+      page outline: h2 under a page h1, h3 under a section h2. */
+  headingLevel?: 2 | 3
+  /** Set on the one card whose image a page paints its LCP with. */
+  priority?: boolean
 }
 
 const labels: Record<CollectionName, string> = {
@@ -23,7 +28,12 @@ function cardSummary(document: ContentDocument) {
   return document.excerpt
 }
 
-function cardImage(document: ContentDocument) {
+/**
+ * A card's image is the only thing on it big enough to be an LCP candidate,
+ * and not every document has one, so callers deciding which card to
+ * prioritise have to ask this rather than assume the first card.
+ */
+export function cardImage(document: ContentDocument) {
   return document._type === 'post' ? document.coverImage : document.heroImage
 }
 
@@ -39,7 +49,16 @@ function cardRating(document: ContentDocument) {
   return undefined
 }
 
-export function ContentCard({ collection, document }: ContentCardProps) {
+export function ContentCard({
+  collection,
+  document,
+  headingLevel = 3,
+  priority = false,
+}: ContentCardProps) {
+  const Heading = `h${headingLevel}` as const
+  const date = cardDate(document)
+  const rating = cardRating(document)
+
   return (
     <article className="content-card">
       <a
@@ -50,6 +69,7 @@ export function ContentCard({ collection, document }: ContentCardProps) {
       >
         <ContentImage
           image={cardImage(document)}
+          priority={priority}
           sizes="(min-width: 720px) 33vw, 100vw"
         />
         {!cardImage(document) ? (
@@ -60,15 +80,18 @@ export function ContentCard({ collection, document }: ContentCardProps) {
       </a>
       <div className="content-card__body">
         <p className="eyebrow">{labels[collection]}</p>
-        <h3>
+        <Heading>
           <a href={`/${collection}/${document.slug}`}>{document.title}</a>
-        </h3>
+        </Heading>
         {cardSummary(document) ? <p>{cardSummary(document)}</p> : null}
         <div className="content-card__meta">
-          {cardRating(document) ? <span>{cardRating(document)}</span> : null}
-          {cardDate(document) ? (
-            <time>{formatDate(cardDate(document))}</time>
+          {rating ? (
+            <span className="content-card__rating">
+              <span className="visually-hidden">Rating: </span>
+              {rating}
+            </span>
           ) : null}
+          {date ? <time dateTime={date}>{formatDate(date)}</time> : null}
         </div>
       </div>
     </article>

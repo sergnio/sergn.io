@@ -1,19 +1,19 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { CollectionPage } from '#/components/collection-page'
 import { getCollection } from '#/lib/content.functions'
-import { canonicalUrl } from '#/lib/metadata'
+import { collectionJsonLd, collectionTitles, pageHead } from '#/lib/metadata'
 
 export const Route = createFileRoute('/na-beers/')({
   loader: () => getCollection({ data: { collection: 'na-beers' } }),
   head: () => ({
-    meta: [
-      { title: 'N/A Beers | sergn.io' },
-      {
-        name: 'description',
-        content: 'N/A beer reviews for the beers worth drinking again.',
-      },
+    ...pageHead({
+      description: 'N/A beer reviews for the beers worth drinking again.',
+      path: '/na-beers',
+      title: collectionTitles['na-beers'],
+    }),
+    scripts: [
+      { type: 'application/ld+json', children: collectionJsonLd('na-beers') },
     ],
-    links: [{ rel: 'canonical', href: canonicalUrl('/na-beers') }],
   }),
   component: NaBeersIndex,
 })
