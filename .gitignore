@@ -4,6 +4,10 @@ studio/dist/
 studio/.sanity/
 .netlify/
 coverage/
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
 .next/
 .env.local
 .env.*.local

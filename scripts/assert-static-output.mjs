@@ -37,11 +37,33 @@ for (const collection of collections) {
     await requireFile(`${collection}/${slug}/index.html`)
   }
 
-  if (contentSource === 'fixtures' && slugs.length === 0) {
-    throw new Error(
-      `Fixture ${collection} index did not link to a detail route.`,
+  if (slugs.length === 0) {
+    if (contentSource === 'fixtures') {
+      throw new Error(
+        `Fixture ${collection} index did not link to a detail route.`,
+      )
+    }
+
+    // An empty dataset is a supported production state: the index must still
+    // prerender its heading and the empty-state copy rather than nothing.
+    const html = await readFile(
+      path.join(outputDirectory, collection, 'index.html'),
+      'utf8',
     )
+    if (!html.includes('class="empty-state"')) {
+      throw new Error(
+        `Empty ${collection} index did not prerender the empty-state message.`,
+      )
+    }
+    if (!/<h1[^>]*>/.test(html)) {
+      throw new Error(`Empty ${collection} index did not prerender a heading.`)
+    }
   }
+}
+
+const home = await readFile(path.join(outputDirectory, 'index.html'), 'utf8')
+if (!/<h1[^>]*>/.test(home)) {
+  throw new Error('The home page did not prerender a heading.')
 }
 
 const sitemap = await readFile(
@@ -56,4 +78,16 @@ if (sitemap.includes('https://sergn.io/syrup')) {
 }
 if (sitemap.includes('https://sergn.io/not-found')) {
   throw new Error('The 404 page must not appear in the sitemap.')
+}
+if (sitemap.includes('https://sergn.io/retired-content')) {
+  throw new Error(
+    'The retired-content page is noindex and must not appear in the sitemap.',
+  )
+}
+for (const collection of collections) {
+  if (sitemap.includes(`<loc>https://sergn.io/${collection}/</loc>`)) {
+    throw new Error(
+      `The sitemap lists a trailing-slash duplicate of /${collection}, which is not its canonical URL.`,
+    )
+  }
 }

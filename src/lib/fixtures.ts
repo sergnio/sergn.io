@@ -38,12 +38,16 @@ export const fixtureCoffee: Coffee[] = [
     roaster: 'Avo Coffee Roasters',
     origin: 'Colombia',
     boughtFrom: 'Avo Coffee Roasters',
+    purchaseUrl: 'https://avocoffeeroasters.example.com',
     price: { amountCents: 1543, currency: 'USD' },
     bagSize: { amount: 250, unit: 'g' },
-    heroImage: fixtureImage(
-      'photo-1495474472287-4d71bcdd2085',
-      'A cup of dark coffee beside a coffee brewer',
-    ),
+    heroImage: {
+      ...fixtureImage(
+        'photo-1495474472287-4d71bcdd2085',
+        'A cup of dark coffee beside a coffee brewer',
+      ),
+      caption: 'Brewed fresh at the counter.',
+    },
     tastingNotes: ['Caramel', 'Citrus', 'Balanced'],
     notes: paragraph('A reliable coffee with a sweet, rounded cup.'),
     brewRecipes: [
@@ -57,6 +61,10 @@ export const fixtureCoffee: Coffee[] = [
           number: 4,
           rotations: 1,
         },
+        doseGrams: 18,
+        waterGrams: 250,
+        ratio: '1:14',
+        steps: ['Fill the base with hot water', 'Add grounds, tamp lightly'],
       },
       {
         _key: 'filter',
@@ -65,6 +73,31 @@ export const fixtureCoffee: Coffee[] = [
           name: 'Manual grinder',
           system: 'manual-number-rotations',
           number: 2,
+          rotations: 1,
+        },
+      },
+    ],
+  },
+  {
+    _id: 'coffee-ethiopia',
+    _type: 'coffee',
+    _createdAt: '2025-02-02T12:00:00.000Z',
+    _updatedAt: '2025-02-02T12:00:00.000Z',
+    title: 'Ethiopia Direct Trade',
+    slug: 'ethiopia-direct-trade',
+    publishedAt: '2025-02-02T12:00:00.000Z',
+    origin: 'Ethiopia',
+    boughtFrom: 'Farmer direct import',
+    bagSize: { amount: 340, unit: 'g' },
+    notes: paragraph('A bright, unnamed-roaster bag picked up on a trip.'),
+    brewRecipes: [
+      {
+        _key: 'pourover',
+        method: 'Pour Over',
+        grinder: {
+          name: 'Manual grinder',
+          system: 'manual-number-rotations',
+          number: 6,
           rotations: 1,
         },
       },
@@ -162,9 +195,34 @@ export const fixturePosts: Post[] = [
       'photo-1442512595331-e89e73853f31',
       'Coffee being poured from a ceramic dripper',
     ),
-    body: paragraph(
-      'The best routine is one that makes room for paying attention.',
-    ),
+    body: [
+      {
+        _key: 'paragraph',
+        _type: 'block' as const,
+        children: [
+          { _key: 'span-0', _type: 'span' as const, text: 'The best ' },
+          {
+            _key: 'span-1',
+            _type: 'span' as const,
+            marks: ['morning-ritual-link'],
+            text: 'morning ritual',
+          },
+          {
+            _key: 'span-2',
+            _type: 'span' as const,
+            text: ' is one that makes room for paying attention.',
+          },
+        ],
+        markDefs: [
+          {
+            _key: 'morning-ritual-link',
+            _type: 'link',
+            href: 'https://example.com/morning-rituals',
+          },
+        ],
+        style: 'normal',
+      },
+    ],
     tags: ['Coffee', 'Rituals'],
   },
   {
@@ -176,21 +234,139 @@ export const fixturePosts: Post[] = [
     slug: 'a-table-for-two',
     publishedAt: '2025-03-12T12:00:00.000Z',
     excerpt: 'Notes from a lunch that was better than the sum of its parts.',
-    coverImage: fixtureImage(
-      'photo-1414235077428-338989a2e8c0',
-      'A warmly set table ready for a meal',
-    ),
-    body: paragraph('The lunch was simple, slow, and worth remembering.'),
+    body: [
+      {
+        _key: 'heading',
+        _type: 'block' as const,
+        children: [
+          {
+            _key: 'heading-span',
+            _type: 'span' as const,
+            text: 'The setting',
+          },
+        ],
+        style: 'h2',
+      },
+      {
+        _key: 'paragraph',
+        _type: 'block' as const,
+        children: [
+          {
+            _key: 'span',
+            _type: 'span' as const,
+            text: 'The lunch was simple, slow, and worth remembering.',
+          },
+        ],
+        style: 'normal',
+      },
+      {
+        _key: 'quote',
+        _type: 'block' as const,
+        children: [
+          {
+            _key: 'quote-span',
+            _type: 'span' as const,
+            text: 'Good food does not need to be complicated.',
+          },
+        ],
+        style: 'blockquote',
+      },
+      {
+        _key: 'list-item-1',
+        _type: 'block' as const,
+        children: [
+          {
+            _key: 'list-span-1',
+            _type: 'span' as const,
+            text: 'Order the rye',
+          },
+        ],
+        listItem: 'bullet',
+        style: 'normal',
+      },
+      {
+        _key: 'list-item-2',
+        _type: 'block' as const,
+        children: [
+          {
+            _key: 'list-span-2',
+            _type: 'span' as const,
+            text: 'Ask for the sauce on the side',
+          },
+        ],
+        listItem: 'bullet',
+        style: 'normal',
+      },
+      {
+        _key: 'number-item-1',
+        _type: 'block' as const,
+        children: [
+          {
+            _key: 'number-span-1',
+            _type: 'span' as const,
+            text: 'Arrive hungry',
+          },
+        ],
+        listItem: 'number',
+        style: 'normal',
+      },
+      {
+        _key: 'number-item-2',
+        _type: 'block' as const,
+        children: [
+          {
+            _key: 'number-span-2',
+            _type: 'span' as const,
+            text: 'Leave satisfied',
+          },
+        ],
+        listItem: 'number',
+        style: 'normal',
+      },
+      {
+        _key: 'code-paragraph',
+        _type: 'block' as const,
+        children: [
+          { _key: 'code-span-0', _type: 'span' as const, text: 'Table for ' },
+          {
+            _key: 'code-span-1',
+            _type: 'span' as const,
+            marks: ['code'],
+            text: 'two',
+          },
+        ],
+        style: 'normal',
+      },
+      {
+        _key: 'inline-image',
+        _type: 'imageWithAlt' as const,
+        ...fixtureImage(
+          'photo-1414235077428-338989a2e8c0',
+          'A rye sandwich cut in half on a wooden board',
+        ),
+        caption: 'The rye, cut and ready.',
+      },
+    ],
     tags: ['Food'],
   },
 ]
 
+function byPublishedDesc<
+  T extends { publishedAt?: string; _createdAt: string },
+>(documents: T[]): T[] {
+  return [...documents].sort(
+    (a, b) =>
+      new Date(b.publishedAt ?? b._createdAt).getTime() -
+      new Date(a.publishedAt ?? a._createdAt).getTime(),
+  )
+}
+
 const collections = {
-  coffee: fixtureCoffee,
-  wings: fixtureWings,
-  'na-beers': fixtureNaBeers,
-  reubens: fixtureReubens,
-  blog: fixturePosts,
+  coffee: byPublishedDesc(fixtureCoffee),
+  wings: byPublishedDesc(fixtureWings),
+  'na-beers': byPublishedDesc(fixtureNaBeers),
+  reubens: byPublishedDesc(fixtureReubens),
+  blog: byPublishedDesc(fixturePosts),
 } as const
 
 export function getFixtureCollection<T extends keyof typeof collections>(
@@ -208,10 +384,10 @@ export function getFixtureDocument(
 
 export function getFixtureHomeContent(): HomeContent {
   return {
-    coffee: fixtureCoffee.slice(0, 1),
-    wings: fixtureWings.slice(0, 1),
-    naBeers: fixtureNaBeers.slice(0, 1),
-    reubens: fixtureReubens.slice(0, 1),
-    posts: fixturePosts.slice(0, 3),
+    coffee: collections.coffee.slice(0, 1),
+    wings: collections.wings.slice(0, 1),
+    naBeers: collections['na-beers'].slice(0, 1),
+    reubens: collections.reubens.slice(0, 1),
+    posts: collections.blog.slice(0, 3),
   }
 }

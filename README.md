@@ -7,8 +7,8 @@ nested `studio/` workspace is the authenticated Sanity editing interface.
 
 ## Local development
 
-Use Node 22.12 or later. Copy the public configuration template, then replace
-only the placeholders after a Sanity project has been created:
+Use Node 22.12 or later. Copy the public configuration template, which already
+carries the real public project identifiers:
 
 ```bash
 cp .env.example .env.local
@@ -50,11 +50,18 @@ npm run lint
 npm run check:format
 npm test
 npm run build:fixtures
+npm run build
 ```
 
 `npm run build:fixtures` verifies static prerendering, dynamic detail-route
 output, sitemap generation, and the intentional absence of syrup from the
 public information architecture.
+
+`npm run build` (with `.env.local` in place) builds against the live public
+Sanity dataset over the network. It must succeed even while that dataset holds
+no documents: `scripts/assert-static-output.mjs` then requires every collection
+index to prerender its heading and empty-state message instead of nothing. CI
+runs this as the `build-live-sanity` job.
 
 ## Hosting contract
 

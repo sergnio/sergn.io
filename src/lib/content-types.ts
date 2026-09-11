@@ -49,6 +49,7 @@ export type PortableTextBlock = {
     _type: string
     href?: string
   }>
+  listItem?: 'bullet' | 'number'
   style?: string
 }
 
