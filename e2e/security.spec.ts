@@ -76,3 +76,53 @@ test.describe('Content Security Policy', () => {
     })
   }
 })
+
+test.describe('Analytics', () => {
+  test('every page ships the GoatCounter tracker and the CSP admits it', async ({
+    page,
+  }) => {
+    const csp = await productionCsp()
+    // The tracker is loaded from one origin and beacons to another; a policy
+    // that allows only the first fails silently in production, because the
+    // beacon is a fire-and-forget image request nothing ever awaits.
+    expect(csp).toContain('https://gc.zgo.at')
+    expect(csp).toMatch(/img-src[^;]*https:\/\/sergnio\.goatcounter\.com/)
+
+    await page.goto('/')
+    const tracker = page.locator('script[src="https://gc.zgo.at/count.js"]')
+    await expect(tracker).toHaveAttribute(
+      'data-goatcounter',
+      'https://sergnio.goatcounter.com/count',
+    )
+  })
+
+  test('client-side navigation reports a pageview', async ({ page }) => {
+    // count.js is blocked so the test never sends real traffic to
+    // GoatCounter; the stub records what the site would have reported.
+    await page.route('https://gc.zgo.at/count.js', (route) =>
+      route.fulfill({ status: 200, contentType: 'text/javascript', body: '' }),
+    )
+    await page.addInitScript(() => {
+      const counted: string[] = []
+      ;(window as unknown as { __counted: string[] }).__counted = counted
+      ;(
+        window as unknown as {
+          goatcounter: { count: (vars: { path: string }) => void }
+        }
+      ).goatcounter = {
+        count: (vars) => counted.push(vars.path),
+      }
+    })
+
+    await page.goto('/')
+    // The landing page is counted by count.js itself, so the hook must stay
+    // silent until the first client-side transition.
+    expect(await page.evaluate(() => (window as any).__counted)).toEqual([])
+
+    await page.getByRole('link', { name: 'Coffee' }).first().click()
+    await expect(page).toHaveURL(/\/coffee$/)
+    await expect
+      .poll(() => page.evaluate(() => (window as any).__counted))
+      .toEqual(['/coffee'])
+  })
+})
