@@ -4,114 +4,119 @@ Four ramps - Mauve, Blue, Red, Neutral - each with ten steps from `50` (lightest
 to `900` (darkest). This is a reference sheet transcribed from the palette design;
 it is not yet wired into `src/styles.css`, which still uses the evergreen/gold
 tokens. Use these values when a design calls for a palette step by name
-(e.g. "Blue 900" -> `#1A2D3C`).
+(e.g. "Blue 900" -> `hsl(206 40% 17%)`).
+
+Values are given in HSL, which makes the ramps easy to read - within a ramp the hue
+and saturation stay roughly fixed and only the lightness moves. The hex column is the
+source of truth: HSL channels are rounded to whole numbers, so converting back can
+land a point or two off.
 
 ## Mauve
 
-| Step | Hex       |
-| ---- | --------- |
-| 50   | `#F8F7F8` |
-| 100  | `#EFECEE` |
-| 200  | `#DED8DC` |
-| 300  | `#CBB9C4` |
-| 400  | `#B096A7` |
-| 500  | `#926D85` |
-| 600  | `#75576A` |
-| 700  | `#5D4655` |
-| 800  | `#463440` |
-| 900  | `#30272D` |
+| Step | HSL                | Hex       |
+| ---- | ------------------ | --------- |
+| 50   | `hsl(300 7% 97%)`  | `#F8F7F8` |
+| 100  | `hsl(320 9% 93%)`  | `#EFECEE` |
+| 200  | `hsl(320 8% 86%)`  | `#DED8DC` |
+| 300  | `hsl(323 15% 76%)` | `#CBB9C4` |
+| 400  | `hsl(321 14% 64%)` | `#B096A7` |
+| 500  | `hsl(321 15% 50%)` | `#926D85` |
+| 600  | `hsl(322 15% 40%)` | `#75576A` |
+| 700  | `hsl(321 14% 32%)` | `#5D4655` |
+| 800  | `hsl(320 15% 24%)` | `#463440` |
+| 900  | `hsl(320 10% 17%)` | `#30272D` |
 
 ## Blue
 
-| Step | Hex       |
-| ---- | --------- |
-| 50   | `#F5F8FA` |
-| 100  | `#E7EEF3` |
-| 200  | `#CFDCE7` |
-| 300  | `#9FC4E4` |
-| 400  | `#6FA7D7` |
-| 500  | `#3885C7` |
-| 600  | `#2C6AA0` |
-| 700  | `#245580` |
-| 800  | `#1B4060` |
-| 900  | `#1A2D3C` |
+| Step | HSL                | Hex       |
+| ---- | ------------------ | --------- |
+| 50   | `hsl(204 33% 97%)` | `#F5F8FA` |
+| 100  | `hsl(205 33% 93%)` | `#E7EEF3` |
+| 200  | `hsl(207 33% 86%)` | `#CFDCE7` |
+| 300  | `hsl(208 56% 76%)` | `#9FC4E4` |
+| 400  | `hsl(208 57% 64%)` | `#6FA7D7` |
+| 500  | `hsl(208 56% 50%)` | `#3885C7` |
+| 600  | `hsl(208 57% 40%)` | `#2C6AA0` |
+| 700  | `hsl(208 56% 32%)` | `#245580` |
+| 800  | `hsl(208 56% 24%)` | `#1B4060` |
+| 900  | `hsl(206 40% 17%)` | `#1A2D3C` |
 
 ## Red
 
-| Step | Hex       |
-| ---- | --------- |
-| 50   | `#F9F6F6` |
-| 100  | `#F1EAEA` |
-| 200  | `#E2D4D4` |
-| 300  | `#D6ADAD` |
-| 400  | `#C28585` |
-| 500  | `#AA5555` |
-| 600  | `#884444` |
-| 700  | `#6D3636` |
-| 800  | `#522929` |
-| 900  | `#352121` |
+| Step | HSL              | Hex       |
+| ---- | ---------------- | --------- |
+| 50   | `hsl(0 20% 97%)` | `#F9F6F6` |
+| 100  | `hsl(0 20% 93%)` | `#F1EAEA` |
+| 200  | `hsl(0 19% 86%)` | `#E2D4D4` |
+| 300  | `hsl(0 33% 76%)` | `#D6ADAD` |
+| 400  | `hsl(0 33% 64%)` | `#C28585` |
+| 500  | `hsl(0 33% 50%)` | `#AA5555` |
+| 600  | `hsl(0 33% 40%)` | `#884444` |
+| 700  | `hsl(0 34% 32%)` | `#6D3636` |
+| 800  | `hsl(0 33% 24%)` | `#522929` |
+| 900  | `hsl(0 23% 17%)` | `#352121` |
 
 ## Neutral
 
-| Step | Hex       |
-| ---- | --------- |
-| 50   | `#FAFAF7` |
-| 100  | `#F2F0ED` |
-| 200  | `#E3E0DB` |
-| 300  | `#C9C7BF` |
-| 400  | `#A3A199` |
-| 500  | `#807D78` |
-| 600  | `#615E5C` |
-| 700  | `#474545` |
-| 800  | `#333330` |
-| 900  | `#262424` |
+| Step | HSL               | Hex       |
+| ---- | ----------------- | --------- |
+| 50   | `hsl(60 23% 97%)` | `#FAFAF7` |
+| 100  | `hsl(36 16% 94%)` | `#F2F0ED` |
+| 200  | `hsl(38 12% 87%)` | `#E3E0DB` |
+| 300  | `hsl(48 8% 77%)`  | `#C9C7BF` |
+| 400  | `hsl(48 5% 62%)`  | `#A3A199` |
+| 500  | `hsl(37 3% 49%)`  | `#807D78` |
+| 600  | `hsl(24 3% 37%)`  | `#615E5C` |
+| 700  | `hsl(0 1% 27%)`   | `#474545` |
+| 800  | `hsl(60 3% 19%)`  | `#333330` |
+| 900  | `hsl(0 3% 15%)`   | `#262424` |
 
 ## As CSS custom properties
 
 ```css
 :root {
-  --mauve-50: #f8f7f8;
-  --mauve-100: #efecee;
-  --mauve-200: #ded8dc;
-  --mauve-300: #cbb9c4;
-  --mauve-400: #b096a7;
-  --mauve-500: #926d85;
-  --mauve-600: #75576a;
-  --mauve-700: #5d4655;
-  --mauve-800: #463440;
-  --mauve-900: #30272d;
+  --mauve-50: hsl(300 7% 97%);
+  --mauve-100: hsl(320 9% 93%);
+  --mauve-200: hsl(320 8% 86%);
+  --mauve-300: hsl(323 15% 76%);
+  --mauve-400: hsl(321 14% 64%);
+  --mauve-500: hsl(321 15% 50%);
+  --mauve-600: hsl(322 15% 40%);
+  --mauve-700: hsl(321 14% 32%);
+  --mauve-800: hsl(320 15% 24%);
+  --mauve-900: hsl(320 10% 17%);
 
-  --blue-50: #f5f8fa;
-  --blue-100: #e7eef3;
-  --blue-200: #cfdce7;
-  --blue-300: #9fc4e4;
-  --blue-400: #6fa7d7;
-  --blue-500: #3885c7;
-  --blue-600: #2c6aa0;
-  --blue-700: #245580;
-  --blue-800: #1b4060;
-  --blue-900: #1a2d3c;
+  --blue-50: hsl(204 33% 97%);
+  --blue-100: hsl(205 33% 93%);
+  --blue-200: hsl(207 33% 86%);
+  --blue-300: hsl(208 56% 76%);
+  --blue-400: hsl(208 57% 64%);
+  --blue-500: hsl(208 56% 50%);
+  --blue-600: hsl(208 57% 40%);
+  --blue-700: hsl(208 56% 32%);
+  --blue-800: hsl(208 56% 24%);
+  --blue-900: hsl(206 40% 17%);
 
-  --red-50: #f9f6f6;
-  --red-100: #f1eaea;
-  --red-200: #e2d4d4;
-  --red-300: #d6adad;
-  --red-400: #c28585;
-  --red-500: #aa5555;
-  --red-600: #884444;
-  --red-700: #6d3636;
-  --red-800: #522929;
-  --red-900: #352121;
+  --red-50: hsl(0 20% 97%);
+  --red-100: hsl(0 20% 93%);
+  --red-200: hsl(0 19% 86%);
+  --red-300: hsl(0 33% 76%);
+  --red-400: hsl(0 33% 64%);
+  --red-500: hsl(0 33% 50%);
+  --red-600: hsl(0 33% 40%);
+  --red-700: hsl(0 34% 32%);
+  --red-800: hsl(0 33% 24%);
+  --red-900: hsl(0 23% 17%);
 
-  --neutral-50: #fafaf7;
-  --neutral-100: #f2f0ed;
-  --neutral-200: #e3e0db;
-  --neutral-300: #c9c7bf;
-  --neutral-400: #a3a199;
-  --neutral-500: #807d78;
-  --neutral-600: #615e5c;
-  --neutral-700: #474545;
-  --neutral-800: #333330;
-  --neutral-900: #262424;
+  --neutral-50: hsl(60 23% 97%);
+  --neutral-100: hsl(36 16% 94%);
+  --neutral-200: hsl(38 12% 87%);
+  --neutral-300: hsl(48 8% 77%);
+  --neutral-400: hsl(48 5% 62%);
+  --neutral-500: hsl(37 3% 49%);
+  --neutral-600: hsl(24 3% 37%);
+  --neutral-700: hsl(0 1% 27%);
+  --neutral-800: hsl(60 3% 19%);
+  --neutral-900: hsl(0 3% 15%);
 }
 ```
