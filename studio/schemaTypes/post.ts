@@ -69,13 +69,6 @@ export const post = defineType({
       validation: (Rule) => Rule.unique().max(8),
     }),
     defineField({
-      name: 'featured',
-      title: 'Feature on home page',
-      type: 'boolean',
-      group: 'optional',
-      fieldset: 'optionalDetails',
-    }),
-    defineField({
       name: 'seo',
       title: 'SEO overrides',
       type: 'object',

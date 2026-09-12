@@ -91,7 +91,6 @@ type BaseDocument = {
   title: string
   slug: string
   publishedAt?: string
-  featured?: boolean
 }
 
 export type Coffee = BaseDocument & {
@@ -177,11 +176,3 @@ export type Post = BaseDocument & {
 }
 
 export type ContentDocument = Coffee | WingReview | NaBeer | ReubenReview | Post
-
-export type HomeContent = {
-  coffee: Coffee[]
-  wings: WingReview[]
-  naBeers: NaBeer[]
-  reubens: ReubenReview[]
-  posts: Post[]
-}

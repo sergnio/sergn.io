@@ -646,15 +646,12 @@ test.describe('collection browsing flow', () => {
     )
   })
 
-  test('home page "See all" link reaches the full collection', async ({
-    page,
-  }) => {
+  test('home page index reaches the full collection', async ({ page }) => {
     await page.goto('/')
 
     await page
-      .getByRole('heading', { level: 2, name: 'N/A beers' })
-      .locator('../..')
-      .getByRole('link', { name: 'See all' })
+      .getByRole('navigation', { name: 'Sections' })
+      .getByRole('link', { name: 'N/A beers', exact: true })
       .click()
 
     await expect(page).toHaveURL(/\/na-beers\/?$/)
@@ -662,29 +659,6 @@ test.describe('collection browsing flow', () => {
       page.getByRole('heading', { level: 1, name: 'N/A Beers' }),
     ).toBeVisible()
     await expect(page.getByRole('link', { name: 'Bright Lager' })).toBeVisible()
-  })
-
-  test('home page blog section shows every recent post and links to the full blog', async ({
-    page,
-  }) => {
-    await page.goto('/')
-
-    const blogSection = page.locator('section', {
-      has: page.getByRole('heading', { level: 2, name: 'From the blog' }),
-    })
-    await expect(
-      blogSection.getByRole('link', { name: 'Small rituals, better cups' }),
-    ).toBeVisible()
-    await expect(
-      blogSection.getByRole('link', { name: 'A table for two' }),
-    ).toBeVisible()
-
-    await blogSection.getByRole('link', { name: 'All posts' }).click()
-
-    await expect(page).toHaveURL(/\/blog\/?$/)
-    await expect(
-      page.getByRole('heading', { level: 1, name: 'Blog' }),
-    ).toBeVisible()
   })
 })
 
