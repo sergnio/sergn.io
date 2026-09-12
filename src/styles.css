@@ -287,6 +287,50 @@ h3 {
   line-height: 1.45;
 }
 
+.home-page {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 60vh;
+}
+
+.home-index {
+  display: flex;
+  justify-content: center;
+}
+
+.home-index ul {
+  width: min(100%, 34rem);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.home-index li + li::before {
+  display: block;
+  width: 3rem;
+  height: 1px;
+  margin: 0 auto;
+  background: var(--line);
+  content: '';
+}
+
+.home-index a {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-block: 1.1rem;
+  min-height: 44px;
+  color: var(--evergreen);
+  font-size: 1.35rem;
+  letter-spacing: -0.02em;
+  text-decoration: none;
+}
+
+.home-index a:hover {
+  color: var(--green);
+}
+
 .home-highlights,
 .home-blog {
   display: grid;
