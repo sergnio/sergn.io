@@ -23,8 +23,11 @@ html {
 }
 
 body {
+  display: flex;
+  flex-direction: column;
   min-width: 320px;
   min-height: 100vh;
+  min-height: 100dvh;
   margin: 0;
   background:
     radial-gradient(
@@ -33,6 +36,12 @@ body {
       transparent 28rem
     ),
     var(--paper);
+}
+
+main {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
 }
 
 button,
@@ -290,8 +299,8 @@ h3 {
 .home-page {
   display: flex;
   flex-direction: column;
+  flex: 1;
   justify-content: center;
-  min-height: 60vh;
 }
 
 .home-index {

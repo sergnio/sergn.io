@@ -28,7 +28,6 @@ const notRenderedInBody: Array<{
 }> = [
   { path: /^_(id|type|createdAt|updatedAt)$/, why: 'Sanity system fields' },
   { path: /^slug$/, why: 'the page is already at its own URL' },
-  { path: /^featured$/, why: 'a home page selection flag, not page copy' },
   { path: /^seo\./, why: 'overrides for the document head, not the body' },
   { path: /\._(key|type)$/, why: 'array and block identity' },
   { path: /\.(style|listItem)$/, why: 'portable text block styling' },

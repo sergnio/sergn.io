@@ -344,13 +344,6 @@ export const coffee = defineType({
       fieldset: 'optionalDetails',
     }),
     defineField({
-      name: 'featured',
-      title: 'Feature on home page',
-      type: 'boolean',
-      group: 'optional',
-      fieldset: 'optionalDetails',
-    }),
-    defineField({
       name: 'publishedAt',
       title: 'Published at',
       type: 'datetime',
