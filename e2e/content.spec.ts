@@ -569,7 +569,7 @@ test.describe('collection browsing flow', () => {
       )
       await expect(page.locator('meta[name="theme-color"]')).toHaveAttribute(
         'content',
-        '#183f34',
+        '#1a2d3c',
       )
     }
   })
@@ -580,7 +580,7 @@ test.describe('collection browsing flow', () => {
 
     const manifest = await manifestResponse.json()
     expect(manifest.start_url).toBe('/')
-    expect(manifest.theme_color).toBe('#183f34')
+    expect(manifest.theme_color).toBe('#1a2d3c')
 
     const sources = [
       '/apple-touch-icon.png',

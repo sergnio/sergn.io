@@ -1,12 +1,38 @@
+/*
+ * Palette ramps - docs/color-palette.md holds the full four-ramp reference.
+ * Only the steps the site actually uses are declared; add a step here when a
+ * rule needs it rather than inlining a hex.
+ */
 :root {
-  --paper: #f7f3eb;
-  --ink: #1c2924;
-  --muted: #58645e;
-  --line: #d7d2c6;
-  --evergreen: #183f34;
-  --green: #28634d;
-  --gold: #d7a945;
-  --card: #fffdf8;
+  --neutral-50: hsl(60 23% 97%);
+  --neutral-100: hsl(36 16% 94%);
+  --neutral-200: hsl(38 12% 87%);
+  --neutral-300: hsl(48 8% 77%);
+  --neutral-600: hsl(24 3% 37%);
+  --neutral-800: hsl(60 3% 19%);
+  --neutral-900: hsl(0 3% 15%);
+  --mauve-200: hsl(320 8% 86%);
+  --mauve-500: hsl(321 15% 50%);
+  --blue-700: hsl(208 56% 32%);
+  --blue-900: hsl(206 40% 17%);
+  --red-600: hsl(0 33% 40%);
+  --red-700: hsl(0 34% 32%);
+
+  /* Semantic tokens - every rule below reaches for one of these, not a ramp
+     step, so a palette swap stays a change to this block alone. */
+  --paper: var(--neutral-100);
+  --card: var(--neutral-50);
+  --ink: var(--neutral-900);
+  --muted: var(--neutral-600);
+  --line: var(--neutral-200);
+  --brand: var(--blue-900);
+  --accent: var(--blue-700);
+  --highlight: var(--red-600);
+  --placeholder: var(--neutral-300);
+  /* Tinted panel behind inline code and recipe blocks. */
+  --wash: var(--mauve-200);
+  --shadow: rgb(38 36 36 / 8%);
+
   font-family: 'Newsreader', Georgia, serif;
   color: var(--ink);
   background: var(--paper);
@@ -32,7 +58,7 @@ body {
   background:
     radial-gradient(
       circle at 85% -5%,
-      rgb(215 169 69 / 18%),
+      color-mix(in srgb, var(--mauve-500) 16%, transparent),
       transparent 28rem
     ),
     var(--paper);
@@ -56,7 +82,7 @@ a {
 }
 
 a:hover {
-  color: var(--green);
+  color: var(--accent);
 }
 
 button,
@@ -76,7 +102,7 @@ img {
 }
 
 :focus-visible {
-  outline: 3px solid #9d5d00;
+  outline: 3px solid var(--red-700);
   outline-offset: 3px;
 }
 
@@ -109,7 +135,7 @@ img {
   padding: 0.6rem 0.8rem;
   transform: translateY(-200%);
   color: white;
-  background: var(--evergreen);
+  background: var(--brand);
   border-radius: 0.2rem;
   font-family: 'DM Mono', monospace;
   font-size: 0.85rem;
@@ -146,7 +172,7 @@ img {
   display: inline-flex;
   align-items: center;
   min-height: 1.75rem;
-  color: var(--evergreen);
+  color: var(--brand);
   font-family: 'DM Mono', monospace;
   font-size: 1.1rem;
   font-weight: 500;
@@ -155,7 +181,7 @@ img {
 }
 
 .wordmark span {
-  color: var(--gold);
+  color: var(--highlight);
 }
 
 .menu-button {
@@ -164,7 +190,7 @@ img {
   padding: 0.45rem 0.7rem;
   align-items: center;
   gap: 0.4rem;
-  color: var(--evergreen);
+  color: var(--brand);
   background: transparent;
   border: 1px solid var(--line);
   border-radius: 0.2rem;
@@ -188,7 +214,7 @@ img {
   padding: 0.5rem 1rem 1rem;
   background: var(--paper);
   border-bottom: 1px solid var(--line);
-  box-shadow: 0 0.75rem 1.5rem rgb(28 41 36 / 8%);
+  box-shadow: 0 0.75rem 1.5rem var(--shadow);
 }
 
 .primary-nav[data-open='true'] {
@@ -207,7 +233,7 @@ img {
   display: block;
   min-height: 2.75rem;
   padding: 0.75rem 0.35rem;
-  color: var(--evergreen);
+  color: var(--brand);
   border-bottom: 1px solid var(--line);
   font-family: 'DM Mono', monospace;
   font-size: 0.85rem;
@@ -219,7 +245,7 @@ img {
 }
 
 .primary-nav a[aria-current='page'] {
-  color: var(--green);
+  color: var(--accent);
   font-weight: 700;
 }
 
@@ -242,7 +268,7 @@ img {
 
 .eyebrow {
   margin: 0 0 0.65rem;
-  color: var(--green);
+  color: var(--accent);
   font-family: 'DM Mono', monospace;
   font-size: 0.72rem;
   font-weight: 500;
@@ -261,7 +287,7 @@ p {
 h1,
 h2,
 h3 {
-  color: var(--evergreen);
+  color: var(--brand);
   font-weight: 500;
   letter-spacing: -0.035em;
   text-wrap: balance;
@@ -364,7 +390,7 @@ h3 {
 
 .section-heading--link > a {
   padding-bottom: 0.45rem;
-  color: var(--green);
+  color: var(--accent);
   font-family: 'DM Mono', monospace;
   font-size: 0.8rem;
   font-weight: 500;
@@ -390,13 +416,13 @@ h3 {
   background: var(--card);
   border: 1px solid var(--line);
   border-radius: 0.25rem;
-  box-shadow: 0.2rem 0.25rem 0 rgb(28 41 36 / 8%);
+  box-shadow: 0.2rem 0.25rem 0 var(--shadow);
 }
 
 .content-card__image-link {
   display: block;
   color: inherit;
-  background: #d7d2c6;
+  background: var(--placeholder);
   text-decoration: none;
 }
 
@@ -410,7 +436,7 @@ h3 {
   height: auto;
   aspect-ratio: 4 / 3;
   object-fit: cover;
-  background: #d7d2c6;
+  background: var(--placeholder);
 }
 
 .content-card__placeholder {
@@ -418,7 +444,7 @@ h3 {
   aspect-ratio: 4 / 3;
   place-items: center;
   color: rgb(255 255 255 / 80%);
-  background: linear-gradient(135deg, var(--evergreen), var(--green));
+  background: linear-gradient(135deg, var(--brand), var(--accent));
   font-family: 'DM Mono', monospace;
   font-size: 0.85rem;
   text-transform: uppercase;
@@ -466,14 +492,14 @@ h3 {
 
 .content-card__rating::before {
   content: '★ ';
-  color: #b26d00;
+  color: var(--highlight);
 }
 
 .empty-state {
   max-width: 34rem;
   padding: 1.25rem;
   color: var(--muted);
-  background: rgb(255 253 248 / 65%);
+  background: color-mix(in srgb, var(--card) 65%, transparent);
   border: 1px dashed var(--line);
   border-radius: 0.2rem;
 }
@@ -579,7 +605,7 @@ figcaption {
 }
 
 .rich-text {
-  color: #29352f;
+  color: var(--neutral-800);
   font-size: clamp(1.15rem, 3vw, 1.35rem);
   line-height: 1.55;
 }
@@ -614,14 +640,14 @@ figcaption {
   margin-right: 0;
   margin-left: 0;
   padding-left: 1rem;
-  color: var(--green);
-  border-left: 3px solid var(--gold);
+  color: var(--accent);
+  border-left: 3px solid var(--highlight);
   font-size: 1.2em;
 }
 
 .rich-text code {
   padding: 0.1em 0.25em;
-  background: #e8e2d6;
+  background: var(--wash);
   border-radius: 0.15rem;
   font-family: 'DM Mono', monospace;
   font-size: 0.8em;
@@ -646,8 +672,8 @@ figcaption {
 
 .recipe {
   padding: 1.25rem;
-  background: #e8eee8;
-  border-left: 4px solid var(--gold);
+  background: var(--wash);
+  border-left: 4px solid var(--highlight);
 }
 
 .recipe h3 {
@@ -687,8 +713,8 @@ figcaption {
 
 .tag-list li {
   padding: 0.3rem 0.55rem;
-  color: var(--green);
-  border: 1px solid var(--green);
+  color: var(--accent);
+  border: 1px solid var(--accent);
   border-radius: 10rem;
   font-family: 'DM Mono', monospace;
   font-size: 0.7rem;
@@ -704,7 +730,7 @@ figcaption {
   margin-top: 1rem;
   padding: 0.8rem 1rem;
   color: white;
-  background: var(--evergreen);
+  background: var(--brand);
   border-radius: 0.2rem;
   font-family: 'DM Mono', monospace;
   font-size: 0.78rem;
@@ -713,7 +739,7 @@ figcaption {
 
 .button-link:hover {
   color: white;
-  background: var(--green);
+  background: var(--accent);
 }
 
 .site-footer {
@@ -767,7 +793,7 @@ figcaption {
   }
 
   .primary-nav a[aria-current='page'] {
-    box-shadow: inset 0 -2px var(--gold);
+    box-shadow: inset 0 -2px var(--highlight);
   }
 
   .card-grid {
