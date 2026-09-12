@@ -34,7 +34,6 @@ export const fixtureCoffee: Coffee[] = [
     title: 'Colombia Perky',
     slug: 'colombia-perky',
     publishedAt: '2025-01-10T12:00:00.000Z',
-    featured: true,
     roaster: 'Avo Coffee Roasters',
     origin: 'Colombia',
     boughtFrom: 'Avo Coffee Roasters',

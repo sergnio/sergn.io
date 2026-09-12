@@ -1,21 +1,16 @@
 import { expect, test } from '@playwright/test'
 
 test.describe('primary navigation', () => {
-  test('home page renders hero and latest highlights', async ({ page }) => {
+  test('home page renders a short index of every section', async ({ page }) => {
     await page.goto('/')
 
-    await expect(
-      page.getByRole('heading', {
-        name: 'Notes on good food, good drinks, and the places that make them.',
-      }),
-    ).toBeVisible()
-
-    await expect(
-      page.getByRole('heading', { level: 2, name: 'Coffee' }),
-    ).toBeVisible()
-    await expect(
-      page.getByRole('link', { name: 'Colombia Perky' }),
-    ).toBeVisible()
+    const sections = page.getByRole('navigation', { name: 'Sections' })
+    await expect(sections.getByRole('listitem')).toHaveCount(5)
+    for (const name of ['Coffee', 'Wings', 'N/A beers', 'Reubens', 'Blog']) {
+      await expect(
+        sections.getByRole('link', { name, exact: true }),
+      ).toHaveCount(1)
+    }
 
     await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
       'href',
@@ -23,44 +18,7 @@ test.describe('primary navigation', () => {
     )
   })
 
-  test('home page shows only one document per highlight collection', async ({
-    page,
-  }) => {
-    await page.goto('/')
-
-    const coffeeSection = page.locator('section', {
-      has: page.getByRole('heading', { level: 2, name: 'Coffee' }),
-    })
-    await expect(coffeeSection.locator('.card-grid > li')).toHaveCount(1)
-  })
-
-  test('home page leads with the featured document, not the newest one', async ({
-    page,
-  }) => {
-    await page.goto('/')
-
-    const coffeeSection = page.locator('section', {
-      has: page.getByRole('heading', { level: 2, name: 'Coffee' }),
-    })
-    // Colombia Perky is featured; Ethiopia Direct Trade is published later.
-    await expect(
-      coffeeSection.getByRole('link', { name: 'Colombia Perky' }),
-    ).toBeVisible()
-    await expect(
-      coffeeSection.getByRole('link', { name: 'Ethiopia Direct Trade' }),
-    ).toHaveCount(0)
-    await expect(coffeeSection.getByText('Featured')).toBeVisible()
-
-    // A collection with nothing featured still says, and shows, the latest.
-    const wingsSection = page.locator('section', {
-      has: page.getByRole('heading', { level: 2, name: 'Wings' }),
-    })
-    await expect(wingsSection.getByText('Latest')).toBeVisible()
-  })
-
-  test('the featured document is still reachable through its collection', async ({
-    page,
-  }) => {
+  test('a collection index lists every document in it', async ({ page }) => {
     await page.goto('/coffee')
 
     await expect(
@@ -69,6 +27,35 @@ test.describe('primary navigation', () => {
     await expect(
       page.getByRole('link', { name: 'Colombia Perky' }).first(),
     ).toBeVisible()
+  })
+
+  test('the footer sits on the bottom of the viewport on a short page', async ({
+    page,
+  }) => {
+    // The home page is shorter than the viewport, so without a layout that
+    // gives the footer the slack it creeps up under the content.
+    await page.setViewportSize({ height: 900, width: 1200 })
+    await page.goto('/')
+
+    const box = await page.locator('.site-footer').boundingBox()
+    const viewport = page.viewportSize()
+    expect(box).not.toBeNull()
+    expect(viewport).not.toBeNull()
+    expect(box!.y + box!.height).toBeCloseTo(viewport!.height, -1)
+  })
+
+  test('a page taller than the viewport pushes the footer below the fold', async ({
+    page,
+  }) => {
+    await page.setViewportSize({ height: 900, width: 1200 })
+    await page.goto('/coffee')
+
+    // The footer must flow after the content, never overlay or pin above it.
+    const box = await page.locator('.site-footer').boundingBox()
+    const contentBottom = await page
+      .locator('main')
+      .evaluate((element) => element.getBoundingClientRect().bottom)
+    expect(box!.y).toBeGreaterThanOrEqual(Math.floor(contentBottom))
   })
 
   test('root layout renders global meta tags and the site footer', async ({

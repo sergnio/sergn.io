@@ -180,17 +180,6 @@ detail templates) scores 100 for accessibility, best practices, and SEO. The one
 deliberate exception is `/retired-content`, which scores lower on SEO purely
 because it is `noindex` on purpose.
 
-Every document type carries a "Feature on home page" boolean. `selectForHome` in
-`src/lib/home-selection.ts` puts featured documents first and fills the rest of
-each home section with the newest remaining documents, so featuring is a nudge
-to the front rather than a separate list to curate: an author who features
-nothing keeps the newest-first home page, and a featured document still appears
-in its own collection index in date order. The section eyebrow and list label
-read `Featured` instead of `Latest` when a featured document is showing, so the
-label never claims a recency the card does not have. `src/lib/home-selection.test.ts`
-pins the ordering rules and an e2e test proves the featured fixture coffee beats
-the more recently published one on the built home page.
-
 ### Accessible geometry
 
 axe covers rules a machine can decide from the DOM. Three WCAG 2.2 AA criteria

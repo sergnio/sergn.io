@@ -128,16 +128,6 @@ test.describe('Performance', () => {
     }
   })
 
-  test('the home page leaves its card images to the hero heading', async ({
-    page,
-  }) => {
-    await page.goto('/')
-    // The home hero heading is this page's LCP element, so no card image
-    // below the fold should compete with it for the connection.
-    const eager = page.locator('.content-card img[loading="eager"]')
-    await expect(eager).toHaveCount(0)
-  })
-
   test('a collection index paints its LCP with the prioritised image', async ({
     page,
   }) => {

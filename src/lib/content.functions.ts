@@ -1,11 +1,7 @@
 import { createServerFn } from '@tanstack/react-start'
 import { staticFunctionMiddleware } from '@tanstack/start-static-server-functions'
 import type { CollectionName } from './content-types'
-import {
-  fetchCollection,
-  fetchDocument,
-  fetchHomeContent,
-} from './sanity/queries'
+import { fetchCollection, fetchDocument } from './sanity/queries'
 
 const staticData = [staticFunctionMiddleware]
 
@@ -39,10 +35,6 @@ function documentInput(data: unknown): {
 
   return { ...collection, slug: input.slug }
 }
-
-export const getHomeContent = createServerFn({ method: 'GET' })
-  .middleware(staticData)
-  .handler(async () => fetchHomeContent())
 
 export const getCollection = createServerFn({ method: 'GET' })
   .middleware(staticData)

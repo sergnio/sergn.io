@@ -75,19 +75,6 @@ test.describe('screen-reader semantics', () => {
     ).toBeVisible()
   })
 
-  test('home page highlight links are individually named', async ({ page }) => {
-    await page.goto('/')
-
-    for (const name of [
-      'See all coffee',
-      'See all wings',
-      'See all n/a beers',
-      'See all reubens',
-    ]) {
-      await expect(page.getByRole('link', { name, exact: true })).toHaveCount(1)
-    }
-  })
-
   test('ratings and dates are readable out of context', async ({ page }) => {
     await page.goto('/wings')
 

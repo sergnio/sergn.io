@@ -2,7 +2,6 @@ import type {
   Coffee,
   CollectionName,
   ContentDocument,
-  HomeContent,
   NaBeer,
   Post,
   ReubenReview,
@@ -10,7 +9,6 @@ import type {
 } from '../content-types'
 import { assertValidCollection, assertValidDocument } from '../content-contract'
 import { getFixtureCollection, getFixtureDocument } from '../fixtures'
-import { homeSectionSizes, selectForHome } from '../home-selection'
 import { getPublishedSanityClient, usesFixtureContent } from './client'
 
 const imageProjection = `{
@@ -29,8 +27,7 @@ const commonFields = `
   _updatedAt,
   title,
   "slug": slug.current,
-  publishedAt,
-  featured
+  publishedAt
 `
 
 const richTextProjection = `[] {
@@ -171,22 +168,4 @@ export async function fetchDocument(
       })
 
   return assertValidDocument(collection, document)
-}
-
-export async function fetchHomeContent(): Promise<HomeContent> {
-  const [coffee, wings, naBeers, reubens, posts] = await Promise.all([
-    fetchCollection('coffee'),
-    fetchCollection('wings'),
-    fetchCollection('na-beers'),
-    fetchCollection('reubens'),
-    fetchCollection('blog'),
-  ])
-
-  return {
-    coffee: selectForHome(coffee, homeSectionSizes.coffee),
-    wings: selectForHome(wings, homeSectionSizes.wings),
-    naBeers: selectForHome(naBeers, homeSectionSizes['na-beers']),
-    reubens: selectForHome(reubens, homeSectionSizes.reubens),
-    posts: selectForHome(posts, homeSectionSizes.blog),
-  }
 }

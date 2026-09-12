@@ -23,8 +23,11 @@ html {
 }
 
 body {
+  display: flex;
+  flex-direction: column;
   min-width: 320px;
   min-height: 100vh;
+  min-height: 100dvh;
   margin: 0;
   background:
     radial-gradient(
@@ -33,6 +36,12 @@ body {
       transparent 28rem
     ),
     var(--paper);
+}
+
+main {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
 }
 
 button,
@@ -285,6 +294,50 @@ h3 {
   color: var(--muted);
   font-size: clamp(1.15rem, 3.5vw, 1.4rem);
   line-height: 1.45;
+}
+
+.home-page {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  justify-content: center;
+}
+
+.home-index {
+  display: flex;
+  justify-content: center;
+}
+
+.home-index ul {
+  width: min(100%, 34rem);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.home-index li + li::before {
+  display: block;
+  width: 3rem;
+  height: 1px;
+  margin: 0 auto;
+  background: var(--line);
+  content: '';
+}
+
+.home-index a {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-block: 1.1rem;
+  min-height: 44px;
+  color: var(--evergreen);
+  font-size: 1.35rem;
+  letter-spacing: -0.02em;
+  text-decoration: none;
+}
+
+.home-index a:hover {
+  color: var(--green);
 }
 
 .home-highlights,
