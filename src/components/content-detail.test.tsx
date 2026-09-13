@@ -28,6 +28,7 @@ const notRenderedInBody: Array<{
 }> = [
   { path: /^_(id|type|createdAt|updatedAt)$/, why: 'Sanity system fields' },
   { path: /^slug$/, why: 'the page is already at its own URL' },
+  { path: /^gallery\[/, why: 'the gallery section was removed from the page' },
   { path: /^seo\./, why: 'overrides for the document head, not the body' },
   { path: /\._(key|type)$/, why: 'array and block identity' },
   { path: /\.(style|listItem)$/, why: 'portable text block styling' },
@@ -132,25 +133,20 @@ describe('review facts', () => {
 })
 
 describe('gallery', () => {
-  it('renders every gallery image with its caption and credit', () => {
-    const markup = markupFor(requireDocument('coffee', 'colombia-perky'))
+  it('never renders a gallery, even for a document that carries images', () => {
+    const coffee = requireDocument('coffee', 'colombia-perky')
+    if (coffee._type !== 'coffee') throw new Error('expected a coffee fixture')
+    // Negative control: the fixture really does have gallery images, so a
+    // passing assertion below means the section was dropped, not that the
+    // fixture went empty.
+    expect(coffee.gallery?.length).toBeGreaterThan(0)
 
-    expect(markup).toContain('id="gallery-title"')
-    expect(markup).toContain(
-      'alt="Ground coffee in a glass jar surrounded by roasted beans"',
-    )
-    expect(markup).toContain('The bag, a week off roast.')
-    expect(markup).toContain(
-      '<span class="figcaption__credit">Photo: Avo Coffee Roasters</span>',
-    )
-  })
-
-  it('omits the gallery section entirely when there are no extra images', () => {
-    const markup = markupFor(
-      requireDocument('wings', 'neighborhood-buffalo-wings'),
-    )
+    const markup = markupFor(coffee)
 
     expect(markup).not.toContain('gallery-title')
+    expect(markup).not.toContain(
+      'alt="Ground coffee in a glass jar surrounded by roasted beans"',
+    )
   })
 })
 
