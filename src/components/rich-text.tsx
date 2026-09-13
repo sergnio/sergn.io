@@ -1,10 +1,20 @@
 import { PortableText } from '@portabletext/react'
-import type { PortableTextContent } from '#/lib/content-types'
+import type {
+  ImageDisplay,
+  PortableTextContent,
+  PostBodyContent,
+} from '#/lib/content-types'
 import { classifyLinkHref } from '#/lib/links'
 import { ImageFigure } from './content-image'
 
 type RichTextProps = {
-  value?: PortableTextContent
+  value?: PortableTextContent | PostBodyContent
+}
+
+const imageSizesByDisplay: Record<ImageDisplay, string> = {
+  inline: '(min-width: 768px) 48rem, 100vw',
+  wide: '(min-width: 1100px) 64rem, 100vw',
+  full: '100vw',
 }
 
 export function RichText({ value }: RichTextProps) {
@@ -17,6 +27,7 @@ export function RichText({ value }: RichTextProps) {
           block: {
             h2: ({ children }) => <h2>{children}</h2>,
             h3: ({ children }) => <h3>{children}</h3>,
+            h4: ({ children }) => <h4>{children}</h4>,
             normal: ({ children }) => <p>{children}</p>,
             blockquote: ({ children }) => <blockquote>{children}</blockquote>,
           },
@@ -53,15 +64,46 @@ export function RichText({ value }: RichTextProps) {
               )
             },
             code: ({ children }) => <code>{children}</code>,
+            underline: ({ children }) => <u>{children}</u>,
+            'strike-through': ({ children }) => <s>{children}</s>,
           },
           types: {
-            imageWithAlt: ({ value: image }) => (
-              <ImageFigure
-                className="rich-text__image"
-                image={image}
-                sizes="(min-width: 768px) 48rem, 100vw"
-              />
+            imageWithAlt: ({ value: image }) => {
+              const display: ImageDisplay = image.display ?? 'inline'
+
+              return (
+                <ImageFigure
+                  className={`rich-text__image rich-text__image--${display}`}
+                  image={image}
+                  sizes={imageSizesByDisplay[display]}
+                />
+              )
+            },
+            callout: ({ value: block }) => (
+              <aside className={`callout callout--${block.tone}`}>
+                <RichText value={block.content} />
+              </aside>
             ),
+            codeBlock: ({ value: block }) => (
+              <figure className="code-block">
+                {block.filename ? (
+                  <figcaption className="code-block__filename">
+                    {block.filename}
+                  </figcaption>
+                ) : null}
+                <pre data-language={block.language}>
+                  <code>{block.code}</code>
+                </pre>
+              </figure>
+            ),
+            divider: ({ value: block }) =>
+              block.variant === 'asterisks' ? (
+                <p aria-hidden="true" className="divider divider--asterisks">
+                  * * *
+                </p>
+              ) : (
+                <hr className="divider" />
+              ),
           },
         }}
         value={value}

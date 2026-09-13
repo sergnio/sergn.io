@@ -66,6 +66,23 @@ export const imageWithAlt = defineType({
     }),
     defineField({ name: 'caption', title: 'Caption', type: 'string' }),
     defineField({ name: 'credit', title: 'Credit', type: 'string' }),
+    defineField({
+      name: 'display',
+      title: 'Display width',
+      type: 'string',
+      initialValue: 'inline',
+      options: {
+        list: [
+          { title: 'Inline with the text', value: 'inline' },
+          { title: 'Wider than the text', value: 'wide' },
+          { title: 'Full bleed', value: 'full' },
+        ],
+        layout: 'radio',
+      },
+      // Only posts render a breakout column; the structured documents lay
+      // their images out for them, so the control would be a dead end there.
+      hidden: ({ document }) => document?._type !== 'post',
+    }),
   ],
   preview: {
     select: { title: 'alt', media: 'image' },

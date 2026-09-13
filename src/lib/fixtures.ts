@@ -239,6 +239,114 @@ export const fixturePosts: Post[] = [
         ],
         style: 'normal',
       },
+      {
+        _key: 'heading',
+        _type: 'block' as const,
+        children: [
+          { _key: 'heading-span', _type: 'span' as const, text: 'The grind' },
+        ],
+        style: 'h2',
+      },
+      {
+        _key: 'subheading',
+        _type: 'block' as const,
+        children: [
+          {
+            _key: 'subheading-span',
+            _type: 'span' as const,
+            text: 'Dial it in',
+          },
+        ],
+        style: 'h3',
+      },
+      {
+        _key: 'sub-subheading',
+        _type: 'block' as const,
+        children: [
+          {
+            _key: 'sub-subheading-span',
+            _type: 'span' as const,
+            text: 'Notes',
+          },
+        ],
+        style: 'h4',
+      },
+      {
+        _key: 'emphasis',
+        _type: 'block' as const,
+        children: [
+          {
+            _key: 'emphasis-span-0',
+            _type: 'span' as const,
+            text: 'Weigh it, ',
+          },
+          {
+            _key: 'emphasis-span-1',
+            _type: 'span' as const,
+            marks: ['underline'],
+            text: 'every time',
+          },
+          {
+            _key: 'emphasis-span-2',
+            _type: 'span' as const,
+            marks: ['strike-through'],
+            text: ' - eyeballing works',
+          },
+          { _key: 'emphasis-span-3', _type: 'span' as const, text: '.' },
+        ],
+        style: 'normal',
+      },
+      {
+        ...fixtureImage(
+          'photo-1442512595331-e89e73853f31',
+          'A hand levelling coffee grounds in a dripper',
+        ),
+        _key: 'wide-image',
+        _type: 'imageWithAlt' as const,
+        caption: 'Level the bed before the first pour.',
+        display: 'wide' as const,
+      },
+      {
+        _key: 'callout',
+        _type: 'callout' as const,
+        tone: 'note' as const,
+        content: [
+          {
+            _key: 'callout-paragraph',
+            _type: 'block' as const,
+            children: [
+              {
+                _key: 'callout-span',
+                _type: 'span' as const,
+                text: 'A cheap scale beats an expensive kettle.',
+              },
+            ],
+            style: 'normal',
+          },
+        ],
+      },
+      {
+        _key: 'code',
+        _type: 'codeBlock' as const,
+        language: 'text',
+        filename: 'ratio.txt',
+        code: '18g in\n300g out\n2:45 total',
+      },
+      {
+        _key: 'divider',
+        _type: 'divider' as const,
+        variant: 'asterisks' as const,
+      },
+      {
+        ...fixtureImage(
+          'photo-1442512595331-e89e73853f31',
+          'A finished cup of coffee on a wooden table',
+        ),
+        _key: 'full-image',
+        _type: 'imageWithAlt' as const,
+        caption: 'The payoff.',
+        display: 'full' as const,
+      },
     ],
     tags: ['coffee', 'recipes'],
   },
