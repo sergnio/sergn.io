@@ -1,5 +1,5 @@
 import type { Page } from '@playwright/test'
-import { expect, test } from '@playwright/test'
+import { expect, test } from './tracker-stub'
 
 async function jsonLdBlocks(page: Page) {
   const blocks = await page
