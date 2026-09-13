@@ -78,23 +78,32 @@ test.describe('Content Security Policy', () => {
 })
 
 test.describe('Analytics', () => {
-  test('every page ships the GoatCounter tracker and the CSP admits it', async ({
-    page,
-  }) => {
+  test('the CSP admits both origins the tracker touches', async () => {
     const csp = await productionCsp()
     // The tracker is loaded from one origin and beacons to another; a policy
     // that allows only the first fails silently in production, because the
     // beacon is a fire-and-forget image request nothing ever awaits.
     expect(csp).toContain('https://gc.zgo.at')
     expect(csp).toMatch(/img-src[^;]*https:\/\/sergnio\.goatcounter\.com/)
-
-    await page.goto('/')
-    const tracker = page.locator('script[src="https://gc.zgo.at/count.js"]')
-    await expect(tracker).toHaveAttribute(
-      'data-goatcounter',
-      'https://sergnio.goatcounter.com/count',
-    )
   })
+
+  // Every template, not just the home page, and asserted against the served
+  // bytes rather than the DOM: React re-inserts the tag during hydration, so a
+  // locator finds it either way and a DOM check cannot tell a rendered tag
+  // from a hydrated one. Note the preview server renders on demand, so this
+  // covers the render path, not the prerendered files - the static output is
+  // asserted in scripts/assert-static-output.mjs, which reads them directly.
+  for (const template of templates) {
+    test(`${template} serves the GoatCounter tracker in its HTML`, async ({
+      request,
+    }) => {
+      const response = await request.get(template)
+      expect(response.status()).toBe(200)
+      expect(await response.text()).toMatch(
+        /<script\b[^>]*\bsrc="https:\/\/gc\.zgo\.at\/count\.js"[^>]*\bdata-goatcounter="https:\/\/sergnio\.goatcounter\.com\/count"/,
+      )
+    })
+  }
 
   test('client-side navigation reports a pageview', async ({ page }) => {
     // count.js is blocked so the test never sends real traffic to

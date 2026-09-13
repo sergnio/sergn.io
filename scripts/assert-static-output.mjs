@@ -629,6 +629,39 @@ for (const pagePath of await prerenderedPages()) {
   }
 }
 
+// Analytics is a head-level invariant like og:image or theme-color, so it gets
+// the same per-page treatment. The tag is written once in src/routes/__root.tsx,
+// but that is not enough on its own to know it ships: React 19 hoists
+// `<script async src>` out of the component tree as a resource and the
+// prerenderer then drops it, which silently emptied every static page while the
+// tag still looked correct in the source. Loading with `defer` is what keeps it
+// in the markup, and this is what proves it stayed there.
+const trackerSource = 'https://gc.zgo.at/count.js'
+const trackerEndpoint = 'https://sergnio.goatcounter.com/count'
+
+for (const pagePath of await prerenderedPages()) {
+  const page = path.relative(outputDirectory, pagePath)
+  const html = await readFile(pagePath, 'utf8')
+
+  const tracker = html.match(
+    new RegExp(`<script\\b[^>]*\\bsrc="${trackerSource}"[^>]*>`),
+  )?.[0]
+  if (!tracker) {
+    throw new Error(
+      `Prerendered ${page} does not ship the analytics tracker (${trackerSource}). React hoists async scripts out of the prerendered output; it must load with defer from the document body.`,
+    )
+  }
+
+  // Without the site code the script loads and then discards every hit, which
+  // looks identical to working analytics from the outside.
+  const endpoint = tracker.match(/data-goatcounter="([^"]*)"/)?.[1]
+  if (endpoint !== trackerEndpoint) {
+    throw new Error(
+      `Prerendered ${page} points the analytics tracker at ${endpoint ?? 'no endpoint'}, expected ${trackerEndpoint}. A wrong site code drops every hit silently.`,
+    )
+  }
+}
+
 // A Lighthouse pass measures the payload the browser actually downloads before
 // the page is interactive, but nothing in CI runs Lighthouse. Pin the same
 // number here instead: every prerendered page's render-blocking stylesheets and
