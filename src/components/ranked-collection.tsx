@@ -39,8 +39,14 @@ export function RankedCollection({
     .slice(0, podiumSize)
     .findIndex((document) => Boolean(cardImage(document)))
 
+  // `list-style: none` makes Safari drop list semantics, and the rank badges
+  // are decorative, so the position would go with it without an explicit role.
   return (
-    <ol aria-label={`${title}, ranked best to worst`} className="ranked-list">
+    <ol
+      aria-label={`${title}, ranked best to worst`}
+      className="ranked-list"
+      role="list"
+    >
       {documents.map((document, index) => (
         <li
           className={

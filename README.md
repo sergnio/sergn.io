@@ -67,6 +67,15 @@ The build refuses to publish a ranked entry with no rank, naming the document
 and the list to drag it in. `src/lib/content-contract.ts` is where that check
 lives, alongside the rest of the content contract.
 
+### Backfilling a collection that predates its ranking
+
+Entries published before a collection became a ranking carry no `orderRank`, so
+the first build after the switch fails on every one of them. Open that
+collection's list in the Studio and choose **Reset Order**: it ranks each entry
+it finds in one transaction, and dragging from there is the normal flow. Do this
+before merging the change that makes the collection ranked, or the deploy that
+ships it is the build that breaks.
+
 ## Checks
 
 ```bash

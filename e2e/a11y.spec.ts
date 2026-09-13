@@ -93,6 +93,9 @@ test.describe('screen-reader semantics', () => {
     })
     await expect(list).toBeVisible()
     await expect(list).toHaveJSProperty('tagName', 'OL')
+    // Safari strips list semantics from a list styled `list-style: none`,
+    // which would take the only rank a screen reader gets with it.
+    await expect(list).toHaveAttribute('role', 'list')
     await expect(list.getByRole('listitem')).toHaveCount(4)
     await expect(page.locator('.ranked-list')).toHaveCount(1)
 
