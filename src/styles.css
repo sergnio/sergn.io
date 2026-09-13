@@ -287,7 +287,6 @@ h3 {
 }
 
 .home-hero > p:last-child,
-.page-intro > p:last-child,
 .lede,
 .not-found > p:not(.eyebrow) {
   max-width: 41rem;
@@ -630,22 +629,6 @@ figcaption {
 
 .detail-section {
   margin-top: 3.5rem;
-}
-
-.gallery {
-  display: grid;
-  gap: 1.25rem;
-  /* auto-fill, not auto-fit: a lone gallery image should sit at the size the
-     others would, not stretch across the whole column. */
-  grid-template-columns: repeat(auto-fill, minmax(min(18rem, 100%), 1fr));
-}
-
-.gallery__item {
-  margin: 0;
-}
-
-.gallery__item .content-image {
-  border-radius: 0.25rem;
 }
 
 .rich-text__image {

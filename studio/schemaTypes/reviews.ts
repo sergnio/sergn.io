@@ -26,12 +26,6 @@ function commonFields() {
       validation: (Rule) => Rule.required(),
     }),
     defineField({
-      name: 'gallery',
-      title: 'Gallery',
-      type: 'gallery',
-      group: 'photo',
-    }),
-    defineField({
       name: 'rating',
       title: 'Rating',
       type: 'rating',

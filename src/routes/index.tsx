@@ -1,4 +1,4 @@
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute, Link } from '@tanstack/react-router'
 import { canonicalUrl, siteJsonLd } from '#/lib/metadata'
 
 export const Route = createFileRoute('/')({
@@ -26,7 +26,7 @@ function HomePage() {
         <ul>
           {pages.map(({ href, title }) => (
             <li key={href}>
-              <a href={href}>{title}</a>
+              <Link to={href}>{title}</Link>
             </li>
           ))}
         </ul>

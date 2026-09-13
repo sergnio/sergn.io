@@ -22,7 +22,6 @@ function WingsIndex() {
   return (
     <CollectionPage
       collection="wings"
-      description="Wing reviews with useful details and no filler."
       documents={Route.useLoaderData()}
       title="Wings"
     />

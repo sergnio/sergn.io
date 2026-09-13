@@ -48,7 +48,6 @@ const reviewFields = `
   ${commonFields},
   rating,
   heroImage ${imageProjection},
-  gallery[] ${imageProjection},
   notes ${richTextProjection}
 `
 
@@ -64,8 +63,7 @@ const projections: Record<CollectionName, string> = {
     bagSize,
     roastDate,
     heroImage ${imageProjection},
-    gallery[] ${imageProjection},
-    tastingNotes,
+      tastingNotes,
     notes ${richTextProjection},
     brewRecipes[] {
       _key,
