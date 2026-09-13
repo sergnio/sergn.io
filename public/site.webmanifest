@@ -5,7 +5,7 @@
   "start_url": "/",
   "scope": "/",
   "display": "minimal-ui",
-  "theme_color": "#1a2d3c",
+  "theme_color": "#30272d",
   "background_color": "#f2f0ed",
   "icons": [
     {
