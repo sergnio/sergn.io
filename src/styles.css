@@ -6,13 +6,13 @@
 :root {
   --neutral-50: hsl(60 23% 97%);
   --neutral-100: hsl(36 16% 94%);
-  --neutral-200: hsl(38 12% 87%);
-  --neutral-300: hsl(48 8% 77%);
   --neutral-600: hsl(24 3% 37%);
   --neutral-800: hsl(60 3% 19%);
   --neutral-900: hsl(0 3% 15%);
   --mauve-200: hsl(320 8% 86%);
+  --mauve-300: hsl(323 15% 76%);
   --mauve-500: hsl(321 15% 50%);
+  --mauve-700: hsl(321 14% 32%);
   --blue-700: hsl(208 56% 32%);
   --blue-900: hsl(206 40% 17%);
   --red-600: hsl(0 33% 40%);
@@ -24,13 +24,15 @@
   --card: var(--neutral-50);
   --ink: var(--neutral-900);
   --muted: var(--neutral-600);
-  --line: var(--neutral-200);
+  --line: var(--mauve-200);
   --brand: var(--blue-900);
   --accent: var(--blue-700);
   --highlight: var(--red-600);
-  --placeholder: var(--neutral-300);
-  /* Tinted panel behind inline code and recipe blocks. */
+  --placeholder: var(--mauve-300);
+  /* Tinted panel behind inline code, recipe blocks and tag pills, and the
+     ink that reads on it. */
   --wash: var(--mauve-200);
+  --wash-ink: var(--mauve-700);
   --shadow: rgb(38 36 36 / 8%);
 
   font-family: 'Newsreader', Georgia, serif;
@@ -268,7 +270,7 @@ img {
 
 .eyebrow {
   margin: 0 0 0.65rem;
-  color: var(--accent);
+  color: var(--wash-ink);
   font-family: 'DM Mono', monospace;
   font-size: 0.72rem;
   font-weight: 500;
@@ -444,7 +446,7 @@ h3 {
   aspect-ratio: 4 / 3;
   place-items: center;
   color: rgb(255 255 255 / 80%);
-  background: linear-gradient(135deg, var(--brand), var(--accent));
+  background: linear-gradient(135deg, var(--brand), var(--wash-ink));
   font-family: 'DM Mono', monospace;
   font-size: 0.85rem;
   text-transform: uppercase;
@@ -713,8 +715,9 @@ figcaption {
 
 .tag-list li {
   padding: 0.3rem 0.55rem;
-  color: var(--accent);
-  border: 1px solid var(--accent);
+  color: var(--wash-ink);
+  background: var(--wash);
+  border: 1px solid var(--wash-ink);
   border-radius: 10rem;
   font-family: 'DM Mono', monospace;
   font-size: 0.7rem;
