@@ -11,6 +11,11 @@ coverage/
 .next/
 .env.local
 .env.*.local
+# Hand-made copies of env files carry the same secrets as the originals, and
+# the patterns above do not cover them.
+*.bak
+# Agent run logs. They quote whatever was on screen, secrets included.
+.gnhf/
 .DS_Store
 *.tsbuildinfo
 npm-debug.log*
