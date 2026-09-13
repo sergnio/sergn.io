@@ -11,13 +11,16 @@ import { assertValidCollection, assertValidDocument } from '../content-contract'
 import { getFixtureCollection, getFixtureDocument } from '../fixtures'
 import { getPublishedSanityClient, usesFixtureContent } from './client'
 
+// imageWithAlt nests the upload under `image`, so crop, hotspot, and the asset
+// reference all live one level down. Projecting them from the top level yields
+// nulls, which renders a figure with no img inside it.
 const imageProjection = `{
   alt,
   caption,
   credit,
-  crop,
-  hotspot,
-  asset->{_id, url, metadata {dimensions {width, height, aspectRatio}}}
+  "crop": image.crop,
+  "hotspot": image.hotspot,
+  "asset": image.asset->{_id, url, metadata {dimensions {width, height, aspectRatio}}}
 }`
 
 const commonFields = `

@@ -295,8 +295,8 @@ test.describe('collection browsing flow', () => {
       }),
     ).toBeVisible()
     const tagList = page.getByRole('list', { name: 'Tags' })
-    await expect(tagList.getByText('Coffee', { exact: true })).toBeVisible()
-    await expect(tagList.getByText('Rituals', { exact: true })).toBeVisible()
+    await expect(tagList.getByText('coffee', { exact: true })).toBeVisible()
+    await expect(tagList.getByText('recipes', { exact: true })).toBeVisible()
   })
 
   test('blog post rich text renders heading, blockquote, bullet list, number list, code mark, and inline image', async ({

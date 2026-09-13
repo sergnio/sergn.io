@@ -1,5 +1,5 @@
 import { defineField, defineType } from 'sanity'
-import { slugField } from './shared'
+import { postTags, slugField } from './shared'
 
 export const post = defineType({
   name: 'post',
@@ -65,7 +65,7 @@ export const post = defineType({
       group: 'optional',
       fieldset: 'optionalDetails',
       of: [{ type: 'string' }],
-      options: { layout: 'tags' },
+      options: { layout: 'tags', list: [...postTags] },
       validation: (Rule) => Rule.unique().max(8),
     }),
     defineField({

@@ -125,6 +125,20 @@ describe('content contract', () => {
     ).toThrow(/image without alt text at "notes\[0\]"/)
   })
 
+  it('keeps fixture post tags in the slug shape the Studio vocabulary stores', () => {
+    // The Studio offers a closed tag list whose values are lowercase slugs.
+    // Fixtures are source-controlled content, so capitalised strays here would
+    // sit outside that vocabulary and read as valid in every fixture test.
+    const tags = getFixtureCollection('blog').flatMap(
+      (post) => (post as { tags?: string[] }).tags ?? [],
+    )
+
+    expect(tags.length).toBeGreaterThan(0)
+    for (const tag of tags) {
+      expect(tag).toMatch(/^[a-z0-9]+(?:-[a-z0-9]+)*$/)
+    }
+  })
+
   it('validates single documents too, and passes a missing one through untouched', () => {
     expect(assertValidDocument('coffee', undefined)).toBeUndefined()
     expect(assertValidDocument('coffee', validCoffee)).toBe(validCoffee)
