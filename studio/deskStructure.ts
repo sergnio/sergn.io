@@ -11,6 +11,7 @@ const rankedTypes = [
   { type: 'wingReview', title: 'Wing reviews' },
   { type: 'naBeer', title: 'N/A beers' },
   { type: 'reubenReview', title: 'Reuben reviews' },
+  { type: 'syrupReview', title: 'Syrup reviews' },
 ] as const
 
 export const deskStructure: StructureResolver = (S, context) =>

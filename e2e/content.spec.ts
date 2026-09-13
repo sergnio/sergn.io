@@ -499,7 +499,7 @@ test.describe('collection browsing flow', () => {
       page.locator('meta[property="og:description"]'),
     ).toHaveAttribute(
       'content',
-      'Coffee, wings, N/A beers, reubens, and notes from Sergio.',
+      'Coffee, wings, N/A beers, reubens, maple syrup, and notes from Sergio.',
     )
     await expect(page.locator('meta[property="og:url"]')).toHaveAttribute(
       'content',
@@ -534,7 +534,7 @@ test.describe('collection browsing flow', () => {
   test('pages without a content image fall back to the site preview image', async ({
     page,
   }) => {
-    for (const path of ['/', '/coffee', '/retired-content']) {
+    for (const path of ['/', '/coffee', '/syrup']) {
       await page.goto(path)
       await expect(page.locator('meta[property="og:image"]')).toHaveAttribute(
         'content',

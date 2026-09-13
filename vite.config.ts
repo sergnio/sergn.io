@@ -15,14 +15,13 @@ export default defineConfig({
     tanstackStart({
       pages: [
         { path: '/not-found', sitemap: { exclude: true } },
-        // Noindex page: keep it out of the sitemap so the two signals agree.
-        { path: '/retired-content', sitemap: { exclude: true } },
         // The crawler also emits trailing-slash variants of the collection
         // indexes, which are not the canonical URLs those pages declare.
         { path: '/blog/', sitemap: { exclude: true } },
         { path: '/coffee/', sitemap: { exclude: true } },
         { path: '/na-beers/', sitemap: { exclude: true } },
         { path: '/reubens/', sitemap: { exclude: true } },
+        { path: '/syrup/', sitemap: { exclude: true } },
         { path: '/wings/', sitemap: { exclude: true } },
       ],
       prerender: {

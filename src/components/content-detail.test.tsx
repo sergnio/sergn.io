@@ -47,6 +47,16 @@ const notRenderedInBody: Array<{
   },
 ]
 
+/** Prose reaches the markup HTML-escaped, so an apostrophe never matches raw. */
+function escapeHtml(value: string) {
+  return value
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#x27;')
+}
+
 /** Every way a value may legitimately appear once formatted for the page. */
 function candidates(value: string | number) {
   const raw = String(value)
@@ -55,16 +65,14 @@ function candidates(value: string | number) {
     : undefined
   const cents = typeof value === 'number' ? (value / 100).toFixed(2) : undefined
 
-  // A value carrying &, < or > reaches the markup escaped, so the raw string
-  // alone would read as a dropped field.
-  const escaped = raw
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-
-  return [raw, raw.toLowerCase(), escaped, formattedDate, cents].filter(
-    (candidate): candidate is string => Boolean(candidate),
-  )
+  return [
+    raw,
+    raw.toLowerCase(),
+    escapeHtml(raw),
+    escapeHtml(raw).toLowerCase(),
+    formattedDate,
+    cents,
+  ].filter((candidate): candidate is string => Boolean(candidate))
 }
 
 function leafPaths(

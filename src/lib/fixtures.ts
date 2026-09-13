@@ -4,6 +4,7 @@ import type {
   NaBeer,
   Post,
   ReubenReview,
+  SyrupReview,
   WingReview,
 } from './content-types'
 
@@ -446,6 +447,111 @@ export const fixtureReubens: ReubenReview[] = [
   },
 ]
 
+export const fixtureSyrups: SyrupReview[] = [
+  {
+    _id: 'syrup-sweet-ontario',
+    _type: 'syrupReview',
+    _createdAt: '2024-09-20T12:00:00.000Z',
+    _updatedAt: '2024-09-25T12:00:00.000Z',
+    title: 'Sweet Ontario',
+    slug: 'sweet-ontario',
+    publishedAt: '2024-09-20T12:00:00.000Z',
+    producer: 'Sweet Ontario',
+    grade: 'Amber, Rich Taste',
+    origin: 'Ontario, Canada',
+    volumeLiters: 3,
+    price: { amountCents: 799, currency: 'USD' },
+    rating: 5,
+    heroImage: fixtureImage(
+      'photo-1589985270826-4b7bb135bc9d',
+      'A jug of amber maple syrup on a wooden table',
+    ),
+    notes: paragraph(
+      "I didn't know the incredible wonders of pure maple syrup before trying this. It has the perfect maple syrup flavor without the disgusting taste of sweeteners. It's maple syrup in its purest form.",
+    ),
+  },
+  {
+    _id: 'syrup-skluzaceks',
+    _type: 'syrupReview',
+    _createdAt: '2024-09-22T12:00:00.000Z',
+    _updatedAt: '2024-09-25T12:00:00.000Z',
+    title: 'Skluzaceks',
+    slug: 'skluzaceks',
+    publishedAt: '2024-09-22T12:00:00.000Z',
+    producer: 'Skluzacek Maple Syrup',
+    grade: 'Dark, Robust Taste',
+    boughtFrom: '320th Street, New Prague',
+    volumeLiters: 2,
+    price: { amountCents: 799, currency: 'USD' },
+    rating: 4.5,
+    heroImage: fixtureImage(
+      'photo-1600271886742-f049cd451bba',
+      'A glass bottle of dark maple syrup from a local farm',
+    ),
+    notes: paragraph(
+      "A bit darker, a bit sweet, like the Hidden Springs. It's a local farm so this has bonus points, but still is lacking the pure maple syrup taste of Sweet Ontario.",
+    ),
+  },
+  {
+    _id: 'syrup-hidden-springs',
+    _type: 'syrupReview',
+    _createdAt: '2024-09-21T12:00:00.000Z',
+    _updatedAt: '2024-09-25T12:00:00.000Z',
+    title: 'Hidden Springs',
+    slug: 'hidden-springs',
+    publishedAt: '2024-09-21T12:00:00.000Z',
+    producer: 'Hidden Springs Maple',
+    grade: 'Dark, Robust Taste',
+    boughtFrom: 'Amazon',
+    volumeLiters: 3,
+    price: { amountCents: 799, currency: 'USD' },
+    rating: 4,
+    heroImage: fixtureImage(
+      'photo-1518449007707-1c9b4f0c1c47',
+      'A dark bottle of maple syrup beside a stack of pancakes',
+    ),
+    notes: paragraph(
+      "A bit darker, and a bit too sweet. It's drastically sweet compared to Sweet Ontario, but decent maple syrup. Probably wouldn't recommend over other types.",
+    ),
+  },
+  {
+    _id: 'syrup-wild-country',
+    _type: 'syrupReview',
+    _createdAt: '2024-09-23T12:00:00.000Z',
+    _updatedAt: '2024-09-25T12:00:00.000Z',
+    title: 'Wild Country',
+    slug: 'wild-country',
+    publishedAt: '2024-09-23T12:00:00.000Z',
+    producer: 'Wild Country Maple',
+    grade: 'Dark, Robust Taste',
+    boughtFrom: '320th Street, New Prague',
+    volumeLiters: 0.25,
+    price: { amountCents: 799, currency: 'USD' },
+    heroImage: fixtureImage(
+      'photo-1608453162650-4a1c1f0f2b1e',
+      'A small bottle of dark maple syrup',
+    ),
+    notes: paragraph(
+      'Quite good! Bit darker too, and not super sweet. This is quality pure maple syrup.',
+    ),
+  },
+  {
+    _id: 'syrup-hamel',
+    _type: 'syrupReview',
+    _createdAt: '2024-09-24T12:00:00.000Z',
+    _updatedAt: '2024-09-25T12:00:00.000Z',
+    title: 'Hamel',
+    slug: 'hamel',
+    publishedAt: '2024-09-24T12:00:00.000Z',
+    producer: 'Hamel Maple',
+    heroImage: fixtureImage(
+      'photo-1587049352846-4a222e784d38',
+      'An unopened tin of maple syrup on a kitchen counter',
+    ),
+    notes: paragraph("Never tasted! I'm curious because Jake says it's good."),
+  },
+]
+
 export const fixturePosts: Post[] = [
   {
     _id: 'post-small-rituals',
@@ -759,6 +865,7 @@ const collections = {
   wings: byRank(fixtureWings),
   'na-beers': byRank(fixtureNaBeers),
   reubens: byRank(fixtureReubens),
+  syrup: byRank(fixtureSyrups),
   blog: byPublishedDesc(fixturePosts),
 } as const
 

@@ -12,7 +12,7 @@ function collectionInput(data: unknown): { collection: CollectionName } {
 
   const input = data as { collection?: unknown }
   if (
-    !['coffee', 'wings', 'na-beers', 'reubens', 'blog'].includes(
+    !['coffee', 'wings', 'na-beers', 'reubens', 'syrup', 'blog'].includes(
       String(input.collection),
     )
   ) {
@@ -49,6 +49,8 @@ export const getCollection = createServerFn({ method: 'GET' })
         return fetchCollection('na-beers')
       case 'reubens':
         return fetchCollection('reubens')
+      case 'syrup':
+        return fetchCollection('syrup')
       case 'blog':
         return fetchCollection('blog')
     }

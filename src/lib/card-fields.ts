@@ -21,6 +21,7 @@ export function cardSummary(document: ContentDocument) {
   if (document._type === 'wingReview') return document.venue
   if (document._type === 'naBeer') return document.brewery
   if (document._type === 'reubenReview') return document.restaurant
+  if (document._type === 'syrupReview') return document.producer
   return document.excerpt
 }
 

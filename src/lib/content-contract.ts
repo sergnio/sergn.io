@@ -15,6 +15,7 @@ const requiredByCollection: Record<CollectionName, string[]> = {
   wings: ['venue', 'visitedAt', 'order.styleOrFlavor', 'notes'],
   'na-beers': ['brewery'],
   reubens: ['restaurant', 'visitedAt'],
+  syrup: ['producer'],
   blog: ['excerpt', 'body'],
 }
 

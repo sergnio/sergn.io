@@ -59,7 +59,7 @@ const markup = `<!doctype html>
   </head>
   <body>
     <div class="wordmark">sergn<span>.io</span></div>
-    <h1>Coffee, wings, N/A beers, reubens.</h1>
+    <h1>Coffee, wings, N/A beers, reubens, maple syrup.</h1>
     <p>Tasting notes and writing from Sergio.</p>
   </body>
 </html>`

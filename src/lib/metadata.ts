@@ -7,6 +7,7 @@ import type {
   RankedCollection,
   ReubenReview,
   SanityImage,
+  SyrupReview,
   WingReview,
 } from './content-types'
 import { isRankedCollection } from './content-types'
@@ -15,7 +16,7 @@ import { imageUrl } from './sanity/image'
 export const siteUrl = 'https://sergn.io'
 export const siteName = 'sergn.io'
 export const siteDescription =
-  'Coffee, wings, N/A beers, reubens, and notes from Sergio.'
+  'Coffee, wings, N/A beers, reubens, maple syrup, and notes from Sergio.'
 
 /**
  * The brand colour browsers paint their chrome with. Kept in sync with
@@ -30,7 +31,7 @@ export const brandColor = '#30272d'
  */
 export const defaultSocialImage = {
   url: `${siteUrl}/og-image.png`,
-  alt: 'sergn.io - coffee, wings, N/A beers, reubens.',
+  alt: 'sergn.io - coffee, wings, N/A beers, reubens, maple syrup.',
 }
 
 export function canonicalUrl(path: string) {
@@ -66,6 +67,10 @@ export function contentDescription(document: ContentDocument) {
 
   if (document._type === 'naBeer') {
     return [document.brewery, document.style].filter(Boolean).join(' · ')
+  }
+
+  if (document._type === 'syrupReview') {
+    return [document.producer, document.grade].filter(Boolean).join(' · ')
   }
 
   return document.restaurant
@@ -136,6 +141,7 @@ export const collectionTitles: Record<CollectionName, string> = {
   coffee: 'Coffee',
   'na-beers': 'N/A Beers',
   reubens: 'Reubens',
+  syrup: 'Maple Syrup',
   wings: 'Wings',
 }
 
@@ -240,7 +246,7 @@ export function collectionScripts(
   }))
 }
 
-type RatedDocument = Coffee | NaBeer | ReubenReview | WingReview
+type RatedDocument = Coffee | NaBeer | ReubenReview | SyrupReview | WingReview
 
 function isRated(document: ContentDocument): document is RatedDocument {
   return document._type !== 'post'
@@ -262,6 +268,14 @@ function reviewedItem(document: RatedDocument) {
       '@type': 'Product',
       name: document.title,
       brand: { '@type': 'Brand', name: document.brewery },
+    }
+  }
+
+  if (document._type === 'syrupReview') {
+    return {
+      '@type': 'Product',
+      name: document.title,
+      brand: { '@type': 'Brand', name: document.producer },
     }
   }
 

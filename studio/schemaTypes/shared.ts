@@ -213,6 +213,7 @@ export const postTags = [
   { title: 'Wings', value: 'wings' },
   { title: 'Burgers', value: 'burgers' },
   { title: 'Reubens', value: 'reubens' },
+  { title: 'Syrup', value: 'syrup' },
   { title: 'Recipes', value: 'recipes' },
   { title: 'Reviews', value: 'reviews' },
 ] as const

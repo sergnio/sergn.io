@@ -11,7 +11,6 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as NotFoundRouteImport } from './routes/not-found'
-import { Route as RetiredContentRouteImport } from './routes/retired-content'
 import { Route as BlogIndexRouteImport } from './routes/blog/index'
 import { Route as BlogSlugRouteImport } from './routes/blog/$slug'
 import { Route as CoffeeIndexRouteImport } from './routes/coffee/index'
@@ -20,6 +19,8 @@ import { Route as NaBeersIndexRouteImport } from './routes/na-beers/index'
 import { Route as NaBeersSlugRouteImport } from './routes/na-beers/$slug'
 import { Route as ReubensIndexRouteImport } from './routes/reubens/index'
 import { Route as ReubensSlugRouteImport } from './routes/reubens/$slug'
+import { Route as SyrupIndexRouteImport } from './routes/syrup/index'
+import { Route as SyrupSlugRouteImport } from './routes/syrup/$slug'
 import { Route as WingsIndexRouteImport } from './routes/wings/index'
 import { Route as WingsSlugRouteImport } from './routes/wings/$slug'
 
@@ -31,11 +32,6 @@ const IndexRoute = IndexRouteImport.update({
 const NotFoundRoute = NotFoundRouteImport.update({
   id: '/not-found',
   path: '/not-found',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const RetiredContentRoute = RetiredContentRouteImport.update({
-  id: '/retired-content',
-  path: '/retired-content',
   getParentRoute: () => rootRouteImport,
 } as any)
 const BlogIndexRoute = BlogIndexRouteImport.update({
@@ -78,6 +74,16 @@ const ReubensSlugRoute = ReubensSlugRouteImport.update({
   path: '/reubens/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SyrupIndexRoute = SyrupIndexRouteImport.update({
+  id: '/syrup/',
+  path: '/syrup/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SyrupSlugRoute = SyrupSlugRouteImport.update({
+  id: '/syrup/$slug',
+  path: '/syrup/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const WingsIndexRoute = WingsIndexRouteImport.update({
   id: '/wings/',
   path: '/wings/',
@@ -92,47 +98,50 @@ const WingsSlugRoute = WingsSlugRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/not-found': typeof NotFoundRoute
-  '/retired-content': typeof RetiredContentRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/coffee/$slug': typeof CoffeeSlugRoute
   '/na-beers/$slug': typeof NaBeersSlugRoute
   '/reubens/$slug': typeof ReubensSlugRoute
+  '/syrup/$slug': typeof SyrupSlugRoute
   '/wings/$slug': typeof WingsSlugRoute
   '/blog/': typeof BlogIndexRoute
   '/coffee/': typeof CoffeeIndexRoute
   '/na-beers/': typeof NaBeersIndexRoute
   '/reubens/': typeof ReubensIndexRoute
+  '/syrup/': typeof SyrupIndexRoute
   '/wings/': typeof WingsIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/not-found': typeof NotFoundRoute
-  '/retired-content': typeof RetiredContentRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/coffee/$slug': typeof CoffeeSlugRoute
   '/na-beers/$slug': typeof NaBeersSlugRoute
   '/reubens/$slug': typeof ReubensSlugRoute
+  '/syrup/$slug': typeof SyrupSlugRoute
   '/wings/$slug': typeof WingsSlugRoute
   '/blog': typeof BlogIndexRoute
   '/coffee': typeof CoffeeIndexRoute
   '/na-beers': typeof NaBeersIndexRoute
   '/reubens': typeof ReubensIndexRoute
+  '/syrup': typeof SyrupIndexRoute
   '/wings': typeof WingsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/not-found': typeof NotFoundRoute
-  '/retired-content': typeof RetiredContentRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/coffee/$slug': typeof CoffeeSlugRoute
   '/na-beers/$slug': typeof NaBeersSlugRoute
   '/reubens/$slug': typeof ReubensSlugRoute
+  '/syrup/$slug': typeof SyrupSlugRoute
   '/wings/$slug': typeof WingsSlugRoute
   '/blog/': typeof BlogIndexRoute
   '/coffee/': typeof CoffeeIndexRoute
   '/na-beers/': typeof NaBeersIndexRoute
   '/reubens/': typeof ReubensIndexRoute
+  '/syrup/': typeof SyrupIndexRoute
   '/wings/': typeof WingsIndexRoute
 }
 export interface FileRouteTypes {
@@ -140,62 +149,66 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/not-found'
-    | '/retired-content'
     | '/blog/$slug'
     | '/coffee/$slug'
     | '/na-beers/$slug'
     | '/reubens/$slug'
+    | '/syrup/$slug'
     | '/wings/$slug'
     | '/blog/'
     | '/coffee/'
     | '/na-beers/'
     | '/reubens/'
+    | '/syrup/'
     | '/wings/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/not-found'
-    | '/retired-content'
     | '/blog/$slug'
     | '/coffee/$slug'
     | '/na-beers/$slug'
     | '/reubens/$slug'
+    | '/syrup/$slug'
     | '/wings/$slug'
     | '/blog'
     | '/coffee'
     | '/na-beers'
     | '/reubens'
+    | '/syrup'
     | '/wings'
   id:
     | '__root__'
     | '/'
     | '/not-found'
-    | '/retired-content'
     | '/blog/$slug'
     | '/coffee/$slug'
     | '/na-beers/$slug'
     | '/reubens/$slug'
+    | '/syrup/$slug'
     | '/wings/$slug'
     | '/blog/'
     | '/coffee/'
     | '/na-beers/'
     | '/reubens/'
+    | '/syrup/'
     | '/wings/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   NotFoundRoute: typeof NotFoundRoute
-  RetiredContentRoute: typeof RetiredContentRoute
   BlogSlugRoute: typeof BlogSlugRoute
   CoffeeSlugRoute: typeof CoffeeSlugRoute
   NaBeersSlugRoute: typeof NaBeersSlugRoute
   ReubensSlugRoute: typeof ReubensSlugRoute
+  SyrupSlugRoute: typeof SyrupSlugRoute
   WingsSlugRoute: typeof WingsSlugRoute
   BlogIndexRoute: typeof BlogIndexRoute
   CoffeeIndexRoute: typeof CoffeeIndexRoute
   NaBeersIndexRoute: typeof NaBeersIndexRoute
   ReubensIndexRoute: typeof ReubensIndexRoute
+  SyrupIndexRoute: typeof SyrupIndexRoute
   WingsIndexRoute: typeof WingsIndexRoute
 }
 
@@ -213,13 +226,6 @@ declare module '@tanstack/react-router' {
       path: '/not-found'
       fullPath: '/not-found'
       preLoaderRoute: typeof NotFoundRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/retired-content': {
-      id: '/retired-content'
-      path: '/retired-content'
-      fullPath: '/retired-content'
-      preLoaderRoute: typeof RetiredContentRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/blog/': {
@@ -278,6 +284,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ReubensSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/syrup/': {
+      id: '/syrup/'
+      path: '/syrup'
+      fullPath: '/syrup/'
+      preLoaderRoute: typeof SyrupIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/syrup/$slug': {
+      id: '/syrup/$slug'
+      path: '/syrup/$slug'
+      fullPath: '/syrup/$slug'
+      preLoaderRoute: typeof SyrupSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/wings/': {
       id: '/wings/'
       path: '/wings'
@@ -298,16 +318,17 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   NotFoundRoute: NotFoundRoute,
-  RetiredContentRoute: RetiredContentRoute,
   BlogSlugRoute: BlogSlugRoute,
   CoffeeSlugRoute: CoffeeSlugRoute,
   NaBeersSlugRoute: NaBeersSlugRoute,
   ReubensSlugRoute: ReubensSlugRoute,
+  SyrupSlugRoute: SyrupSlugRoute,
   WingsSlugRoute: WingsSlugRoute,
   BlogIndexRoute: BlogIndexRoute,
   CoffeeIndexRoute: CoffeeIndexRoute,
   NaBeersIndexRoute: NaBeersIndexRoute,
   ReubensIndexRoute: ReubensIndexRoute,
+  SyrupIndexRoute: SyrupIndexRoute,
   WingsIndexRoute: WingsIndexRoute,
 }
 export const routeTree = rootRouteImport

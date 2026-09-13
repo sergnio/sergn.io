@@ -3,6 +3,7 @@ export const collectionNames = [
   'wings',
   'na-beers',
   'reubens',
+  'syrup',
   'blog',
 ] as const
 
@@ -229,6 +230,19 @@ export type ReubenReview = BaseDocument &
     heroImage?: SanityImage
   }
 
+export type SyrupReview = BaseDocument & {
+  _type: 'syrupReview'
+  producer: string
+  grade?: string
+  origin?: string
+  boughtFrom?: string
+  volumeLiters?: number
+  price?: Money
+  rating?: Rating
+  notes?: PortableTextContent
+  heroImage?: SanityImage
+}
+
 export type Post = BaseDocument & {
   _type: 'post'
   excerpt: string
@@ -238,4 +252,5 @@ export type Post = BaseDocument & {
   seo?: { title?: string; description?: string }
 }
 
-export type ContentDocument = Coffee | WingReview | NaBeer | ReubenReview | Post
+export type ContentDocument =
+  Coffee | WingReview | NaBeer | ReubenReview | SyrupReview | Post
