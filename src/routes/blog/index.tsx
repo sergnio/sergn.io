@@ -22,7 +22,6 @@ function BlogIndex() {
   return (
     <CollectionPage
       collection="blog"
-      description="Longer notes on good food, good drinks, and the small details."
       documents={Route.useLoaderData()}
       title="Blog"
     />

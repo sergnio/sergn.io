@@ -22,7 +22,6 @@ function CoffeeIndex() {
   return (
     <CollectionPage
       collection="coffee"
-      description="Coffee worth remembering, with practical grinder and brew details."
       documents={Route.useLoaderData()}
       title="Coffee"
     />

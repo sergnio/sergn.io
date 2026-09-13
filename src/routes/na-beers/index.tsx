@@ -22,7 +22,6 @@ function NaBeersIndex() {
   return (
     <CollectionPage
       collection="na-beers"
-      description="Non-alcoholic beers with notes on what makes each one work."
       documents={Route.useLoaderData()}
       title="N/A Beers"
     />

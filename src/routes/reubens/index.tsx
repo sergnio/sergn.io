@@ -22,7 +22,6 @@ function ReubensIndex() {
   return (
     <CollectionPage
       collection="reubens"
-      description="Reubens worth returning to, recorded sandwich by sandwich."
       documents={Route.useLoaderData()}
       title="Reubens"
     />
