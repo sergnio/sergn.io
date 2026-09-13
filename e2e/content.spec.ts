@@ -204,39 +204,20 @@ test.describe('collection browsing flow', () => {
     )
   })
 
-  test('a detail page shows its gallery images with caption and credit', async ({
-    page,
-  }) => {
+  test('a detail page never renders a gallery section', async ({ page }) => {
+    // colombia-perky is the fixture that carries gallery images, so if any
+    // page would still paint one it is this page.
     await page.goto('/coffee/colombia-perky')
 
-    const gallery = page.getByRole('region', { name: 'Gallery' })
-    await expect(gallery).toBeVisible()
-
-    const image = gallery.getByRole('img', {
-      name: 'Ground coffee in a glass jar surrounded by roasted beans',
-    })
-    await expect(image).toBeVisible()
     await expect(
-      await image.evaluate(
-        (element: HTMLImageElement) => element.naturalWidth > 0,
-      ),
-    ).toBe(true)
-    await expect(gallery.getByText('The bag, a week off roast.')).toBeVisible()
-    await expect(gallery.getByText('Photo: Avo Coffee Roasters')).toBeVisible()
-  })
-
-  test('a detail page with no extra images shows no gallery section', async ({
-    page,
-  }) => {
-    await page.goto('/wings/neighborhood-buffalo-wings')
-
-    await expect(
-      page.getByRole('heading', {
-        level: 1,
-        name: 'Neighborhood Buffalo Wings',
-      }),
+      page.getByRole('heading', { level: 1, name: 'Colombia Perky' }),
     ).toBeVisible()
     await expect(page.getByRole('region', { name: 'Gallery' })).toHaveCount(0)
+    await expect(
+      page.getByRole('img', {
+        name: 'Ground coffee in a glass jar surrounded by roasted beans',
+      }),
+    ).toHaveCount(0)
   })
 
   test('coffee detail page falls back to "Not listed" roaster and plain-text bought-from when unset', async ({

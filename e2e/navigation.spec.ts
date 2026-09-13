@@ -1,3 +1,4 @@
+import type { Page } from '@playwright/test'
 import { expect, test } from '@playwright/test'
 
 test.describe('primary navigation', () => {
@@ -124,6 +125,41 @@ test.describe('primary navigation', () => {
     await expect(nav.getByRole('link', { name: 'Coffee' })).not.toHaveAttribute(
       'aria-current',
     )
+  })
+
+  // A raw <a href> inside a card used to take the browser on a full document
+  // load, throwing away the client router and refetching the whole app on
+  // every card click. These pin the navigation as client-side by proving a
+  // value set on window survives it.
+  const survivesNavigation = async (
+    page: Page,
+    start: string,
+    link: string,
+  ) => {
+    await page.goto(start)
+    await page.evaluate(() => {
+      ;(window as unknown as { __spa?: string }).__spa = 'alive'
+    })
+    await page.getByRole('link', { name: link }).first().click()
+    return page.evaluate(
+      () => (window as unknown as { __spa?: string }).__spa ?? 'reloaded',
+    )
+  }
+
+  test('a collection card navigates client-side, without reloading', async ({
+    page,
+  }) => {
+    expect(
+      await survivesNavigation(page, '/coffee', 'Ethiopia Direct Trade'),
+    ).toBe('alive')
+    await expect(page).toHaveURL(/\/coffee\/ethiopia-direct-trade$/)
+  })
+
+  test('the home index navigates client-side, without reloading', async ({
+    page,
+  }) => {
+    expect(await survivesNavigation(page, '/', 'Reubens')).toBe('alive')
+    await expect(page).toHaveURL(/\/reubens$/)
   })
 
   test('wordmark link returns to the home page', async ({ page }) => {
