@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest'
+import type { CollectionName } from '../content-types'
 import { collectionQuery, documentQuery } from './queries'
 
 describe('published content queries', () => {
@@ -12,6 +13,37 @@ describe('published content queries', () => {
       'metadata {dimensions {width, height, aspectRatio}}',
     )
   })
+
+  // Every collection renders one top-level image, and imageWithAlt nests the
+  // upload under `image`. Projecting `asset->` from the top level returns null
+  // for all of them, which renders a figure with no img inside it. These
+  // assertions name the field so richTextProjection, which already
+  // dereferences correctly, cannot satisfy them on the top level's behalf.
+  const topLevelImageField = {
+    coffee: 'heroImage',
+    wings: 'heroImage',
+    'na-beers': 'heroImage',
+    blog: 'coverImage',
+  } as const
+
+  for (const [collection, field] of Object.entries(topLevelImageField)) {
+    it(`dereferences the ${collection} ${field} asset from image.asset`, () => {
+      for (const query of [
+        collectionQuery(collection as CollectionName),
+        documentQuery(collection as CollectionName),
+      ]) {
+        const projection = query.match(
+          new RegExp(`\\b${field} \\{[^}]*\\}`, 's'),
+        )?.[0]
+
+        expect(projection).toBeDefined()
+        expect(projection).toContain('"crop": image.crop')
+        expect(projection).toContain('"hotspot": image.hotspot')
+        expect(projection).toContain('"asset": image.asset->')
+        expect(projection).not.toMatch(/(?<!image\.)\basset->/)
+      }
+    })
+  }
 
   it('queries documents by their stored slug and document type', () => {
     const query = documentQuery('blog')

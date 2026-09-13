@@ -240,7 +240,7 @@ export const fixturePosts: Post[] = [
         style: 'normal',
       },
     ],
-    tags: ['Coffee', 'Rituals'],
+    tags: ['coffee', 'recipes'],
   },
   {
     _id: 'post-a-table-for-two',
@@ -378,7 +378,7 @@ export const fixturePosts: Post[] = [
         caption: 'The rye, cut and ready.',
       },
     ],
-    tags: ['Food'],
+    tags: ['food', 'reubens'],
   },
 ]
 
