@@ -1,10 +1,10 @@
 # Color palette reference
 
 Four ramps - Mauve, Blue, Red, Neutral - each with ten steps from `50` (lightest)
-to `900` (darkest). This is a reference sheet transcribed from the palette design;
-it is not yet wired into `src/styles.css`, which still uses the evergreen/gold
-tokens. Use these values when a design calls for a palette step by name
-(e.g. "Blue 900" -> `hsl(206 40% 17%)`).
+to `900` (darkest). This is the reference sheet for the palette; the semantic
+tokens at the top of `src/styles.css` are defined from these steps, and only the
+steps the site uses are declared there. Use these values when a design calls for
+a palette step by name (e.g. "Blue 900" -> `hsl(206 40% 17%)`).
 
 Values are given in HSL, which makes the ramps easy to read - within a ramp the hue
 and saturation stay roughly fixed and only the lightness moves. The hex column is the
