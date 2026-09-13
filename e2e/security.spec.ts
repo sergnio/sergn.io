@@ -35,6 +35,23 @@ test.describe('Content Security Policy', () => {
       const csp = await productionCsp()
 
       await page.route('**/*', async (route) => {
+        // The tracker is served locally so the suite never makes a real
+        // request to GoatCounter: reaching a third party on every page made
+        // the networkidle wait below flaky. This is handled inside the
+        // catch-all rather than as its own page.route, because Playwright
+        // matches routes in reverse registration order - a separate stub is
+        // shadowed by this handler and silently never runs. The browser still
+        // evaluates script-src against the original URL, so the policy is
+        // exercised either way.
+        if (route.request().url() === 'https://gc.zgo.at/count.js') {
+          await route.fulfill({
+            status: 200,
+            contentType: 'text/javascript',
+            body: '',
+          })
+          return
+        }
+
         const response = await route.fetch()
         const headers = response.headers()
         if (headers['content-type'].includes('text/html')) {
@@ -78,23 +95,43 @@ test.describe('Content Security Policy', () => {
 })
 
 test.describe('Analytics', () => {
-  test('every page ships the GoatCounter tracker and the CSP admits it', async ({
-    page,
-  }) => {
+  test('the CSP admits both origins the tracker touches', async () => {
     const csp = await productionCsp()
     // The tracker is loaded from one origin and beacons to another; a policy
     // that allows only the first fails silently in production, because the
     // beacon is a fire-and-forget image request nothing ever awaits.
     expect(csp).toContain('https://gc.zgo.at')
     expect(csp).toMatch(/img-src[^;]*https:\/\/sergnio\.goatcounter\.com/)
-
-    await page.goto('/')
-    const tracker = page.locator('script[src="https://gc.zgo.at/count.js"]')
-    await expect(tracker).toHaveAttribute(
-      'data-goatcounter',
-      'https://sergnio.goatcounter.com/count',
-    )
   })
+
+  // Every template, not just the home page, and asserted against the served
+  // bytes rather than the DOM: React re-inserts the tag during hydration, so a
+  // locator finds it either way and a DOM check cannot tell a rendered tag
+  // from a hydrated one. Note the preview server renders on demand, so this
+  // covers the render path, not the prerendered files - the static output is
+  // asserted in scripts/assert-static-output.mjs, which reads them directly.
+  for (const template of templates) {
+    test(`${template} serves the GoatCounter tracker in its HTML`, async ({
+      request,
+    }) => {
+      const response = await request.get(template)
+      expect(response.status()).toBe(200)
+
+      // The tag is found by src and its attributes checked separately, so
+      // reordering them in the JSX does not fail a test about whether
+      // analytics ships.
+      const tracker = [...(await response.text()).matchAll(/<script\b[^>]*>/g)]
+        .map((match) => match[0])
+        .find(
+          (tag) =>
+            tag.match(/\bsrc="([^"]*)"/)?.[1] === 'https://gc.zgo.at/count.js',
+        )
+      expect(tracker, `${template} serves no GoatCounter tracker`).toBeDefined()
+      expect(tracker!.match(/\bdata-goatcounter="([^"]*)"/)?.[1]).toBe(
+        'https://sergnio.goatcounter.com/count',
+      )
+    })
+  }
 
   test('client-side navigation reports a pageview', async ({ page }) => {
     // count.js is blocked so the test never sends real traffic to

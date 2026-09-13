@@ -1,6 +1,6 @@
 import AxeBuilder from '@axe-core/playwright'
 import type { Page } from '@playwright/test'
-import { expect, test } from '@playwright/test'
+import { expect, test } from './tracker-stub'
 
 // One representative page per template: home, a collection index, a detail
 // page with a hero image, a rich-text-heavy blog post, and the static pages.
