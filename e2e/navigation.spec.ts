@@ -1,4 +1,5 @@
 import type { Page } from '@playwright/test'
+import { awaitClientRouter } from './client-router'
 import { expect, test } from './tracker-stub'
 
 test.describe('primary navigation', () => {
@@ -137,6 +138,10 @@ test.describe('primary navigation', () => {
     link: string,
   ) => {
     await page.goto(start)
+    // Until the client router is mounted a card click is a plain document
+    // load, so clicking before then reports "reloaded" for a link that is
+    // wired up correctly. Waiting for it makes the result mean what it says.
+    await awaitClientRouter(page)
     await page.evaluate(() => {
       ;(window as unknown as { __spa?: string }).__spa = 'alive'
     })

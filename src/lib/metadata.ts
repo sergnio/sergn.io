@@ -1,12 +1,15 @@
 import type {
+  Coffee,
   CollectionName,
   ContentDocument,
   NaBeer,
   Post,
+  RankedCollection,
   ReubenReview,
   SanityImage,
   WingReview,
 } from './content-types'
+import { isRankedCollection } from './content-types'
 import { imageUrl } from './sanity/image'
 
 export const siteUrl = 'https://sergn.io'
@@ -190,13 +193,70 @@ export function collectionJsonLd(collection: CollectionName) {
   ])
 }
 
-type RatedDocument = NaBeer | ReubenReview | WingReview
+/**
+ * A ranked index is a list whose order carries the meaning, so it states that
+ * order outright instead of leaving a crawler to read it off DOM position and
+ * guess whether the page is a ranking or just a feed.
+ */
+export function rankingJsonLd(
+  collection: RankedCollection,
+  documents: ContentDocument[],
+) {
+  return JSON.stringify({
+    '@context': 'https://schema.org',
+    '@type': 'ItemList',
+    name: collectionTitles[collection],
+    url: canonicalUrl(`/${collection}`),
+    itemListOrder: 'https://schema.org/ItemListOrderDescending',
+    numberOfItems: documents.length,
+    itemListElement: documents.map((document, index) => ({
+      '@type': 'ListItem',
+      position: index + 1,
+      name: document.title,
+      url: canonicalUrl(`/${collection}/${document.slug}`),
+    })),
+  })
+}
+
+/**
+ * The structured data a collection index ships. It takes the loader's
+ * documents because a ranking cannot describe itself without them, and every
+ * index route passes them the same way.
+ */
+export function collectionScripts(
+  collection: CollectionName,
+  documents?: ContentDocument[],
+) {
+  const jsonLd = [
+    collectionJsonLd(collection),
+    isRankedCollection(collection) && documents?.length
+      ? rankingJsonLd(collection, documents)
+      : undefined,
+  ].filter((entry) => entry !== undefined)
+
+  return jsonLd.map((children) => ({
+    type: 'application/ld+json',
+    children,
+  }))
+}
+
+type RatedDocument = Coffee | NaBeer | ReubenReview | WingReview
 
 function isRated(document: ContentDocument): document is RatedDocument {
-  return document._type !== 'post' && document._type !== 'coffee'
+  return document._type !== 'post'
 }
 
 function reviewedItem(document: RatedDocument) {
+  if (document._type === 'coffee') {
+    return {
+      '@type': 'Product',
+      name: document.title,
+      ...(document.roaster
+        ? { brand: { '@type': 'Brand', name: document.roaster } }
+        : {}),
+    }
+  }
+
   if (document._type === 'naBeer') {
     return {
       '@type': 'Product',
@@ -221,9 +281,8 @@ function reviewedItem(document: RatedDocument) {
 
 /**
  * Reviews are the bulk of the site, but only blog posts carried structured
- * data. Coffee entries are brew notes with no rating field, and an unrated
- * document would be invalid Review markup, so both are left unmarked rather
- * than published with a missing reviewRating.
+ * data. A rating is what makes a document a review, so an entry without one
+ * is left unmarked rather than published with a missing reviewRating.
  */
 export function reviewJsonLd(document: ContentDocument, path: string) {
   if (!isRated(document) || document.rating === undefined) return undefined
@@ -240,7 +299,9 @@ export function reviewJsonLd(document: ContentDocument, path: string) {
       worstRating: 1,
     },
     datePublished:
-      document._type === 'naBeer' ? document.publishedAt : document.visitedAt,
+      document._type === 'wingReview' || document._type === 'reubenReview'
+        ? document.visitedAt
+        : document.publishedAt,
     url: canonicalUrl(path),
     author,
   })

@@ -25,6 +25,12 @@ const paragraph = (text: string) => [
   },
 ]
 
+/**
+ * Ranked collections are stored in rank order, best first, exactly as the
+ * Studio's orderable list hands them over. The ranks are spaced so a fixture
+ * can be slotted between two others without renumbering the rest, which is
+ * the same property LexoRank gives the real dataset.
+ */
 export const fixtureCoffee: Coffee[] = [
   {
     _id: 'coffee-perky',
@@ -34,12 +40,14 @@ export const fixtureCoffee: Coffee[] = [
     title: 'Colombia Perky',
     slug: 'colombia-perky',
     publishedAt: '2025-01-10T12:00:00.000Z',
+    orderRank: '0|100000:',
     roaster: 'Avo Coffee Roasters',
     origin: 'Colombia',
     boughtFrom: 'Avo Coffee Roasters',
     purchaseUrl: 'https://avocoffeeroasters.example.com',
     price: { amountCents: 1543, currency: 'USD' },
     bagSize: { amount: 250, unit: 'g' },
+    rating: 4.75,
     heroImage: {
       ...fixtureImage(
         'photo-1495474472287-4d71bcdd2085',
@@ -80,6 +88,42 @@ export const fixtureCoffee: Coffee[] = [
     ],
   },
   {
+    _id: 'coffee-sumatra',
+    _type: 'coffee',
+    _createdAt: '2025-01-24T12:00:00.000Z',
+    _updatedAt: '2025-01-24T12:00:00.000Z',
+    title: 'Sumatra Long Night',
+    slug: 'sumatra-long-night',
+    publishedAt: '2025-01-24T12:00:00.000Z',
+    orderRank: '0|200000:',
+    roaster: 'Ninth Street Roasting',
+    origin: 'Indonesia',
+    boughtFrom: 'Ninth Street Roasting',
+    bagSize: { amount: 340, unit: 'g' },
+    rating: 4,
+    heroImage: fixtureImage(
+      'photo-1442512595331-e89e73853f31',
+      'Coffee poured slowly through a ceramic dripper',
+    ),
+    tastingNotes: ['Cedar', 'Cocoa'],
+    notes: paragraph('Heavy bodied and low acid, best after dinner.'),
+    brewRecipes: [
+      {
+        _key: 'press',
+        method: 'French Press',
+        grinder: {
+          name: 'Manual grinder',
+          system: 'manual-number-rotations',
+          number: 8,
+          rotations: 2,
+        },
+        doseGrams: 30,
+        waterGrams: 450,
+        brewTimeSeconds: 240,
+      },
+    ],
+  },
+  {
     _id: 'coffee-ethiopia',
     _type: 'coffee',
     _createdAt: '2025-02-02T12:00:00.000Z',
@@ -87,6 +131,7 @@ export const fixtureCoffee: Coffee[] = [
     title: 'Ethiopia Direct Trade',
     slug: 'ethiopia-direct-trade',
     publishedAt: '2025-02-02T12:00:00.000Z',
+    orderRank: '0|300000:',
     origin: 'Ethiopia',
     boughtFrom: 'Farmer direct import',
     bagSize: { amount: 340, unit: 'g' },
@@ -104,6 +149,32 @@ export const fixtureCoffee: Coffee[] = [
       },
     ],
   },
+  {
+    _id: 'coffee-grocery-blend',
+    _type: 'coffee',
+    _createdAt: '2025-02-18T12:00:00.000Z',
+    _updatedAt: '2025-02-18T12:00:00.000Z',
+    title: 'Grocery Store House Blend',
+    slug: 'grocery-store-house-blend',
+    publishedAt: '2025-02-18T12:00:00.000Z',
+    orderRank: '0|400000:',
+    roaster: 'Store Brand',
+    boughtFrom: 'The supermarket down the street',
+    bagSize: { amount: 12, unit: 'oz' },
+    rating: 1.75,
+    price: { amountCents: 699, currency: 'USD' },
+    notes: paragraph('Flat and papery, but it was there at 6am.'),
+    brewRecipes: [
+      {
+        _key: 'drip',
+        method: 'Filter',
+        grinder: {
+          name: 'Pre-ground',
+          system: 'other',
+        },
+      },
+    ],
+  },
 ]
 
 export const fixtureWings: WingReview[] = [
@@ -115,6 +186,7 @@ export const fixtureWings: WingReview[] = [
     title: 'Neighborhood Buffalo Wings',
     slug: 'neighborhood-buffalo-wings',
     publishedAt: '2025-02-12T12:00:00.000Z',
+    orderRank: '0|100000:',
     venue: 'Neighborhood Tavern',
     location: {
       city: 'Columbus',
@@ -138,6 +210,73 @@ export const fixtureWings: WingReview[] = [
       'Crisp skin, a bright vinegar tang, and just enough heat.',
     ),
   },
+  {
+    _id: 'wings-smokehouse-dry-rub',
+    _type: 'wingReview',
+    _createdAt: '2025-02-20T12:00:00.000Z',
+    _updatedAt: '2025-02-20T12:00:00.000Z',
+    title: 'Smokehouse Dry Rub Wings',
+    slug: 'smokehouse-dry-rub-wings',
+    publishedAt: '2025-02-20T12:00:00.000Z',
+    orderRank: '0|200000:',
+    venue: 'Eastside Smokehouse',
+    location: { city: 'Columbus' },
+    visitedAt: '2025-02-19',
+    order: { styleOrFlavor: 'Dry rub', heat: 'Mild', pieceCount: 8 },
+    price: { amountCents: 1400, currency: 'USD' },
+    rating: 4,
+    heroImage: fixtureImage(
+      'photo-1527477396000-e27163b481c2',
+      'Smoked chicken wings dusted with a dark spice rub',
+    ),
+    notes: paragraph('Deep smoke, dry and craggy, no sauce needed.'),
+  },
+  {
+    _id: 'wings-corner-bar-honey-hot',
+    _type: 'wingReview',
+    _createdAt: '2025-03-04T12:00:00.000Z',
+    _updatedAt: '2025-03-04T12:00:00.000Z',
+    title: 'Corner Bar Honey Hot',
+    slug: 'corner-bar-honey-hot',
+    publishedAt: '2025-03-04T12:00:00.000Z',
+    orderRank: '0|300000:',
+    venue: 'The Corner Bar',
+    visitedAt: '2025-03-03',
+    order: { styleOrFlavor: 'Honey hot', heat: 'Hot', pieceCount: 12 },
+    rating: 3.5,
+    notes: paragraph('Sweet up front, genuinely hot on the finish.'),
+  },
+  {
+    _id: 'wings-arena-concession',
+    _type: 'wingReview',
+    _createdAt: '2025-03-18T12:00:00.000Z',
+    _updatedAt: '2025-03-18T12:00:00.000Z',
+    title: 'Arena Concession Wings',
+    slug: 'arena-concession-wings',
+    publishedAt: '2025-03-18T12:00:00.000Z',
+    orderRank: '0|400000:',
+    venue: 'Downtown Arena',
+    visitedAt: '2025-03-17',
+    order: { styleOrFlavor: 'Buffalo', pieceCount: 6 },
+    price: { amountCents: 1899, currency: 'USD' },
+    rating: 2.25,
+    notes: paragraph('Warm, soft, and priced like they were not.'),
+  },
+  {
+    _id: 'wings-gas-station',
+    _type: 'wingReview',
+    _createdAt: '2025-04-02T12:00:00.000Z',
+    _updatedAt: '2025-04-02T12:00:00.000Z',
+    title: 'Gas Station Case Wings',
+    slug: 'gas-station-case-wings',
+    publishedAt: '2025-04-02T12:00:00.000Z',
+    orderRank: '0|500000:',
+    venue: 'Highway 33 Fuel Stop',
+    visitedAt: '2025-04-01',
+    order: { styleOrFlavor: 'Whatever was left', pieceCount: 4 },
+    rating: 1,
+    notes: paragraph('A decision, not a meal. Reported here for completeness.'),
+  },
 ]
 
 export const fixtureNaBeers: NaBeer[] = [
@@ -149,6 +288,7 @@ export const fixtureNaBeers: NaBeer[] = [
     title: 'Bright Lager',
     slug: 'bright-lager',
     publishedAt: '2025-03-02T12:00:00.000Z',
+    orderRank: '0|100000:',
     brewery: 'Good Times Brewing',
     style: 'Lager',
     abvPercent: 0.5,
@@ -164,6 +304,57 @@ export const fixtureNaBeers: NaBeer[] = [
     ),
     notes: paragraph('Clean, bready, and easy to reach for at dinner.'),
   },
+  {
+    _id: 'na-hazy-zero',
+    _type: 'naBeer',
+    _createdAt: '2025-03-09T12:00:00.000Z',
+    _updatedAt: '2025-03-09T12:00:00.000Z',
+    title: 'Hazy Zero IPA',
+    slug: 'hazy-zero-ipa',
+    publishedAt: '2025-03-09T12:00:00.000Z',
+    orderRank: '0|200000:',
+    brewery: 'North Line Brewing',
+    style: 'IPA',
+    abvPercent: 0.4,
+    package: { amount: 12, unit: 'fl-oz' },
+    packageFormat: 'Can',
+    rating: 3.75,
+    heroImage: fixtureImage(
+      'photo-1510812431401-41d2bd2722f3',
+      'A cloudy pale beer in a stemmed glass',
+    ),
+    notes: paragraph('Real hop aroma, a little thin through the middle.'),
+  },
+  {
+    _id: 'na-dark-roast-stout',
+    _type: 'naBeer',
+    _createdAt: '2025-03-23T12:00:00.000Z',
+    _updatedAt: '2025-03-23T12:00:00.000Z',
+    title: 'Dark Roast Stout',
+    slug: 'dark-roast-stout',
+    publishedAt: '2025-03-23T12:00:00.000Z',
+    orderRank: '0|300000:',
+    brewery: 'Kettle & Coal',
+    style: 'Stout',
+    abvPercent: 0.5,
+    rating: 3,
+    notes: paragraph('Coffee and cocoa, but it drinks watery when it warms.'),
+  },
+  {
+    _id: 'na-flat-tonic-brew',
+    _type: 'naBeer',
+    _createdAt: '2025-04-06T12:00:00.000Z',
+    _updatedAt: '2025-04-06T12:00:00.000Z',
+    title: 'Flat Tonic Brew',
+    slug: 'flat-tonic-brew',
+    publishedAt: '2025-04-06T12:00:00.000Z',
+    orderRank: '0|400000:',
+    brewery: 'Value Cellar',
+    style: 'Pale ale',
+    abvNote: 'Alcohol free',
+    rating: 1.5,
+    notes: paragraph('Sweet, still, and closer to malt soda than to beer.'),
+  },
 ]
 
 export const fixtureReubens: ReubenReview[] = [
@@ -175,6 +366,7 @@ export const fixtureReubens: ReubenReview[] = [
     title: 'The Rye House Reuben',
     slug: 'the-rye-house-reuben',
     publishedAt: '2025-03-14T12:00:00.000Z',
+    orderRank: '0|100000:',
     restaurant: 'The Rye House',
     location: { city: 'Columbus' },
     visitedAt: '2025-03-13',
@@ -194,6 +386,63 @@ export const fixtureReubens: ReubenReview[] = [
     },
     price: { amountCents: 1875, currency: 'USD' },
     notes: paragraph('A tall, balanced sandwich with a proper griddled crust.'),
+  },
+  {
+    _id: 'reuben-deli-counter',
+    _type: 'reubenReview',
+    _createdAt: '2025-03-28T12:00:00.000Z',
+    _updatedAt: '2025-03-28T12:00:00.000Z',
+    title: 'Deli Counter Reuben',
+    slug: 'deli-counter-reuben',
+    publishedAt: '2025-03-28T12:00:00.000Z',
+    orderRank: '0|200000:',
+    restaurant: 'Fifth Street Deli',
+    location: { city: 'Columbus' },
+    visitedAt: '2025-03-27',
+    rating: 4,
+    heroImage: fixtureImage(
+      'photo-1414235077428-338989a2e8c0',
+      'A rye sandwich stacked high on a paper wrapper',
+    ),
+    orderDetails: {
+      meat: 'Pastrami',
+      bread: 'Light rye',
+      cheese: 'Swiss',
+      dressing: 'Russian',
+    },
+    price: { amountCents: 1650, currency: 'USD' },
+    notes: paragraph('Generous meat, bread that gave up halfway through.'),
+  },
+  {
+    _id: 'reuben-diner-classic',
+    _type: 'reubenReview',
+    _createdAt: '2025-04-11T12:00:00.000Z',
+    _updatedAt: '2025-04-11T12:00:00.000Z',
+    title: 'Diner Classic Reuben',
+    slug: 'diner-classic-reuben',
+    publishedAt: '2025-04-11T12:00:00.000Z',
+    orderRank: '0|300000:',
+    restaurant: 'Route 3 Diner',
+    visitedAt: '2025-04-10',
+    rating: 3.25,
+    orderDetails: { meat: 'Corned beef', bread: 'Marbled rye' },
+    notes: paragraph('Exactly what the menu promised and nothing more.'),
+  },
+  {
+    _id: 'reuben-pub-grill',
+    _type: 'reubenReview',
+    _createdAt: '2025-04-25T12:00:00.000Z',
+    _updatedAt: '2025-04-25T12:00:00.000Z',
+    title: 'Pub Grill Reuben',
+    slug: 'pub-grill-reuben',
+    publishedAt: '2025-04-25T12:00:00.000Z',
+    orderRank: '0|400000:',
+    restaurant: 'The Landing Pub',
+    visitedAt: '2025-04-24',
+    rating: 2.5,
+    orderDetails: { meat: 'Corned beef', sauerkraut: 'From a jar' },
+    price: { amountCents: 1550, currency: 'USD' },
+    notes: paragraph('Under-drained kraut turned the bottom slice to paste.'),
   },
 ]
 
@@ -500,11 +749,16 @@ function byPublishedDesc<
   )
 }
 
+/** Mirrors the `order(orderRank asc)` the real collection query runs. */
+function byRank<T extends { orderRank: string }>(documents: T[]): T[] {
+  return [...documents].sort((a, b) => a.orderRank.localeCompare(b.orderRank))
+}
+
 const collections = {
-  coffee: byPublishedDesc(fixtureCoffee),
-  wings: byPublishedDesc(fixtureWings),
-  'na-beers': byPublishedDesc(fixtureNaBeers),
-  reubens: byPublishedDesc(fixtureReubens),
+  coffee: byRank(fixtureCoffee),
+  wings: byRank(fixtureWings),
+  'na-beers': byRank(fixtureNaBeers),
+  reubens: byRank(fixtureReubens),
   blog: byPublishedDesc(fixturePosts),
 } as const
 

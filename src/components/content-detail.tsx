@@ -76,6 +76,7 @@ function facts(document: ContentDocument): Fact[] {
       { label: 'Roasted', value: formatDate(document.roastDate) },
       { label: 'Purchased', value: formatDate(document.purchasedAt) },
       { label: 'Price', value: formatMoney(document.price) },
+      { label: 'Rating', value: formatRating(document.rating) },
     ]
   }
 

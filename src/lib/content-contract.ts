@@ -1,4 +1,5 @@
 import type { CollectionName } from './content-types'
+import { isRankedCollection } from './content-types'
 import { classifyLinkHref } from './links'
 
 /**
@@ -120,6 +121,7 @@ function violationsFor(collection: CollectionName, document: unknown) {
   }
 
   return violations.concat(
+    rankViolations(collection, document, subject),
     collectImagesMissingAlt(document, '').map(
       (path) => `${subject} has an image without alt text at "${path}"`,
     ),
@@ -127,6 +129,46 @@ function violationsFor(collection: CollectionName, document: unknown) {
       (problem) => `${subject} has a rich text link ${problem}`,
     ),
   )
+}
+
+/**
+ * Every collection but the blog renders best to worst, so a document with no
+ * rank has no correct position to render at - it would silently land wherever
+ * the sort happened to drop it and quietly misstate the ranking.
+ */
+function rankViolations(
+  collection: CollectionName,
+  document: unknown,
+  subject: string,
+) {
+  if (!isRankedCollection(collection)) return []
+  if (!isMissing(readPath(document, 'orderRank'))) return []
+
+  return [
+    `${subject} has no rank, so it cannot be placed in the ${collection} ranking - open the ${collection} list in the Studio and drag it into position`,
+  ]
+}
+
+/** Two documents sharing a rank leave their order down to the sort's whim. */
+function duplicateRankViolations(
+  collection: CollectionName,
+  documents: unknown[],
+) {
+  if (!isRankedCollection(collection)) return []
+
+  const seen = new Set<string>()
+
+  return documents.flatMap((document) => {
+    const rank = readPath(document, 'orderRank')
+    if (typeof rank !== 'string' || rank === '') return []
+    if (!seen.has(rank)) {
+      seen.add(rank)
+      return []
+    }
+    return [
+      `${collection} has more than one document ranked at "${rank}", so which of them places higher is undefined - reset the order from the ${collection} list in the Studio`,
+    ]
+  })
 }
 
 function duplicateSlugViolations(
@@ -170,6 +212,7 @@ export function assertValidCollection<T>(
   const violations = [
     ...documents.flatMap((document) => violationsFor(collection, document)),
     ...duplicateSlugViolations(collection, documents),
+    ...duplicateRankViolations(collection, documents),
   ]
 
   if (violations.length > 0) fail(violations)

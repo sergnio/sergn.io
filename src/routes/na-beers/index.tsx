@@ -1,19 +1,17 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { CollectionPage } from '#/components/collection-page'
 import { getCollection } from '#/lib/content.functions'
-import { collectionJsonLd, collectionTitles, pageHead } from '#/lib/metadata'
+import { collectionScripts, collectionTitles, pageHead } from '#/lib/metadata'
 
 export const Route = createFileRoute('/na-beers/')({
   loader: () => getCollection({ data: { collection: 'na-beers' } }),
-  head: () => ({
+  head: ({ loaderData }) => ({
     ...pageHead({
       description: 'N/A beer reviews for the beers worth drinking again.',
       path: '/na-beers',
       title: collectionTitles['na-beers'],
     }),
-    scripts: [
-      { type: 'application/ld+json', children: collectionJsonLd('na-beers') },
-    ],
+    scripts: collectionScripts('na-beers', loaderData),
   }),
   component: NaBeersIndex,
 })

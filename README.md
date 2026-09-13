@@ -42,6 +42,31 @@ The Studio uses the editor's Sanity login. Do not put `SANITY_AUTH_TOKEN`, a
 Sanity write token, a Netlify build-hook URL, or any draft-preview credential in
 this repository or `.env.local`.
 
+## Ranking entries
+
+Every collection but the blog publishes as a ranking, best first. Coffee, wings,
+N/A beers, and reubens each open in the Studio as a drag-and-drop list; the order
+you leave it in is the order the site renders, and the rank badges on the page
+are positions in that list, not a separate field to fill in.
+
+Placing a new entry:
+
+1. Create and publish it as usual. It arrives at the top of the list, so it is
+   impossible to miss.
+2. Open that collection's list in the Studio and drag it to where it belongs.
+
+Drag order is stored per document in `orderRank`, a sparse LexoRank string, so
+slotting an entry between two others rewrites one document rather than
+renumbering everything below it.
+
+`rating` stays independent of rank. It is what the page prints beside an entry,
+not what sorts them - two entries can share a rating and still have a settled
+order, and an unrated entry still holds a rank.
+
+The build refuses to publish a ranked entry with no rank, naming the document
+and the list to drag it in. `src/lib/content-contract.ts` is where that check
+lives, alongside the rest of the content contract.
+
 ## Checks
 
 ```bash

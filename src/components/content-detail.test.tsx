@@ -28,6 +28,10 @@ const notRenderedInBody: Array<{
 }> = [
   { path: /^_(id|type|createdAt|updatedAt)$/, why: 'Sanity system fields' },
   { path: /^slug$/, why: 'the page is already at its own URL' },
+  {
+    path: /^orderRank$/,
+    why: 'sort key for the collection index, not content',
+  },
   { path: /^seo\./, why: 'overrides for the document head, not the body' },
   { path: /\._(key|type)$/, why: 'array and block identity' },
   { path: /\.(style|listItem)$/, why: 'portable text block styling' },
@@ -51,7 +55,14 @@ function candidates(value: string | number) {
     : undefined
   const cents = typeof value === 'number' ? (value / 100).toFixed(2) : undefined
 
-  return [raw, raw.toLowerCase(), formattedDate, cents].filter(
+  // A value carrying &, < or > reaches the markup escaped, so the raw string
+  // alone would read as a dropped field.
+  const escaped = raw
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+
+  return [raw, raw.toLowerCase(), escaped, formattedDate, cents].filter(
     (candidate): candidate is string => Boolean(candidate),
   )
 }

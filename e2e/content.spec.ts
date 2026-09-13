@@ -59,11 +59,11 @@ test.describe('collection browsing flow', () => {
       'content',
       'website',
     )
-    // Coffee entries have no rating field, so they carry no Review markup -
-    // only the breadcrumb trail every detail page gets.
+    // A rated entry carries Review markup alongside the breadcrumb trail
+    // every detail page gets.
     await expect(
       page.locator('script[type="application/ld+json"]'),
-    ).toHaveCount(1)
+    ).toHaveCount(2)
 
     const heroImage = page.locator('.detail-hero__image img')
     await expect(heroImage).toHaveAttribute('loading', 'eager')
@@ -627,6 +627,104 @@ test.describe('collection browsing flow', () => {
   })
 })
 
+test.describe('ranked collections', () => {
+  const rankedOrder = [
+    'Neighborhood Buffalo Wings',
+    'Smokehouse Dry Rub Wings',
+    'Corner Bar Honey Hot',
+    'Arena Concession Wings',
+    'Gas Station Case Wings',
+  ]
+
+  test('wings reads best to worst, top to bottom, on mobile and desktop', async ({
+    page,
+  }) => {
+    // The podium sits three across once there is room for it, so on desktop
+    // the top three share a line. Everything else about the order holds at
+    // both sizes: reading order is rank order, and no entry ever renders
+    // above one that outranks it.
+    for (const viewport of [
+      { width: 390, height: 844, podiumAcross: false },
+      { width: 1280, height: 900, podiumAcross: true },
+    ]) {
+      await page.setViewportSize(viewport)
+      await page.goto('/wings')
+
+      const entries = page.locator('.ranked-list > li')
+      await expect(entries).toHaveCount(rankedOrder.length)
+
+      const tops = await entries.evaluateAll((items) =>
+        items.map((item) => item.getBoundingClientRect().top),
+      )
+      const headings = await entries
+        .locator('h2')
+        .evaluateAll((items) => items.map((item) => item.textContent.trim()))
+
+      const at = `at ${viewport.width}px`
+      expect(headings, at).toEqual(rankedOrder)
+
+      for (let index = 1; index < tops.length; index++) {
+        const sharesThePodiumLine = viewport.podiumAcross && index < 3
+        if (sharesThePodiumLine) {
+          expect(tops[index], at).toBe(tops[index - 1])
+        } else {
+          expect(tops[index], at).toBeGreaterThan(tops[index - 1])
+        }
+      }
+    }
+  })
+
+  test('every entry shows its rank, numbered straight through the list', async ({
+    page,
+  }) => {
+    await page.goto('/wings')
+
+    const badges = await page
+      .locator('.content-card__rank, .ranked-row__rank')
+      .allTextContents()
+
+    expect(badges).toEqual(['#1', '#2', '#3', '#4', '#5'])
+    await expect(page.locator('.ranked-list__podium')).toHaveCount(3)
+    await expect(page.locator('.ranked-list__row')).toHaveCount(2)
+  })
+
+  test('the ranking a crawler reads matches the one on the page', async ({
+    page,
+  }) => {
+    await page.goto('/wings')
+
+    const list = (await jsonLdBlocks(page)).find(
+      (block) => block['@type'] === 'ItemList',
+    )
+
+    expect(list).toMatchObject({
+      name: 'Wings',
+      url: 'https://sergn.io/wings',
+      itemListOrder: 'https://schema.org/ItemListOrderDescending',
+      numberOfItems: rankedOrder.length,
+    })
+    expect(
+      list.itemListElement.map(
+        (item: { position: number; name: string }) => item.name,
+      ),
+    ).toEqual(rankedOrder)
+    expect(
+      list.itemListElement.map((item: { position: number }) => item.position),
+    ).toEqual([1, 2, 3, 4, 5])
+  })
+
+  test('the blog is not a ranking, so it ships no ItemList and no ranks', async ({
+    page,
+  }) => {
+    await page.goto('/blog')
+
+    const types = (await jsonLdBlocks(page)).map((block) => block['@type'])
+    expect(types).not.toContain('ItemList')
+    await expect(page.locator('.ranked-list')).toHaveCount(0)
+    await expect(page.locator('.content-card__rank')).toHaveCount(0)
+  })
+})
+
 test.describe('structured data', () => {
   test('home page identifies the site and its owner', async ({ page }) => {
     await page.goto('/')
@@ -683,12 +781,29 @@ test.describe('structured data', () => {
     expect(types).toEqual(expect.arrayContaining(['BreadcrumbList', 'Article']))
   })
 
-  test('an unrated coffee entry ships a breadcrumb but no Review markup', async ({
+  test('an unrated entry ships a breadcrumb but no Review markup', async ({
+    page,
+  }) => {
+    await page.goto('/coffee/ethiopia-direct-trade')
+
+    const types = (await jsonLdBlocks(page)).map((block) => block['@type'])
+    expect(types).toEqual(['BreadcrumbList'])
+  })
+
+  test('a rated coffee entry is marked up as a review of a product', async ({
     page,
   }) => {
     await page.goto('/coffee/colombia-perky')
 
-    const types = (await jsonLdBlocks(page)).map((block) => block['@type'])
-    expect(types).toEqual(['BreadcrumbList'])
+    const blocks = await jsonLdBlocks(page)
+    expect(blocks.find((block) => block['@type'] === 'Review')).toMatchObject({
+      itemReviewed: {
+        '@type': 'Product',
+        name: 'Colombia Perky',
+        brand: { '@type': 'Brand', name: 'Avo Coffee Roasters' },
+      },
+      reviewRating: { ratingValue: 4.75, bestRating: 5, worstRating: 1 },
+      url: 'https://sergn.io/coffee/colombia-perky',
+    })
   })
 })

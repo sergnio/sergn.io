@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import type { CollectionName } from '../content-types'
+import { rankedCollections } from '../content-types'
 import { collectionQuery, documentQuery } from './queries'
 
 describe('published content queries', () => {
@@ -56,5 +57,29 @@ describe('published content queries', () => {
 
   it('sorts only documents with a defined public slug', () => {
     expect(collectionQuery('wings')).toContain('defined(slug.current)')
+  })
+
+  // The rank is what "best to worst" means on these pages. Sorting by date
+  // instead would still render a full, plausible-looking list - just in the
+  // wrong order - so the sort key is asserted rather than eyeballed.
+  it.each(rankedCollections)(
+    'orders the %s ranking by rank, and fetches the rank to print it',
+    (collection) => {
+      const query = collectionQuery(collection)
+
+      expect(query).toContain('| order(orderRank asc)')
+      expect(query).not.toContain('publishedAt, _createdAt) desc')
+      for (const shape of [query, documentQuery(collection)]) {
+        expect(shape).toMatch(/\borderRank\b/)
+        expect(shape).toMatch(/\brating\b/)
+      }
+    },
+  )
+
+  it('leaves the blog newest first, because a post is not ranked', () => {
+    const query = collectionQuery('blog')
+
+    expect(query).toContain('order(coalesce(publishedAt, _createdAt) desc)')
+    expect(query).not.toContain('orderRank')
   })
 })
