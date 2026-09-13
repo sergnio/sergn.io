@@ -34,6 +34,18 @@ test.describe('Content Security Policy', () => {
     }) => {
       const csp = await productionCsp()
 
+      // Served locally so the suite never makes a real request to GoatCounter.
+      // Letting it through reached a third party on every page and made the
+      // networkidle wait below flaky. The browser still evaluates script-src
+      // against the original URL, so the policy is exercised either way.
+      await page.route('https://gc.zgo.at/count.js', (route) =>
+        route.fulfill({
+          status: 200,
+          contentType: 'text/javascript',
+          body: '',
+        }),
+      )
+
       await page.route('**/*', async (route) => {
         const response = await route.fetch()
         const headers = response.headers()
@@ -99,8 +111,19 @@ test.describe('Analytics', () => {
     }) => {
       const response = await request.get(template)
       expect(response.status()).toBe(200)
-      expect(await response.text()).toMatch(
-        /<script\b[^>]*\bsrc="https:\/\/gc\.zgo\.at\/count\.js"[^>]*\bdata-goatcounter="https:\/\/sergnio\.goatcounter\.com\/count"/,
+
+      // The tag is found by src and its attributes checked separately, so
+      // reordering them in the JSX does not fail a test about whether
+      // analytics ships.
+      const tracker = [...(await response.text()).matchAll(/<script\b[^>]*>/g)]
+        .map((match) => match[0])
+        .find(
+          (tag) =>
+            tag.match(/\bsrc="([^"]*)"/)?.[1] === 'https://gc.zgo.at/count.js',
+        )
+      expect(tracker, `${template} serves no GoatCounter tracker`).toBeDefined()
+      expect(tracker!.match(/\bdata-goatcounter="([^"]*)"/)?.[1]).toBe(
+        'https://sergnio.goatcounter.com/count',
       )
     })
   }

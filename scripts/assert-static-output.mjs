@@ -643,9 +643,13 @@ for (const pagePath of await prerenderedPages()) {
   const page = path.relative(outputDirectory, pagePath)
   const html = await readFile(pagePath, 'utf8')
 
-  const tracker = html.match(
-    new RegExp(`<script\\b[^>]*\\bsrc="${trackerSource}"[^>]*>`),
-  )?.[0]
+  // Every script tag is parsed and its src compared as a literal string.
+  // Interpolating the URL into a pattern would leave its dots as wildcards, so
+  // a typo like gc.zgo.at/countXjs would satisfy the only check that reads the
+  // prerendered files at all.
+  const tracker = [...html.matchAll(/<script\b[^>]*>/g)]
+    .map((match) => match[0])
+    .find((tag) => tag.match(/\bsrc="([^"]*)"/)?.[1] === trackerSource)
   if (!tracker) {
     throw new Error(
       `Prerendered ${page} does not ship the analytics tracker (${trackerSource}). React hoists async scripts out of the prerendered output; it must load with defer from the document body.`,
