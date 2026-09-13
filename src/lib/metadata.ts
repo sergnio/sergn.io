@@ -18,7 +18,7 @@ export const siteDescription =
  * The brand colour browsers paint their chrome with. Kept in sync with
  * theme_color in public/site.webmanifest, which the build asserts.
  */
-export const brandColor = '#183f34'
+export const brandColor = '#30272d'
 
 /**
  * The social preview every page falls back to. Without it a shared link

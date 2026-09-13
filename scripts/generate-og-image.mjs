@@ -28,18 +28,18 @@ const markup = `<!doctype html>
         flex-direction: column;
         justify-content: space-between;
         padding: 72px 88px;
-        background: #f7f3eb;
-        border-bottom: 18px solid #d7a945;
-        color: #1c2924;
+        background: #f2f0ed;
+        border-bottom: 18px solid #884444;
+        color: #30272d;
       }
       .wordmark {
         font-family: 'DM Mono', monospace;
         font-size: 40px;
         font-weight: 500;
         letter-spacing: -0.08em;
-        color: #183f34;
+        color: #30272d;
       }
-      .wordmark span { color: #d7a945; }
+      .wordmark span { color: #884444; }
       h1 {
         max-width: 15ch;
         font-family: 'Newsreader', Georgia, serif;
@@ -47,13 +47,13 @@ const markup = `<!doctype html>
         font-weight: 500;
         line-height: 1.05;
         letter-spacing: -0.02em;
-        color: #183f34;
+        color: #30272d;
       }
       p {
         font-family: 'DM Mono', monospace;
         font-size: 28px;
         letter-spacing: -0.02em;
-        color: #58645e;
+        color: #615e5c;
       }
     </style>
   </head>

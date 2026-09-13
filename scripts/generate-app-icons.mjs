@@ -6,11 +6,10 @@
 import path from 'node:path'
 import { chromium } from '@playwright/test'
 
-// Matches public/favicon.svg, cropped tighter so the mark fills the icon at
-// home-screen sizes instead of floating in the middle of a green square.
-const mark = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="10 10 44 44" width="100%" height="100%">
-  <path d="M18 18h28v28H18z" fill="#d7a945"/>
-  <path d="M26 25h15v5H31v4h9v5h-9v5h-5z" fill="#183f34"/>
+// Matches the mark in public/favicon.svg, cropped tighter so the letter fills
+// the icon at home-screen sizes instead of floating in the middle of a square.
+const mark = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="12 12 40 40" width="100%" height="100%">
+  <path d="M18 16h28v6h-22v7h22v19h-28v-6h22v-7h-22v-19z" fill="#efecee"/>
 </svg>`
 
 const icons = [
@@ -31,7 +30,7 @@ for (const { file, size } of icons) {
   await page.setContent(`<!doctype html>
 <html lang="en">
   <head><meta charset="utf-8" /></head>
-  <body style="margin:0;width:${size}px;height:${size}px;background:#183f34">${mark}</body>
+  <body style="margin:0;width:${size}px;height:${size}px;background:#30272d">${mark}</body>
 </html>`)
   await page.screenshot({ path: output })
   await page.close()
