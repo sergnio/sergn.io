@@ -30,6 +30,10 @@
      ink that reads on it. */
   --wash: var(--mauve-200);
   --wash-ink: var(--mauve-700);
+  /* Saturated mauve used only at low alpha or as a gradient stop, never as
+     a text or surface color - it is too light to carry either. */
+  --tint: var(--mauve-500);
+  --focus: var(--red-700);
   --shadow: rgb(38 36 36 / 8%);
 
   font-family: 'Newsreader', Georgia, serif;
@@ -57,7 +61,7 @@ body {
   background:
     radial-gradient(
       circle at 85% -5%,
-      color-mix(in srgb, var(--mauve-500) 30%, transparent),
+      color-mix(in srgb, var(--tint) 30%, transparent),
       transparent 28rem
     ),
     var(--paper);
@@ -101,7 +105,7 @@ img {
 }
 
 :focus-visible {
-  outline: 3px solid var(--red-700);
+  outline: 3px solid var(--focus);
   outline-offset: 3px;
 }
 
@@ -443,7 +447,7 @@ h3 {
   aspect-ratio: 4 / 3;
   place-items: center;
   color: rgb(255 255 255 / 80%);
-  background: linear-gradient(135deg, var(--brand), var(--mauve-500));
+  background: linear-gradient(135deg, var(--brand), var(--tint));
   font-family: 'DM Mono', monospace;
   font-size: 0.85rem;
   text-transform: uppercase;
@@ -604,7 +608,7 @@ figcaption {
 }
 
 .rich-text {
-  color: var(--mauve-900);
+  color: var(--ink);
   font-size: clamp(1.15rem, 3vw, 1.35rem);
   line-height: 1.55;
 }
