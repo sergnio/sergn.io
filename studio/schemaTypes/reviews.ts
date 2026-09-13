@@ -1,3 +1,4 @@
+import { orderRankField } from '@sanity/orderable-document-list'
 import { defineField, defineType } from 'sanity'
 import { slugField } from './shared'
 
@@ -16,7 +17,7 @@ const optionalFieldset = [
   },
 ]
 
-function commonFields() {
+function commonFields(type: string) {
   return [
     defineField({
       name: 'heroImage',
@@ -44,6 +45,7 @@ function commonFields() {
       group: 'optional',
       fieldset: 'optionalDetails',
     }),
+    orderRankField({ type, newItemPosition: 'before' }),
   ]
 }
 
@@ -126,7 +128,7 @@ export const wingReview = defineType({
         defineField({ name: 'url', title: 'Venue URL', type: 'url' }),
       ],
     }),
-    ...commonFields().map((field) =>
+    ...commonFields('wingReview').map((field) =>
       field.name === 'notes'
         ? defineField({ ...field, validation: (Rule) => Rule.required() })
         : field,
@@ -232,7 +234,7 @@ export const naBeer = defineType({
       group: 'optional',
       fieldset: 'optionalDetails',
     }),
-    ...commonFields(),
+    ...commonFields('naBeer'),
   ],
   preview: {
     select: {
@@ -341,7 +343,7 @@ export const reubenReview = defineType({
         defineField({ name: 'url', title: 'Restaurant URL', type: 'url' }),
       ],
     }),
-    ...commonFields(),
+    ...commonFields('reubenReview'),
   ],
   preview: {
     select: {

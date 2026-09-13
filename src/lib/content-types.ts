@@ -8,6 +8,26 @@ export const collectionNames = [
 
 export type CollectionName = (typeof collectionNames)[number]
 
+/**
+ * The collections the site publishes as a ranking, best first. The blog is
+ * the only one that reads chronologically, because a post is not better or
+ * worse than the post before it.
+ */
+export const rankedCollections = [
+  'coffee',
+  'wings',
+  'na-beers',
+  'reubens',
+] as const satisfies readonly CollectionName[]
+
+export type RankedCollection = (typeof rankedCollections)[number]
+
+export function isRankedCollection(
+  collection: CollectionName,
+): collection is RankedCollection {
+  return (rankedCollections as readonly CollectionName[]).includes(collection)
+}
+
 export type SanityImage = {
   alt: string
   caption?: string
@@ -115,6 +135,16 @@ export type BrewRecipe = {
   notes?: string
 }
 
+/**
+ * The place a document holds in its collection's ranking. The Studio's
+ * orderable list writes it as a LexoRank string, so inserting between two
+ * entries never renumbers the rest; the site sorts on it ascending and the
+ * position that falls out is the rank it prints.
+ */
+type RankedDocument = {
+  orderRank: string
+}
+
 type BaseDocument = {
   _id: string
   _type: string
@@ -125,74 +155,79 @@ type BaseDocument = {
   publishedAt?: string
 }
 
-export type Coffee = BaseDocument & {
-  _type: 'coffee'
-  roaster?: string
-  origin?: string
-  boughtFrom: string
-  purchaseUrl?: string
-  purchasedAt?: string
-  price?: Money
-  bagSize: { amount: number; unit: 'g' | 'oz' }
-  roastDate?: string
-  heroImage?: SanityImage
-  tastingNotes?: string[]
-  notes?: PortableTextContent
-  brewRecipes: BrewRecipe[]
-}
-
-export type WingReview = BaseDocument & {
-  _type: 'wingReview'
-  venue: string
-  location?: { city?: string; address?: string; url?: string }
-  visitedAt: string
-  order: {
-    styleOrFlavor: string
-    heat?: string
-    pieceCount?: number
-    sides?: string[]
+export type Coffee = BaseDocument &
+  RankedDocument & {
+    _type: 'coffee'
+    roaster?: string
+    origin?: string
+    boughtFrom: string
+    purchaseUrl?: string
+    purchasedAt?: string
+    price?: Money
+    bagSize: { amount: number; unit: 'g' | 'oz' }
+    roastDate?: string
+    rating?: Rating
+    heroImage?: SanityImage
+    tastingNotes?: string[]
+    notes?: PortableTextContent
+    brewRecipes: BrewRecipe[]
   }
-  price?: Money
-  rating?: Rating
-  notes: PortableTextContent
-  heroImage?: SanityImage
-}
 
-export type NaBeer = BaseDocument & {
-  _type: 'naBeer'
-  brewery: string
-  style?: string
-  abvPercent?: number
-  abvNote?: string
-  package?: { amount: number; unit: 'ml' | 'fl-oz' | 'count' }
-  packageFormat?: string
-  boughtFrom?: string
-  purchasedAt?: string
-  price?: Money
-  rating?: Rating
-  notes?: PortableTextContent
-  heroImage?: SanityImage
-}
-
-export type ReubenReview = BaseDocument & {
-  _type: 'reubenReview'
-  restaurant: string
-  location?: { city?: string; address?: string; url?: string }
-  visitedAt: string
-  price?: Money
-  orderDetails?: {
-    meat?: string
-    bread?: string
-    cheese?: string
-    sauerkraut?: string
-    dressing?: string
-    portion?: string
-    other?: Array<{ label: string; value: string }>
+export type WingReview = BaseDocument &
+  RankedDocument & {
+    _type: 'wingReview'
+    venue: string
+    location?: { city?: string; address?: string; url?: string }
+    visitedAt: string
+    order: {
+      styleOrFlavor: string
+      heat?: string
+      pieceCount?: number
+      sides?: string[]
+    }
+    price?: Money
+    rating?: Rating
+    notes: PortableTextContent
+    heroImage?: SanityImage
   }
-  rating?: Rating
-  notes?: PortableTextContent
-  heroImage?: SanityImage
-}
+
+export type NaBeer = BaseDocument &
+  RankedDocument & {
+    _type: 'naBeer'
+    brewery: string
+    style?: string
+    abvPercent?: number
+    abvNote?: string
+    package?: { amount: number; unit: 'ml' | 'fl-oz' | 'count' }
+    packageFormat?: string
+    boughtFrom?: string
+    purchasedAt?: string
+    price?: Money
+    rating?: Rating
+    notes?: PortableTextContent
+    heroImage?: SanityImage
+  }
+
+export type ReubenReview = BaseDocument &
+  RankedDocument & {
+    _type: 'reubenReview'
+    restaurant: string
+    location?: { city?: string; address?: string; url?: string }
+    visitedAt: string
+    price?: Money
+    orderDetails?: {
+      meat?: string
+      bread?: string
+      cheese?: string
+      sauerkraut?: string
+      dressing?: string
+      portion?: string
+      other?: Array<{ label: string; value: string }>
+    }
+    rating?: Rating
+    notes?: PortableTextContent
+    heroImage?: SanityImage
+  }
 
 export type Post = BaseDocument & {
   _type: 'post'

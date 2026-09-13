@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { assertValidCollection, assertValidDocument } from './content-contract'
-import { collectionNames } from './content-types'
+import { collectionNames, rankedCollections } from './content-types'
 import { getFixtureCollection } from './fixtures'
 
 const validCoffee = {
@@ -11,6 +11,7 @@ const validCoffee = {
   boughtFrom: 'A roaster',
   bagSize: { amount: 250, unit: 'g' },
   brewRecipes: [{ _key: 'a', method: 'Filter' }],
+  orderRank: '0|100000:',
 }
 
 describe('content contract', () => {
@@ -136,6 +137,55 @@ describe('content contract', () => {
     expect(tags.length).toBeGreaterThan(0)
     for (const tag of tags) {
       expect(tag).toMatch(/^[a-z0-9]+(?:-[a-z0-9]+)*$/)
+    }
+  })
+
+  it('rejects an entry with no place in a ranking, and names the list that gives it one', () => {
+    for (const collection of rankedCollections) {
+      expect(() =>
+        assertValidCollection(collection, [
+          { ...validCoffee, orderRank: undefined },
+        ]),
+      ).toThrow(
+        new RegExp(
+          `has no rank, so it cannot be placed in the ${collection} ranking`,
+        ),
+      )
+    }
+  })
+
+  it('lets the blog through without a rank, because it is not a ranking', () => {
+    expect(() =>
+      assertValidCollection('blog', [
+        {
+          _id: 'post-1',
+          _type: 'post',
+          title: 'A post',
+          slug: 'a-post',
+          excerpt: 'An excerpt',
+          body: [{ _key: 'a', _type: 'block', children: [] }],
+        },
+      ]),
+    ).not.toThrow()
+  })
+
+  it('rejects two entries sharing a rank, which would leave their order undecided', () => {
+    expect(() =>
+      assertValidCollection('coffee', [
+        validCoffee,
+        { ...validCoffee, _id: 'coffee-2', slug: 'b-coffee' },
+      ]),
+    ).toThrow(/more than one document ranked at "0\|100000:"/)
+  })
+
+  it('keeps every ranked fixture collection in rank order, best first', () => {
+    for (const collection of rankedCollections) {
+      const ranks = getFixtureCollection(collection).map(
+        (document) => (document as { orderRank: string }).orderRank,
+      )
+
+      expect(ranks.length).toBeGreaterThan(0)
+      expect([...ranks].sort((a, b) => a.localeCompare(b))).toEqual(ranks)
     }
   })
 

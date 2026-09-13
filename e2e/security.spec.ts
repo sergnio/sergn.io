@@ -1,6 +1,7 @@
 import { readFile } from 'node:fs/promises'
 import path from 'node:path'
 import { expect, test } from '@playwright/test'
+import { awaitClientRouter } from './client-router'
 
 // The preview server does not apply netlify.toml, so the production policy is
 // read from it and injected here. That way this suite exercises the exact
@@ -80,7 +81,10 @@ test.describe('Content Security Policy', () => {
       await expect(page.locator('h1')).toBeVisible()
 
       // The mobile menu is client-side only, so a working toggle proves the
-      // inline hydration script and the module bundle both executed.
+      // inline hydration script and the module bundle both executed. A policy
+      // that blocks either one never mounts the router, so this wait fails
+      // the test on a broken CSP rather than racing a slow one.
+      await awaitClientRouter(page)
       await page.setViewportSize({ width: 480, height: 900 })
       const menuButton = page.getByRole('button', { name: 'Menu' })
       await menuButton.click()

@@ -1,20 +1,31 @@
+import { orderableDocumentListDeskItem } from '@sanity/orderable-document-list'
 import type { StructureResolver } from 'sanity/structure'
 
-const contentTypes = [
+/**
+ * Every collection but the blog publishes as a ranking, so its list is the
+ * drag-and-drop one: the order the editor sees here is the order the site
+ * renders, best first. The blog stays a plain list ordered by date.
+ */
+const rankedTypes = [
   { type: 'coffee', title: 'Coffee' },
   { type: 'wingReview', title: 'Wing reviews' },
   { type: 'naBeer', title: 'N/A beers' },
   { type: 'reubenReview', title: 'Reuben reviews' },
-  { type: 'post', title: 'Blog posts' },
 ] as const
 
-export const deskStructure: StructureResolver = (S) =>
+export const deskStructure: StructureResolver = (S, context) =>
   S.list()
     .title('sergn.io')
-    .items(
-      contentTypes.map((content) =>
-        S.listItem()
-          .title(content.title)
-          .child(S.documentTypeList(content.type).title(content.title)),
+    .items([
+      ...rankedTypes.map((ranked) =>
+        orderableDocumentListDeskItem({
+          type: ranked.type,
+          title: ranked.title,
+          S,
+          context,
+        }),
       ),
-    )
+      S.listItem()
+        .title('Blog posts')
+        .child(S.documentTypeList('post').title('Blog posts')),
+    ])

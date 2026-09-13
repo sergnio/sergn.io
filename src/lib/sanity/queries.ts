@@ -7,6 +7,7 @@ import type {
   ReubenReview,
   WingReview,
 } from '../content-types'
+import { isRankedCollection } from '../content-types'
 import { assertValidCollection, assertValidDocument } from '../content-contract'
 import { getFixtureCollection, getFixtureDocument } from '../fixtures'
 import { getPublishedSanityClient, usesFixtureContent } from './client'
@@ -50,6 +51,7 @@ const richTextProjection = `[] {
 
 const reviewFields = `
   ${commonFields},
+  orderRank,
   rating,
   heroImage ${imageProjection},
   notes ${richTextProjection}
@@ -58,6 +60,8 @@ const reviewFields = `
 const projections: Record<CollectionName, string> = {
   coffee: `{
     ${commonFields},
+    orderRank,
+    rating,
     roaster,
     origin,
     boughtFrom,
@@ -131,8 +135,16 @@ const sanityTypes: Record<CollectionName, string> = {
   blog: 'post',
 }
 
+/**
+ * A ranked collection is ordered by the rank the Studio's orderable list
+ * writes, so the site renders best to worst; the blog stays newest first.
+ */
 export function collectionQuery(collection: CollectionName) {
-  return `*[_type == $type && defined(slug.current)] | order(coalesce(publishedAt, _createdAt) desc) ${projections[collection]}`
+  const order = isRankedCollection(collection)
+    ? 'orderRank asc'
+    : 'coalesce(publishedAt, _createdAt) desc'
+
+  return `*[_type == $type && defined(slug.current)] | order(${order}) ${projections[collection]}`
 }
 
 export function documentQuery(collection: CollectionName) {

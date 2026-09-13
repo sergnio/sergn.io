@@ -65,14 +65,47 @@ test.describe('accessibility', () => {
 // that still carries its label when read out of visual context.
 test.describe('screen-reader semantics', () => {
   test('collection cards are exposed as a labelled list', async ({ page }) => {
-    await page.goto('/coffee')
+    await page.goto('/blog')
 
-    const list = page.getByRole('list', { name: 'Coffee' })
+    const list = page.getByRole('list', { name: 'Blog' })
     await expect(list).toBeVisible()
     await expect(list.getByRole('listitem')).toHaveCount(2)
     await expect(
-      page.getByRole('heading', { level: 2, name: 'Colombia Perky' }),
+      page.getByRole('heading', {
+        level: 2,
+        name: 'Small rituals, better cups',
+      }),
     ).toBeVisible()
+  })
+
+  // A ranking says where each entry places. The badge that carries that for
+  // sighted readers is decorative, so the position has to reach assistive
+  // technology from the list itself - one ordered list spanning the podium
+  // cards and the rows below them, not two lists that restart the count.
+  test('a ranking is one ordered list, labelled as ranked', async ({
+    page,
+  }) => {
+    await page.goto('/coffee')
+
+    const list = page.getByRole('list', {
+      name: 'Coffee, ranked best to worst',
+      exact: true,
+    })
+    await expect(list).toBeVisible()
+    await expect(list).toHaveJSProperty('tagName', 'OL')
+    // Safari strips list semantics from a list styled `list-style: none`,
+    // which would take the only rank a screen reader gets with it.
+    await expect(list).toHaveAttribute('role', 'list')
+    await expect(list.getByRole('listitem')).toHaveCount(4)
+    await expect(page.locator('.ranked-list')).toHaveCount(1)
+
+    // The rank badges are hidden from the accessible tree, so the only rank
+    // an assistive technology hears is the list position.
+    for (const badge of await page
+      .locator('.content-card__rank, .ranked-row__rank')
+      .all()) {
+      await expect(badge).toHaveAttribute('aria-hidden', 'true')
+    }
   })
 
   test('ratings and dates are readable out of context', async ({ page }) => {

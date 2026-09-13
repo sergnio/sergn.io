@@ -1,3 +1,4 @@
+import { orderRankField } from '@sanity/orderable-document-list'
 import { defineField, defineType } from 'sanity'
 import { slugField } from './shared'
 
@@ -281,6 +282,12 @@ export const coffee = defineType({
       validation: (Rule) => Rule.required().min(1),
     }),
     defineField({
+      name: 'rating',
+      title: 'Rating',
+      type: 'rating',
+      group: 'tasting',
+    }),
+    defineField({
       name: 'tastingNotes',
       title: 'Tasting notes',
       type: 'array',
@@ -344,12 +351,20 @@ export const coffee = defineType({
       group: 'optional',
       fieldset: 'optionalDetails',
     }),
+    orderRankField({ type: 'coffee', newItemPosition: 'before' }),
   ],
   preview: {
-    select: { title: 'title', roaster: 'roaster', media: 'heroImage.image' },
-    prepare: ({ title, roaster, media }) => ({
+    select: {
+      title: 'title',
+      roaster: 'roaster',
+      rating: 'rating',
+      media: 'heroImage.image',
+    },
+    prepare: ({ title, roaster, rating, media }) => ({
       title,
-      subtitle: roaster,
+      subtitle: [roaster, rating === undefined ? undefined : `${rating}/5`]
+        .filter(Boolean)
+        .join(' · '),
       media,
     }),
   },

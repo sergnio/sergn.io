@@ -1,6 +1,7 @@
 import { Link } from '@tanstack/react-router'
+import { cardDate, cardImage, cardRating, cardSummary } from '#/lib/card-fields'
 import type { CollectionName, ContentDocument } from '#/lib/content-types'
-import { formatDate, formatRating } from '#/lib/formatters'
+import { formatDate } from '#/lib/formatters'
 import { ContentImage } from './content-image'
 
 type ContentCardProps = {
@@ -11,6 +12,8 @@ type ContentCardProps = {
   headingLevel?: 2 | 3
   /** Set on the one card whose image a page paints its LCP with. */
   priority?: boolean
+  /** Place in a ranked collection, printed as a badge. Unset off a ranking. */
+  rank?: number
 }
 
 const labels: Record<CollectionName, string> = {
@@ -21,40 +24,12 @@ const labels: Record<CollectionName, string> = {
   blog: 'From the blog',
 }
 
-function cardSummary(document: ContentDocument) {
-  if (document._type === 'coffee') return document.roaster ?? document.origin
-  if (document._type === 'wingReview') return document.venue
-  if (document._type === 'naBeer') return document.brewery
-  if (document._type === 'reubenReview') return document.restaurant
-  return document.excerpt
-}
-
-/**
- * A card's image is the only thing on it big enough to be an LCP candidate,
- * and not every document has one, so callers deciding which card to
- * prioritise have to ask this rather than assume the first card.
- */
-export function cardImage(document: ContentDocument) {
-  return document._type === 'post' ? document.coverImage : document.heroImage
-}
-
-function cardDate(document: ContentDocument) {
-  if (document._type === 'wingReview' || document._type === 'reubenReview') {
-    return document.visitedAt
-  }
-  return document.publishedAt
-}
-
-function cardRating(document: ContentDocument) {
-  if ('rating' in document) return formatRating(document.rating)
-  return undefined
-}
-
 export function ContentCard({
   collection,
   document,
   headingLevel = 3,
   priority = false,
+  rank,
 }: ContentCardProps) {
   const Heading = `h${headingLevel}` as const
   const date = cardDate(document)
@@ -62,6 +37,17 @@ export function ContentCard({
 
   return (
     <article className="content-card">
+      {rank === undefined ? null : (
+        // The ordered list around a ranking already carries the position for
+        // assistive technology, so the badge is the sighted reader's copy of
+        // it rather than a second announcement of the same number.
+        <p
+          aria-hidden="true"
+          className={`content-card__rank${rank === 1 ? ' content-card__rank--first' : ''}`}
+        >
+          #{rank}
+        </p>
+      )}
       <Link
         aria-hidden="true"
         className="content-card__image-link"
