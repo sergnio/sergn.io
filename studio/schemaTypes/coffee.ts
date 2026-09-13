@@ -273,12 +273,6 @@ export const coffee = defineType({
       validation: (Rule) => Rule.required(),
     }),
     defineField({
-      name: 'gallery',
-      title: 'Gallery',
-      type: 'gallery',
-      group: 'photo',
-    }),
-    defineField({
       name: 'brewRecipes',
       title: 'Brew recipes',
       type: 'array',

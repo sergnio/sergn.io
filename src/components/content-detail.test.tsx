@@ -28,7 +28,6 @@ const notRenderedInBody: Array<{
 }> = [
   { path: /^_(id|type|createdAt|updatedAt)$/, why: 'Sanity system fields' },
   { path: /^slug$/, why: 'the page is already at its own URL' },
-  { path: /^gallery\[/, why: 'the gallery section was removed from the page' },
   { path: /^seo\./, why: 'overrides for the document head, not the body' },
   { path: /\._(key|type)$/, why: 'array and block identity' },
   { path: /\.(style|listItem)$/, why: 'portable text block styling' },
@@ -129,24 +128,6 @@ describe('review facts', () => {
 
     expect(markup).not.toContain('<dt>Price</dt>')
     expect(markup).toContain('<dt>Roaster</dt><dd>Not listed</dd>')
-  })
-})
-
-describe('gallery', () => {
-  it('never renders a gallery, even for a document that carries images', () => {
-    const coffee = requireDocument('coffee', 'colombia-perky')
-    if (coffee._type !== 'coffee') throw new Error('expected a coffee fixture')
-    // Negative control: the fixture really does have gallery images, so a
-    // passing assertion below means the section was dropped, not that the
-    // fixture went empty.
-    expect(coffee.gallery?.length).toBeGreaterThan(0)
-
-    const markup = markupFor(coffee)
-
-    expect(markup).not.toContain('gallery-title')
-    expect(markup).not.toContain(
-      'alt="Ground coffee in a glass jar surrounded by roasted beans"',
-    )
   })
 })
 

@@ -204,22 +204,6 @@ test.describe('collection browsing flow', () => {
     )
   })
 
-  test('a detail page never renders a gallery section', async ({ page }) => {
-    // colombia-perky is the fixture that carries gallery images, so if any
-    // page would still paint one it is this page.
-    await page.goto('/coffee/colombia-perky')
-
-    await expect(
-      page.getByRole('heading', { level: 1, name: 'Colombia Perky' }),
-    ).toBeVisible()
-    await expect(page.getByRole('region', { name: 'Gallery' })).toHaveCount(0)
-    await expect(
-      page.getByRole('img', {
-        name: 'Ground coffee in a glass jar surrounded by roasted beans',
-      }),
-    ).toHaveCount(0)
-  })
-
   test('coffee detail page falls back to "Not listed" roaster and plain-text bought-from when unset', async ({
     page,
   }) => {

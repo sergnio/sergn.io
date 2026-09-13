@@ -136,26 +136,6 @@ export const rating = defineType({
       ),
 })
 
-export const gallery = defineType({
-  name: 'gallery',
-  title: 'Gallery',
-  type: 'array',
-  of: [{ type: 'imageWithAlt' }],
-  validation: (Rule) =>
-    Rule.custom((items) => {
-      const assetIds = (items ?? [])
-        .map(
-          (item) =>
-            (item as { image?: { asset?: { _ref?: string } } } | undefined)
-              ?.image?.asset?._ref,
-        )
-        .filter(Boolean)
-      return new Set(assetIds).size === assetIds.length
-        ? true
-        : 'Each gallery image must use a different asset.'
-    }),
-})
-
 export const blockContent = defineType({
   name: 'blockContent',
   title: 'Rich text',
