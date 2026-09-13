@@ -13,6 +13,19 @@ describe('published content queries', () => {
     )
   })
 
+  it('dereferences image assets from where imageWithAlt nests them', () => {
+    // Projecting `asset->` from the top level returns null for every image,
+    // which renders a figure with no img inside it.
+    for (const collection of ['coffee', 'wings', 'na-beers', 'blog'] as const) {
+      const query = collectionQuery(collection)
+
+      expect(query).toContain('"asset": image.asset->')
+      expect(query).toContain('"crop": image.crop')
+      expect(query).toContain('"hotspot": image.hotspot')
+      expect(query).not.toMatch(/(?<!image\.)\basset->/)
+    }
+  })
+
   it('queries documents by their stored slug and document type', () => {
     const query = documentQuery('blog')
 

@@ -180,3 +180,22 @@ export const blockContent = defineType({
     { type: 'imageWithAlt' },
   ],
 })
+
+/**
+ * The closed tag vocabulary for posts. Keep this small and orthogonal: a tag
+ * earns its place only once several posts would share it.
+ */
+export const postTags = [
+  { title: 'AI', value: 'ai' },
+  { title: 'Agents', value: 'agents' },
+  { title: 'Engineering', value: 'engineering' },
+  { title: 'Tools', value: 'tools' },
+  { title: 'Opinion', value: 'opinion' },
+  { title: 'Staff Engineer', value: 'staff-engineer' },
+  { title: 'Food', value: 'food' },
+  { title: 'Wings', value: 'wings' },
+  { title: 'Burgers', value: 'burgers' },
+  { title: 'Reubens', value: 'reubens' },
+  { title: 'Recipes', value: 'recipes' },
+  { title: 'Reviews', value: 'reviews' },
+] as const
