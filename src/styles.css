@@ -54,6 +54,12 @@ html {
 body {
   display: flex;
   flex-direction: column;
+  /*
+   * Contains full-bleed breakouts so they never add a horizontal scrollbar.
+   * This has to live on a viewport-width element: on the 72rem page wrapper
+   * it would clip the very overflow the breakout exists to produce.
+   */
+  overflow-x: clip;
   min-width: 320px;
   min-height: 100vh;
   min-height: 100dvh;
@@ -513,10 +519,9 @@ h3 {
    * images subtract it to position themselves against the viewport rather
    * than against the left-aligned reading column they sit inside.
    */
-  --page-inset: calc((100vw - min(100vw - 2rem, 72rem)) / 2);
+  --page-width: min(100vw - 2rem, 72rem);
+  --page-inset: calc((100vw - var(--page-width)) / 2);
   padding-block: clamp(2rem, 6vw, 5.5rem) clamp(4rem, 8vw, 7rem);
-  /* Contains the full-bleed breakout so it never adds a scrollbar. */
-  overflow-x: clip;
 }
 
 .detail-hero {
@@ -683,7 +688,7 @@ figcaption {
 .rich-text__image--wide {
   width: var(--wide-width);
   margin-left: calc((100vw - var(--wide-width)) / 2 - var(--page-inset));
-  --wide-width: min(64rem, calc(100vw - 2rem));
+  --wide-width: min(64rem, var(--page-width));
 }
 
 .rich-text__image--full {
@@ -877,7 +882,7 @@ figcaption {
   }
 
   .detail-page {
-    --page-inset: calc((100vw - min(100vw - 4rem, 72rem)) / 2);
+    --page-width: min(100vw - 4rem, 72rem);
   }
 
   .menu-button {
