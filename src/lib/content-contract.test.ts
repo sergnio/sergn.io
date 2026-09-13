@@ -119,18 +119,6 @@ describe('content contract', () => {
       assertValidCollection('coffee', [
         {
           ...validCoffee,
-          gallery: [
-            { alt: 'Fine', asset: { _id: 'image-1' } },
-            { asset: { _id: 'image-2' } },
-          ],
-        },
-      ]),
-    ).toThrow(/image without alt text at "gallery\[1\]"/)
-
-    expect(() =>
-      assertValidCollection('coffee', [
-        {
-          ...validCoffee,
           notes: [{ _key: 'a', _type: 'imageWithAlt', alt: '' }],
         },
       ]),

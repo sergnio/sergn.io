@@ -3,14 +3,12 @@ import { cardImage, ContentCard } from './content-card'
 
 type CollectionPageProps = {
   collection: CollectionName
-  description: string
   documents: ContentDocument[]
   title: string
 }
 
 export function CollectionPage({
   collection,
-  description,
   documents,
   title,
 }: CollectionPageProps) {
@@ -26,7 +24,6 @@ export function CollectionPage({
       <header className="page-intro">
         <p className="eyebrow">Field notes</p>
         <h1>{title}</h1>
-        <p>{description}</p>
       </header>
       {documents.length > 0 ? (
         <ul aria-label={title} className="card-grid">

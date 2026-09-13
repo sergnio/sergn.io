@@ -104,7 +104,6 @@ export type Coffee = BaseDocument & {
   bagSize: { amount: number; unit: 'g' | 'oz' }
   roastDate?: string
   heroImage?: SanityImage
-  gallery?: SanityImage[]
   tastingNotes?: string[]
   notes?: PortableTextContent
   brewRecipes: BrewRecipe[]
@@ -125,7 +124,6 @@ export type WingReview = BaseDocument & {
   rating?: Rating
   notes: PortableTextContent
   heroImage?: SanityImage
-  gallery?: SanityImage[]
 }
 
 export type NaBeer = BaseDocument & {
@@ -142,7 +140,6 @@ export type NaBeer = BaseDocument & {
   rating?: Rating
   notes?: PortableTextContent
   heroImage?: SanityImage
-  gallery?: SanityImage[]
 }
 
 export type ReubenReview = BaseDocument & {
@@ -163,7 +160,6 @@ export type ReubenReview = BaseDocument & {
   rating?: Rating
   notes?: PortableTextContent
   heroImage?: SanityImage
-  gallery?: SanityImage[]
 }
 
 export type Post = BaseDocument & {

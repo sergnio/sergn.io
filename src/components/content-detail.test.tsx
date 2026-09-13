@@ -131,29 +131,6 @@ describe('review facts', () => {
   })
 })
 
-describe('gallery', () => {
-  it('renders every gallery image with its caption and credit', () => {
-    const markup = markupFor(requireDocument('coffee', 'colombia-perky'))
-
-    expect(markup).toContain('id="gallery-title"')
-    expect(markup).toContain(
-      'alt="Ground coffee in a glass jar surrounded by roasted beans"',
-    )
-    expect(markup).toContain('The bag, a week off roast.')
-    expect(markup).toContain(
-      '<span class="figcaption__credit">Photo: Avo Coffee Roasters</span>',
-    )
-  })
-
-  it('omits the gallery section entirely when there are no extra images', () => {
-    const markup = markupFor(
-      requireDocument('wings', 'neighborhood-buffalo-wings'),
-    )
-
-    expect(markup).not.toContain('gallery-title')
-  })
-})
-
 describe('brew recipes', () => {
   it('names a free-text method instead of printing "Other"', () => {
     const coffee = requireDocument('coffee', 'colombia-perky')

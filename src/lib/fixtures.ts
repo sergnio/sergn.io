@@ -49,16 +49,6 @@ export const fixtureCoffee: Coffee[] = [
     },
     purchasedAt: '2025-01-08',
     roastDate: '2025-01-05',
-    gallery: [
-      {
-        ...fixtureImage(
-          'photo-1559525839-b184a4d698c7',
-          'Ground coffee in a glass jar surrounded by roasted beans',
-        ),
-        caption: 'The bag, a week off roast.',
-        credit: 'Avo Coffee Roasters',
-      },
-    ],
     tastingNotes: ['Caramel', 'Citrus', 'Balanced'],
     notes: paragraph('A reliable coffee with a sweet, rounded cup.'),
     brewRecipes: [
@@ -203,15 +193,6 @@ export const fixtureReubens: ReubenReview[] = [
       other: [{ label: 'Pickle', value: 'House dill spear' }],
     },
     price: { amountCents: 1875, currency: 'USD' },
-    gallery: [
-      {
-        ...fixtureImage(
-          'photo-1509722747041-616f39b57569',
-          'A sandwich on a wooden board with fresh bread behind it',
-        ),
-        credit: 'The Rye House',
-      },
-    ],
     notes: paragraph('A tall, balanced sandwich with a proper griddled crust.'),
   },
 ]

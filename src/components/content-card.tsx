@@ -1,3 +1,4 @@
+import { Link } from '@tanstack/react-router'
 import type { CollectionName, ContentDocument } from '#/lib/content-types'
 import { formatDate, formatRating } from '#/lib/formatters'
 import { ContentImage } from './content-image'
@@ -61,11 +62,12 @@ export function ContentCard({
 
   return (
     <article className="content-card">
-      <a
+      <Link
         aria-hidden="true"
         className="content-card__image-link"
-        href={`/${collection}/${document.slug}`}
+        params={{ slug: document.slug }}
         tabIndex={-1}
+        to={`/${collection}/$slug`}
       >
         <ContentImage
           image={cardImage(document)}
@@ -77,11 +79,13 @@ export function ContentCard({
             {labels[collection]}
           </div>
         ) : null}
-      </a>
+      </Link>
       <div className="content-card__body">
         <p className="eyebrow">{labels[collection]}</p>
         <Heading>
-          <a href={`/${collection}/${document.slug}`}>{document.title}</a>
+          <Link params={{ slug: document.slug }} to={`/${collection}/$slug`}>
+            {document.title}
+          </Link>
         </Heading>
         {cardSummary(document) ? <p>{cardSummary(document)}</p> : null}
         <div className="content-card__meta">

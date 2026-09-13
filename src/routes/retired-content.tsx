@@ -1,4 +1,4 @@
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute, Link } from '@tanstack/react-router'
 import { pageHead } from '#/lib/metadata'
 
 export const Route = createFileRoute('/retired-content')({
@@ -26,9 +26,9 @@ function RetiredContent() {
         This site now focuses on coffee, wings, N/A beers, reubens, and the
         blog. The old syrup pages are intentionally unavailable.
       </p>
-      <a className="button-link" href="/">
+      <Link className="button-link" to="/">
         Explore current notes
-      </a>
+      </Link>
     </div>
   )
 }

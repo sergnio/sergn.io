@@ -154,33 +154,6 @@ function ReviewFacts({ document }: ContentDetailProps) {
   )
 }
 
-/**
- * Every image beyond the hero. The Studio offers a gallery on coffee and on
- * all three review types, so without this section those uploads are fetched
- * and then dropped.
- */
-function Gallery({ images }: { images?: SanityImage[] }) {
-  if (!images?.length) return null
-
-  return (
-    <section aria-labelledby="gallery-title" className="detail-section">
-      <div className="section-heading">
-        <h2 id="gallery-title">Gallery</h2>
-      </div>
-      <div className="gallery">
-        {images.map((image) => (
-          <ImageFigure
-            className="gallery__item"
-            image={image}
-            key={image.asset?._id ?? image.alt}
-            sizes="(min-width: 720px) 45vw, 100vw"
-          />
-        ))}
-      </div>
-    </section>
-  )
-}
-
 function CoffeeRecipes({
   document,
 }: {
@@ -268,7 +241,6 @@ export function ContentDetail({ document }: ContentDetailProps) {
             {document._type === 'coffee' ? (
               <CoffeeRecipes document={document} />
             ) : null}
-            <Gallery images={document.gallery} />
           </>
         )}
       </div>

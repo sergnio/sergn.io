@@ -3,7 +3,6 @@ import { post } from './post'
 import { naBeer, reubenReview, wingReview } from './reviews'
 import {
   blockContent,
-  gallery,
   imageWithAlt,
   money,
   packageSize,
@@ -15,7 +14,6 @@ export const schemaTypes = [
   money,
   packageSize,
   rating,
-  gallery,
   blockContent,
   ...coffeeSchemaTypes,
   wingReview,
