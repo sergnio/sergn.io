@@ -41,6 +41,7 @@ const richTextProjection = `[] {
     alt,
     caption,
     credit,
+    display,
     "crop": image.crop,
     "hotspot": image.hotspot,
     "asset": image.asset->{_id, url, metadata {dimensions {width, height, aspectRatio}}}

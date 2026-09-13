@@ -54,6 +54,12 @@ html {
 body {
   display: flex;
   flex-direction: column;
+  /*
+   * Contains full-bleed breakouts so they never add a horizontal scrollbar.
+   * This has to live on a viewport-width element: on the 72rem page wrapper
+   * it would clip the very overflow the breakout exists to produce.
+   */
+  overflow-x: clip;
   min-width: 320px;
   min-height: 100vh;
   min-height: 100dvh;
@@ -508,6 +514,13 @@ h3 {
 }
 
 .detail-page {
+  /*
+   * The gutter between the viewport edge and this centred page. Breakout
+   * images subtract it to position themselves against the viewport rather
+   * than against the left-aligned reading column they sit inside.
+   */
+  --page-width: min(100vw - 2rem, 72rem);
+  --page-inset: calc((100vw - var(--page-width)) / 2);
   padding-block: clamp(2rem, 6vw, 5.5rem) clamp(4rem, 8vw, 7rem);
 }
 
@@ -668,6 +681,106 @@ figcaption {
   border-radius: 0.25rem;
 }
 
+/*
+ * A wide or full-bleed image escapes the reading column by claiming its own
+ * width and pulling back past the page gutter. Prose keeps its measure.
+ */
+.rich-text__image--wide {
+  width: var(--wide-width);
+  margin-left: calc((100vw - var(--wide-width)) / 2 - var(--page-inset));
+  --wide-width: min(64rem, var(--page-width));
+}
+
+.rich-text__image--full {
+  width: 100vw;
+  margin-left: calc(-1 * var(--page-inset));
+}
+
+.rich-text__image--full .content-image {
+  border-radius: 0;
+}
+
+/* Realign the caption with the reading column the image broke out of. */
+.rich-text__image--full figcaption {
+  max-width: 48rem;
+  margin-left: var(--page-inset);
+}
+
+.rich-text h4 {
+  margin-top: 1.7em;
+  font-size: 1.2rem;
+}
+
+.callout {
+  margin-block: 2rem;
+  padding: 1.25rem 1.5rem;
+  background: var(--wash);
+  border-left: 4px solid var(--highlight);
+}
+
+.callout .rich-text {
+  font-size: 1.05rem;
+}
+
+.callout--warning {
+  border-left-color: var(--accent);
+}
+
+.callout--quote {
+  padding-left: 0;
+  background: none;
+  border-left: none;
+  color: var(--accent);
+  font-size: 1.35em;
+  line-height: 1.3;
+  text-align: center;
+}
+
+.callout--quote .rich-text {
+  font-size: inherit;
+}
+
+.code-block {
+  /* Reset the UA figure margin so code lines up with the prose. */
+  margin: 2rem 0;
+}
+
+.code-block__filename {
+  margin: 0 0 0.4rem;
+  font-family: 'DM Mono', monospace;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+}
+
+.code-block pre {
+  margin: 0;
+  padding: 1rem 1.25rem;
+  overflow-x: auto;
+  background: var(--wash);
+  border-radius: 0.25rem;
+}
+
+.code-block code {
+  padding: 0;
+  background: none;
+  font-family: 'DM Mono', monospace;
+  font-size: 0.85rem;
+  line-height: 1.5;
+}
+
+.divider {
+  margin-block: 2.5rem;
+  border: 0;
+  border-top: 1px solid var(--line);
+}
+
+.divider--asterisks {
+  color: var(--muted);
+  border-top: 0;
+  letter-spacing: 0.6em;
+  text-align: center;
+}
+
 .recipe-list {
   display: grid;
   gap: 1rem;
@@ -766,6 +879,10 @@ figcaption {
   .detail-page,
   .site-footer {
     width: min(100% - 4rem, 72rem);
+  }
+
+  .detail-page {
+    --page-width: min(100vw - 4rem, 72rem);
   }
 
   .menu-button {

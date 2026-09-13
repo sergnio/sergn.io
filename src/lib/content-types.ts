@@ -26,7 +26,10 @@ export type SanityImage = {
   }
   crop?: { top: number; bottom: number; left: number; right: number }
   hotspot?: { x: number; y: number; height: number; width: number }
+  display?: ImageDisplay
 }
+
+export type ImageDisplay = 'inline' | 'wide' | 'full'
 
 export type Money = {
   amountCents: number
@@ -58,7 +61,36 @@ export type PortableTextImage = SanityImage & {
   _type: 'imageWithAlt'
 }
 
+export type CalloutBlock = {
+  _key: string
+  _type: 'callout'
+  tone: 'note' | 'warning' | 'quote'
+  content: PortableTextBlock[]
+}
+
+export type CodeBlock = {
+  _key: string
+  _type: 'codeBlock'
+  language: string
+  filename?: string
+  code: string
+}
+
+export type DividerBlock = {
+  _key: string
+  _type: 'divider'
+  variant: 'line' | 'asterisks'
+}
+
 export type PortableTextContent = Array<PortableTextBlock | PortableTextImage>
+
+export type PostBodyContent = Array<
+  | PortableTextBlock
+  | PortableTextImage
+  | CalloutBlock
+  | CodeBlock
+  | DividerBlock
+>
 
 export type BrewRecipe = {
   _key: string
@@ -166,7 +198,7 @@ export type Post = BaseDocument & {
   _type: 'post'
   excerpt: string
   coverImage?: SanityImage
-  body: PortableTextContent
+  body: PostBodyContent
   tags?: string[]
   seo?: { title?: string; description?: string }
 }
