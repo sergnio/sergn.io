@@ -34,19 +34,24 @@ test.describe('Content Security Policy', () => {
     }) => {
       const csp = await productionCsp()
 
-      // Served locally so the suite never makes a real request to GoatCounter.
-      // Letting it through reached a third party on every page and made the
-      // networkidle wait below flaky. The browser still evaluates script-src
-      // against the original URL, so the policy is exercised either way.
-      await page.route('https://gc.zgo.at/count.js', (route) =>
-        route.fulfill({
-          status: 200,
-          contentType: 'text/javascript',
-          body: '',
-        }),
-      )
-
       await page.route('**/*', async (route) => {
+        // The tracker is served locally so the suite never makes a real
+        // request to GoatCounter: reaching a third party on every page made
+        // the networkidle wait below flaky. This is handled inside the
+        // catch-all rather than as its own page.route, because Playwright
+        // matches routes in reverse registration order - a separate stub is
+        // shadowed by this handler and silently never runs. The browser still
+        // evaluates script-src against the original URL, so the policy is
+        // exercised either way.
+        if (route.request().url() === 'https://gc.zgo.at/count.js') {
+          await route.fulfill({
+            status: 200,
+            contentType: 'text/javascript',
+            body: '',
+          })
+          return
+        }
+
         const response = await route.fetch()
         const headers = response.headers()
         if (headers['content-type'].includes('text/html')) {
