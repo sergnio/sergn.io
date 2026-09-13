@@ -1,12 +1,12 @@
-const projectId = process.env.SANITY_STUDIO_PROJECT_ID
-const dataset = process.env.SANITY_STUDIO_DATASET
+import { defineCliConfig } from 'sanity/cli'
 
-if (!projectId || !dataset) {
-  throw new Error(
-    'Missing SANITY_STUDIO_PROJECT_ID or SANITY_STUDIO_DATASET. See .env.example.',
-  )
-}
+// Public, non-secret identifiers. They ship inside the browser bundle anyway,
+// so they are committed here to keep builds independent of local env files.
+const projectId = '0vbjaawm'
+const dataset = 'production'
 
-export default {
+export default defineCliConfig({
   api: { projectId, dataset },
-}
+  studioHost: 'sergnio',
+  deployment: { appId: 'jotsr28ar9er472atbi9sd42', autoUpdates: true },
+})

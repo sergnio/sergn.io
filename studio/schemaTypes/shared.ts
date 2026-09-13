@@ -193,6 +193,7 @@ export const postTags = [
   { title: 'Opinion', value: 'opinion' },
   { title: 'Staff Engineer', value: 'staff-engineer' },
   { title: 'Food', value: 'food' },
+  { title: 'Coffee', value: 'coffee' },
   { title: 'Wings', value: 'wings' },
   { title: 'Burgers', value: 'burgers' },
   { title: 'Reubens', value: 'reubens' },

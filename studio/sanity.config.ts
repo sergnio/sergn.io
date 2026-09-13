@@ -6,20 +6,9 @@ import { deskStructure } from './deskStructure'
 import { schemaTypes } from './schemaTypes'
 import { documentTemplates } from './templates'
 
-function requiredEnvironment(
-  name: 'SANITY_STUDIO_PROJECT_ID' | 'SANITY_STUDIO_DATASET',
-) {
-  const value = process.env[name]
-  if (!value) {
-    throw new Error(
-      `Missing ${name}. Copy .env.example to .env.local and set the Studio configuration before running Sanity.`,
-    )
-  }
-  return value
-}
-
-const projectId = requiredEnvironment('SANITY_STUDIO_PROJECT_ID')
-const dataset = requiredEnvironment('SANITY_STUDIO_DATASET')
+// Public, non-secret identifiers; see sanity.cli.ts.
+const projectId = '0vbjaawm'
+const dataset = 'production'
 
 export default defineConfig({
   name: 'default',
