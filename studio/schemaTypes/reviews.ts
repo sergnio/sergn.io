@@ -426,7 +426,7 @@ export const syrupReview = defineType({
       group: 'optional',
       fieldset: 'optionalDetails',
     }),
-    ...commonFields(),
+    ...commonFields('syrupReview'),
   ],
   preview: {
     select: {

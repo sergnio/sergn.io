@@ -89,8 +89,7 @@ npm run test:e2e
 ```
 
 `npm run build:fixtures` verifies static prerendering, dynamic detail-route
-output, sitemap generation, and the intentional absence of syrup from the
-public information architecture.
+output, and sitemap generation.
 
 `npm run build` (with `.env.local` in place) builds against the live public
 Sanity dataset over the network. It must succeed even while that dataset holds
@@ -210,9 +209,7 @@ target to optimise against. The same pass fails on a `/assets/` reference the
 build never emitted, which would cost a wasted 404 round trip on every visit.
 
 A Lighthouse pass (desktop and mobile, home page, a collection index, and both
-detail templates) scores 100 for accessibility, best practices, and SEO. The one
-deliberate exception is `/retired-content`, which scores lower on SEO purely
-because it is `noindex` on purpose.
+detail templates) scores 100 for accessibility, best practices, and SEO.
 
 ### Accessible geometry
 
@@ -347,8 +344,6 @@ The Studio deployment workflow needs one GitHub environment secret named
 `SANITY_STUDIO_PROJECT_ID` and `SANITY_STUDIO_DATASET`. It deploys only after
 changes to Studio-related files merge to `main`.
 
-The canonical public URL remains `https://sergn.io`. `/syrup` is intentionally
-served as a Netlify 404 that renders `/retired-content`; it is not redirected to
-an unrelated collection. Domain, DNS, Netlify project, Sanity project, Studio
+The canonical public URL remains `https://sergn.io`. Domain, DNS, Netlify project, Sanity project, Studio
 hostname, webhook, and credential setup are owner actions and are deliberately
 not automated by this repository.

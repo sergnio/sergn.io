@@ -19,6 +19,7 @@ export const rankedCollections = [
   'wings',
   'na-beers',
   'reubens',
+  'syrup',
 ] as const satisfies readonly CollectionName[]
 
 export type RankedCollection = (typeof rankedCollections)[number]
@@ -230,18 +231,19 @@ export type ReubenReview = BaseDocument &
     heroImage?: SanityImage
   }
 
-export type SyrupReview = BaseDocument & {
-  _type: 'syrupReview'
-  producer: string
-  grade?: string
-  origin?: string
-  boughtFrom?: string
-  volumeLiters?: number
-  price?: Money
-  rating?: Rating
-  notes?: PortableTextContent
-  heroImage?: SanityImage
-}
+export type SyrupReview = BaseDocument &
+  RankedDocument & {
+    _type: 'syrupReview'
+    producer: string
+    grade?: string
+    origin?: string
+    boughtFrom?: string
+    volumeLiters?: number
+    price?: Money
+    rating?: Rating
+    notes?: PortableTextContent
+    heroImage?: SanityImage
+  }
 
 export type Post = BaseDocument & {
   _type: 'post'

@@ -451,6 +451,7 @@ export const fixtureSyrups: SyrupReview[] = [
   {
     _id: 'syrup-sweet-ontario',
     _type: 'syrupReview',
+    orderRank: '0|100000:',
     _createdAt: '2024-09-20T12:00:00.000Z',
     _updatedAt: '2024-09-25T12:00:00.000Z',
     title: 'Sweet Ontario',
@@ -474,6 +475,7 @@ export const fixtureSyrups: SyrupReview[] = [
   {
     _id: 'syrup-skluzaceks',
     _type: 'syrupReview',
+    orderRank: '0|200000:',
     _createdAt: '2024-09-22T12:00:00.000Z',
     _updatedAt: '2024-09-25T12:00:00.000Z',
     title: 'Skluzaceks',
@@ -495,6 +497,7 @@ export const fixtureSyrups: SyrupReview[] = [
   {
     _id: 'syrup-hidden-springs',
     _type: 'syrupReview',
+    orderRank: '0|300000:',
     _createdAt: '2024-09-21T12:00:00.000Z',
     _updatedAt: '2024-09-25T12:00:00.000Z',
     title: 'Hidden Springs',
@@ -518,6 +521,7 @@ export const fixtureSyrups: SyrupReview[] = [
   {
     _id: 'syrup-wild-country',
     _type: 'syrupReview',
+    orderRank: '0|400000:',
     _createdAt: '2024-09-23T12:00:00.000Z',
     _updatedAt: '2024-09-25T12:00:00.000Z',
     title: 'Wild Country',
@@ -539,6 +543,7 @@ export const fixtureSyrups: SyrupReview[] = [
   {
     _id: 'syrup-hamel',
     _type: 'syrupReview',
+    orderRank: '0|500000:',
     _createdAt: '2024-09-24T12:00:00.000Z',
     _updatedAt: '2024-09-25T12:00:00.000Z',
     title: 'Hamel',
