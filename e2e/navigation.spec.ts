@@ -1,5 +1,5 @@
 import type { Page } from '@playwright/test'
-import { expect, test } from '@playwright/test'
+import { expect, test } from './tracker-stub'
 
 test.describe('primary navigation', () => {
   test('home page renders a short index of every section', async ({ page }) => {

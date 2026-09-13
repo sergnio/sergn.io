@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test'
+import { expect, test } from './tracker-stub'
 
 test.describe('Performance', () => {
   test('the font stylesheet is requested without waiting for the app CSS', async ({
