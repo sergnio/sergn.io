@@ -4,6 +4,7 @@ import {
   Scripts,
   createRootRoute,
 } from '@tanstack/react-router'
+import { Analytics } from '#/components/analytics'
 import { NotFoundContent } from '#/components/not-found'
 import { SiteHeader } from '#/components/site-header'
 import {
@@ -95,6 +96,23 @@ function RootDocument({ children }: { children: React.ReactNode }) {
       <body>
         {children}
         <Scripts />
+        {/*
+          GoatCounter: no cookies, no personal data, so no consent banner.
+          Written into the document rather than the route's head config
+          because TanStack only emits those tags after hydration, which would
+          keep the tracker out of the prerendered HTML entirely. It is defer
+          rather than async because React 19 hoists async scripts out of the
+          tree and the prerender then drops them; defer is just as
+          non-blocking. count.js
+          counts the first pageview on load; src/components/analytics.tsx
+          reports client-side navigations after that. Both origins it touches
+          are allowed by the Content-Security-Policy in netlify.toml.
+        */}
+        <script
+          defer
+          src="https://gc.zgo.at/count.js"
+          data-goatcounter="https://sergnio.goatcounter.com/count"
+        />
       </body>
     </html>
   )
@@ -113,6 +131,7 @@ function RootLayout() {
       <footer className="site-footer">
         <p>© {new Date().getFullYear()} sergn.io</p>
       </footer>
+      <Analytics />
     </>
   )
 }
