@@ -32,6 +32,12 @@ export const documentTemplates: Template[] = [
     },
   },
   {
+    id: 'new-syrup-review',
+    title: 'New syrup review',
+    schemaType: 'syrupReview',
+    value: { _type: 'syrupReview' },
+  },
+  {
     id: 'new-post',
     title: 'New post',
     schemaType: 'post',

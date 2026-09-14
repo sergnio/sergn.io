@@ -15,6 +15,7 @@ const pages = [
   { href: '/wings', title: 'Wings' },
   { href: '/na-beers', title: 'N/A beers' },
   { href: '/reubens', title: 'Reubens' },
+  { href: '/syrup', title: 'Maple syrup' },
   { href: '/blog', title: 'Blog' },
 ]
 

@@ -4,7 +4,7 @@ import { gzipSync } from 'node:zlib'
 
 const outputDirectory = path.join(process.cwd(), 'dist', 'client')
 const contentSource = process.env.VITE_CONTENT_SOURCE ?? 'sanity'
-const collections = ['coffee', 'wings', 'na-beers', 'reubens', 'blog']
+const collections = ['coffee', 'wings', 'na-beers', 'reubens', 'syrup', 'blog']
 
 async function requireFile(relativePath) {
   try {
@@ -25,7 +25,6 @@ async function detailLinks(collection) {
 
 await Promise.all([
   requireFile('index.html'),
-  requireFile('retired-content/index.html'),
   requireFile('not-found/index.html'),
   requireFile('robots.txt'),
   requireFile('sitemap.xml'),
@@ -436,16 +435,8 @@ const sitemap = await readFile(
 if (!sitemap.includes('https://sergn.io/coffee')) {
   throw new Error('The generated sitemap is missing the Coffee collection.')
 }
-if (sitemap.includes('https://sergn.io/syrup')) {
-  throw new Error('Retired syrup content must not appear in the sitemap.')
-}
 if (sitemap.includes('https://sergn.io/not-found')) {
   throw new Error('The 404 page must not appear in the sitemap.')
-}
-if (sitemap.includes('https://sergn.io/retired-content')) {
-  throw new Error(
-    'The retired-content page is noindex and must not appear in the sitemap.',
-  )
 }
 for (const collection of collections) {
   if (sitemap.includes(`<loc>https://sergn.io/${collection}/</loc>`)) {
@@ -835,7 +826,6 @@ if (contentSource === 'sanity') {
   )
   const pages = [
     'index.html',
-    'retired-content/index.html',
     'not-found/index.html',
     ...collections.map((collection) => `${collection}/index.html`),
   ]

@@ -142,15 +142,9 @@ export const rating = defineType({
   name: 'rating',
   title: 'Rating',
   type: 'number',
-  validation: (Rule) =>
-    Rule.min(0)
-      .max(5)
-      .precision(2)
-      .custom((value) =>
-        value === undefined || Number.isInteger(value * 4)
-          ? true
-          : 'Use 0.25 rating increments.',
-      ),
+  // precision(2) is the whole rule: rate to the hundredth and stop there, so
+  // a rating stays a number someone can defend rather than a long float.
+  validation: (Rule) => Rule.min(0).max(5).precision(2),
 })
 
 export const blockContent = defineType({
@@ -213,6 +207,7 @@ export const postTags = [
   { title: 'Wings', value: 'wings' },
   { title: 'Burgers', value: 'burgers' },
   { title: 'Reubens', value: 'reubens' },
+  { title: 'Syrup', value: 'syrup' },
   { title: 'Recipes', value: 'recipes' },
   { title: 'Reviews', value: 'reviews' },
 ] as const

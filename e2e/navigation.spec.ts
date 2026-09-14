@@ -7,8 +7,15 @@ test.describe('primary navigation', () => {
     await page.goto('/')
 
     const sections = page.getByRole('navigation', { name: 'Sections' })
-    await expect(sections.getByRole('listitem')).toHaveCount(5)
-    for (const name of ['Coffee', 'Wings', 'N/A beers', 'Reubens', 'Blog']) {
+    await expect(sections.getByRole('listitem')).toHaveCount(6)
+    for (const name of [
+      'Coffee',
+      'Wings',
+      'N/A beers',
+      'Reubens',
+      'Maple syrup',
+      'Blog',
+    ]) {
       await expect(
         sections.getByRole('link', { name, exact: true }),
       ).toHaveCount(1)
@@ -101,6 +108,7 @@ test.describe('primary navigation', () => {
       { label: 'Wings', path: '/wings', heading: 'Wings' },
       { label: 'N/A Beers', path: '/na-beers', heading: 'N/A Beers' },
       { label: 'Reubens', path: '/reubens', heading: 'Reubens' },
+      { label: 'Maple Syrup', path: '/syrup', heading: 'Maple syrup' },
       { label: 'Blog', path: '/blog', heading: 'Blog' },
     ]) {
       await nav.getByRole('link', { name: label }).click()
@@ -195,30 +203,6 @@ test.describe('primary navigation', () => {
       page.getByRole('heading', { name: 'That page is not here.' }),
     ).toBeVisible()
   })
-
-  test('retired content route shows the retirement notice', async ({
-    page,
-  }) => {
-    const response = await page.goto('/retired-content')
-
-    expect(response?.status()).toBe(200)
-    await expect(
-      page.getByRole('heading', { name: 'Syrup reviews have retired.' }),
-    ).toBeVisible()
-
-    await expect(page).toHaveTitle('Retired content | sergn.io')
-    await expect(page.locator('meta[name="robots"]')).toHaveAttribute(
-      'content',
-      'noindex',
-    )
-    await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
-      'href',
-      'https://sergn.io/retired-content',
-    )
-
-    await page.getByRole('link', { name: 'Explore current notes' }).click()
-    await expect(page).toHaveURL(/\/$/)
-  })
 })
 
 test.describe('mobile navigation menu', () => {
@@ -298,6 +282,7 @@ test.describe('crawler files', () => {
       'wings',
       'na-beers',
       'reubens',
+      'syrup',
       'blog',
     ]) {
       expect(body).toContain(`<loc>https://sergn.io/${collection}</loc>`)
@@ -317,6 +302,7 @@ test.describe('crawler files', () => {
       'wings/neighborhood-buffalo-wings',
       'na-beers/bright-lager',
       'reubens/the-rye-house-reuben',
+      'syrup/sweet-ontario',
       'blog/small-rituals-better-cups',
       'blog/a-table-for-two',
     ]) {
@@ -331,13 +317,13 @@ test.describe('crawler files', () => {
 
     expect(response.status()).toBe(200)
     const body = await response.text()
-    expect(body).not.toContain('https://sergn.io/retired-content')
     expect(body).not.toContain('https://sergn.io/not-found')
     for (const collection of [
       'coffee',
       'wings',
       'na-beers',
       'reubens',
+      'syrup',
       'blog',
     ]) {
       expect(body).not.toContain(`<loc>https://sergn.io/${collection}/</loc>`)
@@ -381,20 +367,6 @@ test.describe('crawler files', () => {
         page.locator('link[rel="alternate"][type="application/rss+xml"]'),
       ).toHaveAttribute('href', '/feed.xml')
     }
-  })
-
-  test('the retired-content page is still reachable and marked noindex', async ({
-    page,
-  }) => {
-    await page.goto('/retired-content')
-
-    await expect(
-      page.getByRole('heading', { name: 'Syrup reviews have retired.' }),
-    ).toBeVisible()
-    await expect(page.locator('meta[name="robots"]')).toHaveAttribute(
-      'content',
-      'noindex',
-    )
   })
 })
 
@@ -442,6 +414,7 @@ test.describe('link integrity', () => {
       '/wings',
       '/na-beers',
       '/reubens',
+      '/syrup',
       '/blog',
       '/blog/a-table-for-two',
     ]) {

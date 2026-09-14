@@ -361,3 +361,86 @@ export const reubenReview = defineType({
     }),
   },
 })
+
+export const syrupReview = defineType({
+  name: 'syrupReview',
+  title: 'Syrup review',
+  type: 'document',
+  groups: documentGroups,
+  fieldsets: optionalFieldset,
+  fields: [
+    defineField({
+      name: 'title',
+      title: 'Syrup name',
+      type: 'string',
+      group: 'essentials',
+      validation: (Rule) => Rule.required(),
+    }),
+    defineField({ ...slugField(), group: 'essentials' }),
+    defineField({
+      name: 'producer',
+      title: 'Producer',
+      type: 'string',
+      group: 'essentials',
+      validation: (Rule) => Rule.required(),
+    }),
+    defineField({
+      name: 'grade',
+      title: 'Grade',
+      type: 'string',
+      group: 'essentials',
+      options: {
+        list: [
+          'Golden, Delicate Taste',
+          'Amber, Rich Taste',
+          'Dark, Robust Taste',
+          'Very Dark, Strong Taste',
+        ].map((value) => ({ title: value, value })),
+      },
+    }),
+    defineField({
+      name: 'origin',
+      title: 'Origin',
+      type: 'string',
+      group: 'essentials',
+    }),
+    // Price alone does not compare two syrups, because the bottles are sold in
+    // sizes that differ by an order of magnitude.
+    defineField({
+      name: 'volumeLiters',
+      title: 'Volume in liters',
+      type: 'number',
+      group: 'essentials',
+      validation: (Rule) => Rule.positive(),
+    }),
+    defineField({
+      name: 'price',
+      title: 'Price',
+      type: 'money',
+      group: 'essentials',
+    }),
+    defineField({
+      name: 'boughtFrom',
+      title: 'Bought from',
+      type: 'string',
+      group: 'optional',
+      fieldset: 'optionalDetails',
+    }),
+    ...commonFields('syrupReview'),
+  ],
+  preview: {
+    select: {
+      title: 'title',
+      producer: 'producer',
+      rating: 'rating',
+      media: 'heroImage.image',
+    },
+    prepare: ({ title, producer, rating, media }) => ({
+      title,
+      subtitle: [producer, rating === undefined ? undefined : `${rating}/5`]
+        .filter(Boolean)
+        .join(' · '),
+      media,
+    }),
+  },
+})

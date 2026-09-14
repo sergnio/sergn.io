@@ -11,12 +11,6 @@
   port = 8888
 
 [[redirects]]
-  from = "/syrup"
-  to = "/retired-content"
-  status = 404
-  force = true
-
-[[redirects]]
   from = "/*"
   to = "/not-found"
   status = 404

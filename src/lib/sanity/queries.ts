@@ -5,6 +5,7 @@ import type {
   NaBeer,
   Post,
   ReubenReview,
+  SyrupReview,
   WingReview,
 } from '../content-types'
 import { isRankedCollection } from '../content-types'
@@ -117,6 +118,15 @@ const projections: Record<CollectionName, string> = {
     price,
     orderDetails
   }`,
+  syrup: `{
+    ${reviewFields},
+    producer,
+    grade,
+    origin,
+    boughtFrom,
+    volumeLiters,
+    price
+  }`,
   blog: `{
     ${commonFields},
     excerpt,
@@ -132,6 +142,7 @@ const sanityTypes: Record<CollectionName, string> = {
   wings: 'wingReview',
   'na-beers': 'naBeer',
   reubens: 'reubenReview',
+  syrup: 'syrupReview',
   blog: 'post',
 }
 
@@ -159,6 +170,9 @@ export async function fetchCollection(collection: 'na-beers'): Promise<NaBeer[]>
 export async function fetchCollection(
   collection: 'reubens',
 ): Promise<ReubenReview[]>
+export async function fetchCollection(
+  collection: 'syrup',
+): Promise<SyrupReview[]>
 export async function fetchCollection(collection: 'blog'): Promise<Post[]>
 export async function fetchCollection(collection: CollectionName) {
   const documents = usesFixtureContent()

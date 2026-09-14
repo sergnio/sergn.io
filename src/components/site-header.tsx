@@ -6,6 +6,7 @@ const navigation = [
   { to: '/wings', label: 'Wings' },
   { to: '/na-beers', label: 'N/A Beers' },
   { to: '/reubens', label: 'Reubens' },
+  { to: '/syrup', label: 'Maple Syrup' },
   { to: '/blog', label: 'Blog' },
 ] as const
 

@@ -21,6 +21,7 @@ const labels: Record<CollectionName, string> = {
   wings: 'Wings',
   'na-beers': 'N/A Beer',
   reubens: 'Reuben',
+  syrup: 'Maple Syrup',
   blog: 'From the blog',
 }
 

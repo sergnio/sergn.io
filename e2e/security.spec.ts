@@ -24,7 +24,6 @@ const templates = [
   '/coffee',
   '/coffee/colombia-perky',
   '/blog/a-table-for-two',
-  '/retired-content',
   '/not-found',
 ]
 

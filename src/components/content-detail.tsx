@@ -16,6 +16,7 @@ import {
   formatMethod,
   formatMoney,
   formatPackageSize,
+  formatPricePerLiter,
   formatRating,
 } from '#/lib/formatters'
 import { ImageFigure } from './content-image'
@@ -39,6 +40,8 @@ function detailLabel(document: ContentDocument) {
       return 'N/A beer review'
     case 'reubenReview':
       return 'Reuben review'
+    case 'syrupReview':
+      return 'Maple syrup review'
     case 'post':
       return 'From the blog'
   }
@@ -123,6 +126,25 @@ function facts(document: ContentDocument): Fact[] {
       })),
       ...(other ?? []).map(({ label, value }) => ({ label, value })),
       { label: 'Price', value: formatMoney(document.price) },
+      { label: 'Rating', value: formatRating(document.rating) },
+    ]
+  }
+
+  if (document._type === 'syrupReview') {
+    return [
+      { label: 'Producer', value: document.producer },
+      { label: 'Grade', value: document.grade },
+      { label: 'Origin', value: document.origin },
+      { label: 'Bought from', value: document.boughtFrom },
+      {
+        label: 'Volume',
+        value: document.volumeLiters ? `${document.volumeLiters} L` : undefined,
+      },
+      { label: 'Price', value: formatMoney(document.price) },
+      {
+        label: 'Price per liter',
+        value: formatPricePerLiter(document.price, document.volumeLiters),
+      },
       { label: 'Rating', value: formatRating(document.rating) },
     ]
   }

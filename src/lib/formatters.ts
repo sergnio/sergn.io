@@ -14,6 +14,15 @@ export function formatPackageSize(size?: { amount: number; unit: string }) {
   return `${formatNumber(size.amount)} ${size.unit}`
 }
 
+/**
+ * Syrup is sold in bottles from 250ml to 3L, so the sticker price says more
+ * about the bottle than the syrup. Price per liter is what compares them.
+ */
+export function formatPricePerLiter(price?: Money, liters?: number) {
+  if (!price || !liters) return undefined
+  return `${formatMoney({ ...price, amountCents: price.amountCents / liters })} / L`
+}
+
 export function formatRating(rating?: number) {
   if (rating === undefined) return undefined
   return `${formatNumber(rating)} / 5`
