@@ -1,4 +1,3 @@
-import { orderableDocumentListDeskItem } from '@sanity/orderable-document-list'
 import type { StructureResolver } from 'sanity/structure'
 
 /**
@@ -13,8 +12,13 @@ const rankedTypes = [
   { type: 'reubenReview', title: 'Reuben reviews' },
 ] as const
 
-export const deskStructure: StructureResolver = (S, context) =>
-  S.list()
+export const deskStructure: StructureResolver = async (S, context) => {
+  // Loaded here rather than at module scope: the plugin pulls in CommonJS
+  // `lexorank`, which Sanity's schema extractor cannot evaluate.
+  const { orderableDocumentListDeskItem } =
+    await import('@sanity/orderable-document-list')
+
+  return S.list()
     .title('sergn.io')
     .items([
       ...rankedTypes.map((ranked) =>
@@ -29,3 +33,4 @@ export const deskStructure: StructureResolver = (S, context) =>
         .title('Blog posts')
         .child(S.documentTypeList('post').title('Blog posts')),
     ])
+}

@@ -1,4 +1,4 @@
-import { orderRankField } from '@sanity/orderable-document-list'
+import { orderRankField } from './orderRank'
 import { defineField, defineType } from 'sanity'
 import { slugField } from './shared'
 
@@ -351,7 +351,7 @@ export const coffee = defineType({
       group: 'optional',
       fieldset: 'optionalDetails',
     }),
-    orderRankField({ type: 'coffee', newItemPosition: 'before' }),
+    orderRankField('coffee'),
   ],
   preview: {
     select: {
