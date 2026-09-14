@@ -122,6 +122,47 @@ describe('detail page field coverage', () => {
   })
 })
 
+describe('review layout', () => {
+  it.each(collectionNames.filter((collection) => collection !== 'blog'))(
+    'places %s notes after the hero image and before the facts',
+    (collection) => {
+      const document = getFixtureCollection(collection)[0]
+      const markup = markupFor(document)
+      const image = markup.indexOf('class="detail-hero__image"')
+      const notes = markup.indexOf('class="detail-hero__notes"')
+      const facts = markup.indexOf('class="facts"')
+
+      expect(markup).toContain('detail-page--review')
+      expect(image).toBeGreaterThan(-1)
+      expect(notes).toBeGreaterThan(image)
+      expect(facts).toBeGreaterThan(notes)
+    },
+  )
+
+  it('omits the notes wrapper when there are no notes', () => {
+    const coffee = requireDocument('coffee', 'colombia-perky')
+    if (coffee._type !== 'coffee') throw new Error('expected a coffee fixture')
+
+    for (const notes of [undefined, []]) {
+      const markup = markupFor({ ...coffee, notes })
+      expect(markup).not.toContain('class="detail-hero__notes"')
+      expect(markup).toContain('class="facts"')
+      expect(markup).toContain('Brew recipes')
+    }
+  })
+
+  it('keeps the blog body outside the hero', () => {
+    const markup = markupFor(
+      requireDocument('blog', 'small-rituals-better-cups'),
+    )
+    expect(markup).not.toContain('detail-page--review')
+    expect(markup).not.toContain('detail-hero__notes')
+    expect(markup.indexOf('class="rich-text"')).toBeGreaterThan(
+      markup.indexOf('class="detail-content"'),
+    )
+  })
+})
+
 describe('review facts', () => {
   it('links a venue to its site and lists the sides ordered', () => {
     const markup = markupFor(

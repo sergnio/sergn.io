@@ -3,7 +3,6 @@ import type {
   ContentDocument,
   Post,
   ReubenReview,
-  SanityImage,
   WingReview,
 } from '#/lib/content-types'
 import {
@@ -228,12 +227,12 @@ function PostDetails({ post }: { post: Post }) {
 
 export function ContentDetail({ document }: ContentDetailProps) {
   const image = heroImage(document)
-  const reviewNotes = document._type === 'post' ? undefined : document.notes
+  const isReview = document._type !== 'post'
 
   return (
-    <article className="detail-page">
-      <header className="detail-hero">
-        <div className="detail-hero__copy">
+    <article className={`detail-page${isReview ? ' detail-page--review' : ''}`}>
+      <div className={`detail-hero${isReview ? ' detail-hero--review' : ''}`}>
+        <header className="detail-hero__copy">
           <p className="eyebrow">{detailLabel(document)}</p>
           <h1>{document.title}</h1>
           {publishedDate(document) ? (
@@ -246,21 +245,25 @@ export function ContentDetail({ document }: ContentDetailProps) {
           {document._type === 'post' ? (
             <p className="lede">{document.excerpt}</p>
           ) : null}
-        </div>
+        </header>
         <ImageFigure
           className="detail-hero__image"
           image={image}
           priority
           sizes="(min-width: 900px) 50vw, 100vw"
         />
-      </header>
+        {document._type !== 'post' && document.notes?.length ? (
+          <div className="detail-hero__notes">
+            <RichText value={document.notes} />
+          </div>
+        ) : null}
+      </div>
       <div className="detail-content">
         {document._type === 'post' ? (
           <PostDetails post={document} />
         ) : (
           <>
             <ReviewFacts document={document} />
-            <RichText value={reviewNotes} />
             {document._type === 'coffee' ? (
               <CoffeeRecipes document={document} />
             ) : null}
