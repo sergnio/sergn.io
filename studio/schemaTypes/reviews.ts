@@ -1,4 +1,4 @@
-import { orderRankField } from '@sanity/orderable-document-list'
+import { orderRankField } from './orderRank'
 import { defineField, defineType } from 'sanity'
 import { slugField } from './shared'
 
@@ -45,7 +45,7 @@ function commonFields(type: string) {
       group: 'optional',
       fieldset: 'optionalDetails',
     }),
-    orderRankField({ type, newItemPosition: 'before' }),
+    orderRankField(type),
   ]
 }
 
