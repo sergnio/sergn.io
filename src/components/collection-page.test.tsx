@@ -100,6 +100,31 @@ describe('a ranked collection page', () => {
     )
   })
 
+  // A non-recommendation often has no photo, so its card gets the labelled
+  // placeholder every imageless card gets rather than a hole in the grid.
+  it('gives a photoless non-recommendation a labelled placeholder', () => {
+    const documents = getFixtureCollection('syrup')
+    const sparse = documents.find(
+      (document) => document.slug === 'airport-gift-shop-syrup',
+    )
+    if (!sparse) throw new Error('No sparse syrup fixture')
+    expect(sparse.recommendationStatus).toBe('notRecommended')
+    expect('heroImage' in sparse && sparse.heroImage).toBeFalsy()
+
+    const rejects = listMarkup(
+      markupFor('syrup', documents),
+      'syrup, not recommended',
+    )
+    const card = rejects
+      .split('<li>')
+      .find((entry) => entry.includes(sparse.title))
+    if (!card) throw new Error('No card for the sparse syrup fixture')
+
+    expect(card).toContain('content-card__placeholder')
+    expect(card).toContain('Maple Syrup')
+    expect(card).not.toContain('<img')
+  })
+
   it('drops a section entirely rather than printing an empty heading', () => {
     const documents = getFixtureCollection('wings').filter(
       (document) => !isNotRecommended(document),

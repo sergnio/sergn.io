@@ -191,7 +191,8 @@ describe('review facts', () => {
     const markup = markupFor(requireDocument('coffee', 'ethiopia-direct-trade'))
 
     expect(markup).not.toContain('<dt>Price</dt>')
-    expect(markup).toContain('<dt>Roaster</dt><dd>Not listed</dd>')
+    expect(markup).not.toContain('<dt>Roaster</dt>')
+    expect(markup).toContain('<dt>Origin</dt><dd>Ethiopia</dd>')
   })
 })
 
@@ -249,7 +250,7 @@ describe('a non-recommendation', () => {
       const markup = markupFor(document)
 
       expect(markup).toContain(document.title)
-      expect(markup).toContain('Sergio does not recommend this one.')
+      expect(markup).toContain('Sergio does not recommend this.')
       expect(markup).not.toContain('<dd></dd>')
       expect(markup).not.toContain('Brew recipes')
     },
@@ -267,6 +268,17 @@ describe('a non-recommendation', () => {
       expect(markup).toContain('detail-callout')
       expect(markup).not.toContain('this place')
     }
+  })
+
+  it('drops the facts table on the sparse fixture rather than printing one empty row', () => {
+    const markup = markupFor(
+      requireDocument('syrup', 'airport-gift-shop-syrup'),
+    )
+
+    expect(markup).toContain('Sergio does not recommend this.')
+    expect(markup).toContain('Corn syrup first on the label.')
+    expect(markup).not.toContain('class="facts"')
+    expect(markup).not.toContain('<figure')
   })
 
   it('leaves a recommendation unlabelled', () => {

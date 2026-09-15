@@ -559,6 +559,20 @@ export const fixtureSyrups: SyrupReview[] = [
     ),
     notes: paragraph("Never tasted! I'm curious because Jake says it's good."),
   },
+  // The lightest record the Studio can publish: a title, a slug and the note
+  // saying why, with no photo, producer, price or rank behind it.
+  {
+    _id: 'syrup-airport-gift-shop',
+    recommendationStatus: 'notRecommended',
+    _type: 'syrupReview',
+    _createdAt: '2024-10-02T12:00:00.000Z',
+    _updatedAt: '2024-10-02T12:00:00.000Z',
+    title: 'Airport Gift Shop Syrup',
+    slug: 'airport-gift-shop-syrup',
+    notes: paragraph(
+      'Pancake syrup wearing a maple leaf. Corn syrup first on the label.',
+    ),
+  },
 ]
 
 export const fixturePosts: Post[] = [

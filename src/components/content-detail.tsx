@@ -63,7 +63,7 @@ type Fact = { label: string; value: ReactNode }
 function facts(document: ContentDocument): Fact[] {
   if (document._type === 'coffee') {
     return [
-      { label: 'Roaster', value: document.roaster ?? 'Not listed' },
+      { label: 'Roaster', value: document.roaster },
       { label: 'Origin', value: document.origin },
       {
         label: 'Bought from',
@@ -238,9 +238,7 @@ export function ContentDetail({ document }: ContentDetailProps) {
           <p className="eyebrow">{detailLabel(document)}</p>
           <h1>{document.title}</h1>
           {document.recommendationStatus === 'notRecommended' ? (
-            <p className="detail-callout">
-              Sergio does not recommend this one.
-            </p>
+            <p className="detail-callout">Sergio does not recommend this.</p>
           ) : null}
           {publishedDate(document) ? (
             <p className="detail-hero__date">

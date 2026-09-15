@@ -1,6 +1,11 @@
 import { orderRankField } from './orderRank'
 import { defineField, defineType } from 'sanity'
-import { recommendationStatusField, slugField } from './shared'
+import {
+  recommendationStatusField,
+  requiredForNonRecommendations,
+  requiredForRecommendations,
+  slugField,
+} from './shared'
 
 type BrewRecipeValue = {
   method?: string
@@ -252,7 +257,8 @@ export const coffee = defineType({
       title: 'Bought from',
       type: 'string',
       group: 'essentials',
-      validation: (Rule) => Rule.required(),
+      validation: (Rule) =>
+        Rule.custom(requiredForRecommendations('Record where it came from.')),
     }),
     defineField({
       name: 'bagSize',
@@ -260,19 +266,24 @@ export const coffee = defineType({
       type: 'packageSize',
       group: 'essentials',
       validation: (Rule) =>
-        Rule.required().custom((value) => {
-          const packageValue = value as { unit?: string } | undefined
-          return packageValue?.unit === 'g' || packageValue?.unit === 'oz'
-            ? true
-            : 'Coffee bags must use g or oz.'
-        }),
+        Rule.custom(requiredForRecommendations('Record the bag size.')).custom(
+          (value) => {
+            const packageValue = value as { unit?: string } | undefined
+            return !packageValue ||
+              packageValue.unit === 'g' ||
+              packageValue.unit === 'oz'
+              ? true
+              : 'Coffee bags must use g or oz.'
+          },
+        ),
     }),
     defineField({
       name: 'heroImage',
       title: 'Hero image',
       type: 'imageWithAlt',
       group: 'photo',
-      validation: (Rule) => Rule.required(),
+      validation: (Rule) =>
+        Rule.custom(requiredForRecommendations('Add a hero image.')),
     }),
     defineField({
       name: 'brewRecipes',
@@ -280,7 +291,8 @@ export const coffee = defineType({
       type: 'array',
       group: 'tasting',
       of: [{ type: 'brewRecipe' }],
-      validation: (Rule) => Rule.required().min(1),
+      validation: (Rule) =>
+        Rule.custom(requiredForRecommendations('Add at least one recipe.')),
     }),
     defineField({
       name: 'rating',
@@ -302,6 +314,12 @@ export const coffee = defineType({
       title: 'Longer notes',
       type: 'blockContent',
       group: 'tasting',
+      validation: (Rule) =>
+        Rule.custom(
+          requiredForNonRecommendations(
+            'Say why you would not recommend this.',
+          ),
+        ),
     }),
     defineField({
       name: 'roaster',

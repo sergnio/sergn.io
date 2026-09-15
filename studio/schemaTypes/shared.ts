@@ -1,6 +1,36 @@
 import { defineField, defineType } from 'sanity'
+import type { ValidationContext } from 'sanity'
 
 const slugPattern = /^[a-z0-9]+(?:-[a-z0-9]+)*$/
+
+export function isNotRecommended(context: ValidationContext) {
+  return (
+    (context.document as { recommendationStatus?: string } | undefined)
+      ?.recommendationStatus === 'notRecommended'
+  )
+}
+
+function isBlank(value: unknown) {
+  if (value === undefined || value === null) return true
+  if (typeof value === 'string') return value.trim() === ''
+  if (Array.isArray(value)) return value.length === 0
+  return false
+}
+
+/**
+ * A recommendation has to earn its rank, so it owes the full record. A
+ * non-recommendation owes only a title, a slug and the notes saying why, and
+ * the fields stay in the schema so a fuller record is still possible.
+ */
+export function requiredForRecommendations(message: string) {
+  return (value: unknown, context: ValidationContext) =>
+    isNotRecommended(context) || !isBlank(value) ? true : message
+}
+
+export function requiredForNonRecommendations(message: string) {
+  return (value: unknown, context: ValidationContext) =>
+    isNotRecommended(context) && isBlank(value) ? message : true
+}
 
 export function slugField() {
   return defineField({
