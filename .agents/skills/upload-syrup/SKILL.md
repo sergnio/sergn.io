@@ -98,7 +98,11 @@ npx sanity api 'data/mutate/{dataset}' --project-hosted --api-version v2021-06-0
 
 Read back the exact draft using an authenticated raw query. Verify persisted title, producer, grade, origin, volume, rating, notes, image reference, alt text, optional values, and draft ID. Validate the read-back document as well. Do not report success solely because the write command exited successfully.
 
-### 5. Publish only when explicitly requested
+### 5. Rank in the Studio before publishing
+
+Every non-blog collection is a ranking. The CLI cannot safely assign a unique `orderRank`: it is assigned by the Studio's drag-and-drop collection list. After saving and verifying a new or changed draft, stop before publishing and direct the user to open the **Syrup reviews** list in the Studio and drag the draft into its intended position. Resume only after they confirm that it has been ranked; read the draft back and verify that `orderRank` is present and unique among syrup reviews. If the draft already has an unchanged rank, still verify its uniqueness before proceeding. Do not publish an unranked or duplicate-ranked review.
+
+### 6. Publish only when explicitly requested
 
 An explicit request to publish authorizes publishing after verification; do not ask redundantly. "Upload" or "add to Studio" alone means draft.
 

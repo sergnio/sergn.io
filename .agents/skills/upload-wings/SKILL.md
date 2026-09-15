@@ -26,6 +26,7 @@ Accept conversational input with an attached image or local image path. No templ
 - Rating: optional, 0-5 to at most two decimal places. Do not round or convert another scale without clarification. Preserve category ratings in notes and ask which score, if any, is overall; do not invent an average.
 - Optional: heat, positive integer piece count, sides, price, city, address, venue URL, photo caption/credit, and publication date. Leave unknown optional fields unset. Store a supplied USD price as integer cents; clarify ambiguous currency.
 - Inspect the image locally before writing factual alt text (5-180 characters). Describe visible subjects, not an imagined flavor or filename. Preserve supplied credit; never invent attribution.
+- Strip EXIF before uploading a photo. Phone photos can carry a GPS IFD, and the asset lands on a public CDN. `sips` preserves EXIF, so it is not sufficient on its own; drop the APP1/APP2 segments explicitly and verify they are gone.
 - Convert unsupported images locally without changing the original. On macOS, for example: `sips -s format png /path/photo.HEIC --out /tmp/wing-review-photo.png`. Verify the file type and inspect the converted image. Use a unique temporary directory to avoid collisions.
 - If an attachment has no accessible local file, ask for a usable file/path. For several photos, ask which is the hero unless specified; add additional images to review notes only if requested.
 
@@ -81,7 +82,11 @@ npx sanity api 'data/mutate/{dataset}' --project-hosted --api-version v2021-06-0
 
 Read back the exact draft using an authenticated raw query. Verify persisted title, venue, date, flavor, rating, notes, image reference, alt text, optional values, and draft ID. Validate the read-back document as well. Do not report success solely because the write command exited successfully.
 
-### 5. Publish only when explicitly requested
+### 5. Rank in the Studio before publishing
+
+Every non-blog collection is a ranking. The CLI cannot safely assign a unique `orderRank`: it is assigned by the Studio's drag-and-drop collection list. After saving and verifying a new or changed draft, stop before publishing and direct the user to open the **Wing reviews** list in the Studio and drag the draft into its intended position. Resume only after they confirm that it has been ranked; read the draft back and verify that `orderRank` is present and unique among wing reviews. If the draft already has an unchanged rank, still verify its uniqueness before proceeding. Do not publish an unranked or duplicate-ranked review.
+
+### 6. Publish only when explicitly requested
 
 An explicit request to publish authorizes publishing after verification; do not ask redundantly. "Upload" or "add to Studio" alone means draft.
 
