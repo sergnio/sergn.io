@@ -1,26 +1,45 @@
 import type { Template } from 'sanity'
 
-const placeTemplates = [
-  ['coffee', 'coffee'],
-  ['wingReview', 'wing review'],
-  ['naBeer', 'N/A beer'],
-  ['reubenReview', 'reuben'],
-  ['syrupReview', 'syrup review'],
+const today = () => new Date().toISOString().slice(0, 10)
+
+/** What each review starts with before its recommendation status is applied. */
+const reviewTemplates = [
+  { schemaType: 'coffee', name: 'coffee', initialValue: { brewRecipes: [] } },
+  {
+    schemaType: 'wingReview',
+    name: 'wing review',
+    initialValue: { visitedAt: today() },
+  },
+  { schemaType: 'naBeer', name: 'N/A beer', initialValue: {} },
+  {
+    schemaType: 'reubenReview',
+    name: 'reuben',
+    initialValue: { visitedAt: today() },
+  },
+  { schemaType: 'syrupReview', name: 'syrup review', initialValue: {} },
 ] as const
 
 export const documentTemplates: Template[] = [
-  ...placeTemplates.flatMap(([schemaType, name]) => [
+  ...reviewTemplates.flatMap(({ schemaType, name, initialValue }) => [
     {
       id: `new-recommended-${schemaType}`,
       title: `New recommended ${name}`,
       schemaType,
-      value: { _type: schemaType, recommendationStatus: 'recommended' },
+      value: {
+        _type: schemaType,
+        ...initialValue,
+        recommendationStatus: 'recommended',
+      },
     },
     {
       id: `new-not-recommended-${schemaType}`,
       title: `New not-recommended ${name}`,
       schemaType,
-      value: { _type: schemaType, recommendationStatus: 'notRecommended' },
+      value: {
+        _type: schemaType,
+        ...initialValue,
+        recommendationStatus: 'notRecommended',
+      },
     },
   ]),
   {

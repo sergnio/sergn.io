@@ -1,0 +1,144 @@
+import { renderToStaticMarkup } from 'react-dom/server'
+import { describe, expect, it, vi } from 'vitest'
+import type { CollectionName, ContentDocument } from '#/lib/content-types'
+import { rankedCollections } from '#/lib/content-types'
+import { getFixtureCollection } from '#/lib/fixtures'
+
+// The page is rendered outside a router, and a card's link target is the
+// router's business rather than this page's.
+vi.mock('@tanstack/react-router', () => ({
+  Link: ({
+    children,
+    params,
+    to,
+  }: {
+    children: React.ReactNode
+    params: { slug: string }
+    to: string
+  }) => <a href={to.replace('$slug', params.slug)}>{children}</a>,
+}))
+
+const { CollectionPage } = await import('./collection-page')
+
+const markupFor = (collection: CollectionName, documents: ContentDocument[]) =>
+  renderToStaticMarkup(
+    <CollectionPage
+      collection={collection}
+      documents={documents}
+      title={collection}
+    />,
+  )
+
+/** The markup of one list, so a title can be placed in the right section. */
+function listMarkup(markup: string, label: string) {
+  const start = markup.indexOf(`aria-label="${label}"`)
+  expect(start).toBeGreaterThan(-1)
+  const end = markup.indexOf('</ol>', start)
+  const ulEnd = markup.indexOf('</ul>', start)
+  return markup.slice(
+    start,
+    end === -1 ? ulEnd : Math.min(end, ulEnd === -1 ? end : ulEnd),
+  )
+}
+
+const isNotRecommended = (document: ContentDocument) =>
+  document.recommendationStatus === 'notRecommended'
+
+describe('a ranked collection page', () => {
+  it.each(rankedCollections)(
+    'keeps %s non-recommendations out of the ranking and under their own heading',
+    (collection) => {
+      const documents = getFixtureCollection(collection)
+      const notRecommended = documents.filter(isNotRecommended)
+      const recommended = documents.filter(
+        (document) => !isNotRecommended(document),
+      )
+
+      expect(notRecommended.length).toBeGreaterThan(0)
+      expect(recommended.length).toBeGreaterThan(0)
+
+      const markup = markupFor(collection, documents)
+      const ranking = listMarkup(markup, `${collection}, ranked best to worst`)
+      const rejects = listMarkup(markup, `${collection}, not recommended`)
+
+      for (const document of notRecommended) {
+        expect(ranking).not.toContain(document.title)
+        expect(rejects).toContain(document.title)
+      }
+      for (const document of recommended) {
+        expect(ranking).toContain(document.title)
+        expect(rejects).not.toContain(document.title)
+      }
+    },
+  )
+
+  it('labels every non-recommendation on its card, not just in the heading', () => {
+    const documents = getFixtureCollection('wings')
+    const markup = markupFor('wings', documents)
+    const rejects = listMarkup(markup, 'wings, not recommended')
+
+    expect(markup).toContain('Not recommended</h2>')
+    expect(rejects.match(/Not recommended by Sergio/g)?.length).toBe(
+      documents.filter(isNotRecommended).length,
+    )
+  })
+
+  it('numbers the ranking from one, so a non-recommendation never takes a place', () => {
+    const documents = getFixtureCollection('syrup')
+    const ranking = listMarkup(
+      markupFor('syrup', documents),
+      'syrup, ranked best to worst',
+    )
+    const ranks = [...ranking.matchAll(/#(\d+)/g)].map(([, rank]) =>
+      Number(rank),
+    )
+
+    expect(ranks).toEqual(
+      documents
+        .filter((document) => !isNotRecommended(document))
+        .map((_, index) => index + 1),
+    )
+  })
+
+  it('drops a section entirely rather than printing an empty heading', () => {
+    const documents = getFixtureCollection('wings').filter(
+      (document) => !isNotRecommended(document),
+    )
+    const markup = markupFor('wings', documents)
+
+    expect(markup).toContain('Recommended</h2>')
+    expect(markup).not.toContain('Not recommended')
+    expect(markup).not.toContain('not recommended"')
+  })
+
+  // Card and row titles sit under the section h2 they are listed beneath, so
+  // the page outline never jumps a level.
+  it('heads every entry one level below its section', () => {
+    const markup = markupFor('coffee', getFixtureCollection('coffee'))
+
+    expect(markup.match(/<h2/g)).toHaveLength(2)
+    for (const title of getFixtureCollection('coffee').map(
+      (document) => document.title,
+    )) {
+      expect(markup).toMatch(
+        new RegExp(
+          `<h3[^>]*>.{0,80}${title.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`,
+          's',
+        ),
+      )
+    }
+  })
+})
+
+describe('an unranked collection page', () => {
+  it('lists the blog as one grid with no recommendation sections', () => {
+    const documents = getFixtureCollection('blog')
+    const markup = markupFor('blog', documents)
+
+    expect(markup).not.toContain('Not recommended')
+    expect(markup).not.toContain('ranked best to worst')
+    for (const document of documents) {
+      expect(markup).toContain(document.title)
+    }
+  })
+})

@@ -47,8 +47,19 @@ export function CollectionPage({
       ) : ranked ? (
         <>
           {recommended.length ? (
-            <section aria-labelledby="recommended-title">
-              <h2 id="recommended-title">Recommended</h2>
+            <section
+              aria-labelledby="recommended-title"
+              className="collection-section"
+            >
+              <div className="section-heading">
+                <p className="eyebrow">Best first</p>
+                <h2
+                  className="collection-section__title"
+                  id="recommended-title"
+                >
+                  Recommended
+                </h2>
+              </div>
               <RankedCollection
                 collection={collection}
                 documents={recommended}
@@ -57,8 +68,19 @@ export function CollectionPage({
             </section>
           ) : null}
           {notRecommended.length ? (
-            <section aria-labelledby="not-recommended-title">
-              <h2 id="not-recommended-title">Not recommended</h2>
+            <section
+              aria-labelledby="not-recommended-title"
+              className="collection-section"
+            >
+              <div className="section-heading">
+                <p className="eyebrow">Tried, and not worth it</p>
+                <h2
+                  className="collection-section__title"
+                  id="not-recommended-title"
+                >
+                  Not recommended
+                </h2>
+              </div>
               <ul
                 aria-label={`${title}, not recommended`}
                 className="card-grid"

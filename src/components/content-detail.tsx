@@ -86,10 +86,10 @@ function facts(document: ContentDocument): Fact[] {
     return [
       { label: 'Venue', value: document.venue },
       { label: 'Where', value: locationValue(document) },
-      { label: 'Order', value: document.order.styleOrFlavor },
-      { label: 'Heat', value: document.order.heat },
-      { label: 'Pieces', value: document.order.pieceCount },
-      { label: 'Sides', value: formatList(document.order.sides) },
+      { label: 'Order', value: document.order?.styleOrFlavor },
+      { label: 'Heat', value: document.order?.heat },
+      { label: 'Pieces', value: document.order?.pieceCount },
+      { label: 'Sides', value: formatList(document.order?.sides) },
       { label: 'Price', value: formatMoney(document.price) },
       { label: 'Rating', value: formatRating(document.rating) },
     ]
@@ -181,6 +181,8 @@ function CoffeeRecipes({
 }: {
   document: Extract<ContentDocument, { _type: 'coffee' }>
 }) {
+  if (!document.brewRecipes?.length) return null
+
   return (
     <section aria-labelledby="recipes-title" className="detail-section">
       <div className="section-heading">
@@ -237,7 +239,7 @@ export function ContentDetail({ document }: ContentDetailProps) {
           <h1>{document.title}</h1>
           {document.recommendationStatus === 'notRecommended' ? (
             <p className="detail-callout">
-              Sergio does not recommend this place.
+              Sergio does not recommend this one.
             </p>
           ) : null}
           {publishedDate(document) ? (

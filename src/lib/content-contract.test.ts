@@ -180,13 +180,68 @@ describe('content contract', () => {
 
   it('keeps every ranked fixture collection in rank order, best first', () => {
     for (const collection of rankedCollections) {
-      const ranks = getFixtureCollection(collection).map(
-        (document) => (document as { orderRank: string }).orderRank,
-      )
+      const ranks = getFixtureCollection(collection)
+        .filter(
+          (document) => document.recommendationStatus !== 'notRecommended',
+        )
+        .map((document) => (document as { orderRank: string }).orderRank)
 
       expect(ranks.length).toBeGreaterThan(0)
+      expect(ranks.every(Boolean)).toBe(true)
       expect([...ranks].sort((a, b) => a.localeCompare(b))).toEqual(ranks)
     }
+  })
+
+  // A non-recommendation is a record of something not worth returning to, so
+  // it is published from whatever little was written down. Only what every
+  // document needs to have a page at all is still required of it.
+  describe('a non-recommendation', () => {
+    const notRecommended = {
+      _id: 'coffee-2',
+      _type: 'coffee',
+      title: 'Not worth it',
+      slug: 'not-worth-it',
+      recommendationStatus: 'notRecommended',
+    }
+
+    it('publishes with nothing but the fields every document has', () => {
+      expect(() =>
+        assertValidCollection('coffee', [notRecommended]),
+      ).not.toThrow()
+    })
+
+    it('still has to carry a title, a slug and a URL-safe one at that', () => {
+      expect(() =>
+        assertValidCollection('coffee', [{ ...notRecommended, title: ' ' }]),
+      ).toThrow(/"title"/)
+      expect(() =>
+        assertValidCollection('coffee', [
+          { ...notRecommended, slug: 'Not Lowercase' },
+        ]),
+      ).toThrow(/not URL safe/)
+    })
+
+    it('does not excuse a recommendation from the same fields', () => {
+      expect(() =>
+        assertValidCollection('coffee', [
+          { ...notRecommended, recommendationStatus: 'recommended' },
+        ]),
+      ).toThrow(/"brewRecipes"/)
+      expect(() =>
+        assertValidCollection('coffee', [
+          { ...notRecommended, recommendationStatus: undefined },
+        ]),
+      ).toThrow(/has no rank/)
+    })
+
+    it('is not asked for a rank, and never collides with a ranked entry', () => {
+      expect(() =>
+        assertValidCollection('coffee', [
+          validCoffee,
+          { ...notRecommended, orderRank: validCoffee.orderRank },
+        ]),
+      ).not.toThrow()
+    })
   })
 
   it('validates single documents too, and passes a missing one through untouched', () => {

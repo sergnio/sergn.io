@@ -23,6 +23,9 @@ type RankedEntryProps = {
 }
 
 /**
+ * Every ranking renders under its page's "Recommended" section heading, so its
+ * entry titles sit a level below that h2.
+ *
  * A ranking is one ordered list, not a podium list plus a runners-up list:
  * the numbering has to continue across the two shapes, and assistive
  * technology has to hear one sequence, so both render as items of the same
@@ -58,7 +61,7 @@ export function RankedCollection({
             <ContentCard
               collection={collection}
               document={document}
-              headingLevel={2}
+              headingLevel={3}
               priority={index === priorityIndex}
               rank={index + 1}
             />
@@ -86,11 +89,11 @@ function RankedRow({ collection, document, rank }: RankedEntryProps) {
         #{rank}
       </p>
       <div className="ranked-row__body">
-        <h2>
+        <h3>
           <Link params={{ slug: document.slug }} to={`/${collection}/$slug`}>
             {document.title}
           </Link>
-        </h2>
+        </h3>
         {summary ? <p>{summary}</p> : null}
       </div>
       <div className="ranked-row__meta">
