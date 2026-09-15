@@ -235,6 +235,11 @@ export function ContentDetail({ document }: ContentDetailProps) {
         <header className="detail-hero__copy">
           <p className="eyebrow">{detailLabel(document)}</p>
           <h1>{document.title}</h1>
+          {document.recommendationStatus === 'notRecommended' ? (
+            <p className="detail-callout">
+              Sergio does not recommend this place.
+            </p>
+          ) : null}
           {publishedDate(document) ? (
             <p className="detail-hero__date">
               <time dateTime={publishedDate(document)}>

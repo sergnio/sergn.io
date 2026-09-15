@@ -60,6 +60,9 @@ export type Money = {
 
 export type Rating = number
 
+/** Omitted legacy values are recommended. */
+export type RecommendationStatus = 'recommended' | 'notRecommended'
+
 export type PortableTextBlock = {
   _key: string
   _type: 'block'
@@ -144,7 +147,7 @@ export type BrewRecipe = {
  * position that falls out is the rank it prints.
  */
 type RankedDocument = {
-  orderRank: string
+  orderRank?: string
 }
 
 type BaseDocument = {
@@ -155,6 +158,7 @@ type BaseDocument = {
   title: string
   slug: string
   publishedAt?: string
+  recommendationStatus?: RecommendationStatus
 }
 
 export type Coffee = BaseDocument &

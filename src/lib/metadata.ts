@@ -235,8 +235,16 @@ export function collectionScripts(
 ) {
   const jsonLd = [
     collectionJsonLd(collection),
-    isRankedCollection(collection) && documents?.length
-      ? rankingJsonLd(collection, documents)
+    isRankedCollection(collection) &&
+    documents?.some(
+      (document) => document.recommendationStatus !== 'notRecommended',
+    )
+      ? rankingJsonLd(
+          collection,
+          documents.filter(
+            (document) => document.recommendationStatus !== 'notRecommended',
+          ),
+        )
       : undefined,
   ].filter((entry) => entry !== undefined)
 

@@ -110,7 +110,12 @@ function violationsFor(collection: CollectionName, document: unknown) {
   }
 
   const subject = describe(collection, document)
-  const violations = [...alwaysRequired, ...requiredByCollection[collection]]
+  const notRecommended =
+    readPath(document, 'recommendationStatus') === 'notRecommended'
+  const violations = [
+    ...alwaysRequired,
+    ...(notRecommended ? [] : requiredByCollection[collection]),
+  ]
     .filter((path) => isMissing(readPath(document, path)))
     .map((path) => `${subject} is missing required field "${path}"`)
 
@@ -142,7 +147,11 @@ function rankViolations(
   document: unknown,
   subject: string,
 ) {
-  if (!isRankedCollection(collection)) return []
+  if (
+    !isRankedCollection(collection) ||
+    readPath(document, 'recommendationStatus') === 'notRecommended'
+  )
+    return []
   if (!isMissing(readPath(document, 'orderRank'))) return []
 
   return [
@@ -159,17 +168,22 @@ function duplicateRankViolations(
 
   const seen = new Set<string>()
 
-  return documents.flatMap((document) => {
-    const rank = readPath(document, 'orderRank')
-    if (typeof rank !== 'string' || rank === '') return []
-    if (!seen.has(rank)) {
-      seen.add(rank)
-      return []
-    }
-    return [
-      `${collection} has more than one document ranked at "${rank}", so which of them places higher is undefined - reset the order from the ${collection} list in the Studio`,
-    ]
-  })
+  return documents
+    .filter(
+      (document) =>
+        readPath(document, 'recommendationStatus') !== 'notRecommended',
+    )
+    .flatMap((document) => {
+      const rank = readPath(document, 'orderRank')
+      if (typeof rank !== 'string' || rank === '') return []
+      if (!seen.has(rank)) {
+        seen.add(rank)
+        return []
+      }
+      return [
+        `${collection} has more than one document ranked at "${rank}", so which of them places higher is undefined - reset the order from the ${collection} list in the Studio`,
+      ]
+    })
 }
 
 function duplicateSlugViolations(

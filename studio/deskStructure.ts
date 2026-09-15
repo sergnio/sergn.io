@@ -25,10 +25,24 @@ export const deskStructure: StructureResolver = async (S, context) => {
       ...rankedTypes.map((ranked) =>
         orderableDocumentListDeskItem({
           type: ranked.type,
-          title: ranked.title,
+          title: `${ranked.title} — Recommended`,
+          filter:
+            '_type == $type && recommendationStatus != \"notRecommended\"',
           S,
           context,
         }),
+      ),
+      ...rankedTypes.map((ranked) =>
+        S.listItem()
+          .title(`${ranked.title} — Not recommended`)
+          .child(
+            S.documentList()
+              .title(`${ranked.title} — Not recommended`)
+              .filter(
+                '_type == $type && recommendationStatus == \"notRecommended\"',
+              )
+              .params({ type: ranked.type }),
+          ),
       ),
       S.listItem()
         .title('Blog posts')

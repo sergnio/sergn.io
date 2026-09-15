@@ -1,6 +1,6 @@
 import { orderRankField } from './orderRank'
 import { defineField, defineType } from 'sanity'
-import { slugField } from './shared'
+import { recommendationStatusField, slugField } from './shared'
 
 type BrewRecipeValue = {
   method?: string
@@ -229,6 +229,7 @@ export const coffee = defineType({
     { name: 'photo', title: 'Photo' },
     { name: 'tasting', title: 'Tasting and recipe' },
     { name: 'optional', title: 'Optional details' },
+    { name: 'publication', title: 'Publication' },
   ],
   fieldsets: [
     {
@@ -351,6 +352,7 @@ export const coffee = defineType({
       group: 'optional',
       fieldset: 'optionalDetails',
     }),
+    recommendationStatusField(),
     orderRankField('coffee'),
   ],
   preview: {

@@ -26,6 +26,10 @@ const notRenderedInBody: Array<{
   collections?: Array<CollectionName>
   why: string
 }> = [
+  {
+    path: /^recommendationStatus$/,
+    why: 'status uses its explicit callout instead of raw enum text',
+  },
   { path: /^_(id|type|createdAt|updatedAt)$/, why: 'Sanity system fields' },
   { path: /^slug$/, why: 'the page is already at its own URL' },
   {

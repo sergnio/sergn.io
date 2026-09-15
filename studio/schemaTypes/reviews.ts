@@ -1,12 +1,13 @@
 import { orderRankField } from './orderRank'
 import { defineField, defineType } from 'sanity'
-import { slugField } from './shared'
+import { recommendationStatusField, slugField } from './shared'
 
 const documentGroups = [
   { name: 'essentials', title: 'Essentials', default: true },
   { name: 'photo', title: 'Photo' },
   { name: 'tasting', title: 'Tasting and recipe' },
   { name: 'optional', title: 'Optional details' },
+  { name: 'publication', title: 'Publication' },
 ]
 
 const optionalFieldset = [
@@ -45,6 +46,7 @@ function commonFields(type: string) {
       group: 'optional',
       fieldset: 'optionalDetails',
     }),
+    recommendationStatusField(),
     orderRankField(type),
   ]
 }

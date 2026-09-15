@@ -67,7 +67,10 @@ describe('published content queries', () => {
     (collection) => {
       const query = collectionQuery(collection)
 
-      expect(query).toContain('| order(orderRank asc)')
+      expect(query).toContain(
+        'coalesce(recommendationStatus, \"recommended\") asc, orderRank asc',
+      )
+      expect(query).toContain('recommendationStatus')
       expect(query).not.toContain('publishedAt, _createdAt) desc')
       for (const shape of [query, documentQuery(collection)]) {
         expect(shape).toMatch(/\borderRank\b/)

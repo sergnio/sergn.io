@@ -41,6 +41,23 @@ export function slugField() {
   })
 }
 
+export function recommendationStatusField() {
+  return defineField({
+    name: 'recommendationStatus',
+    title: 'Recommendation status',
+    type: 'string',
+    group: 'publication',
+    initialValue: 'recommended',
+    options: {
+      layout: 'radio',
+      list: [
+        { title: 'Recommended', value: 'recommended' },
+        { title: 'Not recommended', value: 'notRecommended' },
+      ],
+    },
+  })
+}
+
 export const imageWithAlt = defineType({
   name: 'imageWithAlt',
   title: 'Image with alt text',

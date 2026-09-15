@@ -152,13 +152,13 @@ export const fixtureCoffee: Coffee[] = [
   },
   {
     _id: 'coffee-grocery-blend',
+    recommendationStatus: 'notRecommended',
     _type: 'coffee',
     _createdAt: '2025-02-18T12:00:00.000Z',
     _updatedAt: '2025-02-18T12:00:00.000Z',
     title: 'Grocery Store House Blend',
     slug: 'grocery-store-house-blend',
     publishedAt: '2025-02-18T12:00:00.000Z',
-    orderRank: '0|400000:',
     roaster: 'Store Brand',
     boughtFrom: 'The supermarket down the street',
     bagSize: { amount: 12, unit: 'oz' },
@@ -265,13 +265,13 @@ export const fixtureWings: WingReview[] = [
   },
   {
     _id: 'wings-gas-station',
+    recommendationStatus: 'notRecommended',
     _type: 'wingReview',
     _createdAt: '2025-04-02T12:00:00.000Z',
     _updatedAt: '2025-04-02T12:00:00.000Z',
     title: 'Gas Station Case Wings',
     slug: 'gas-station-case-wings',
     publishedAt: '2025-04-02T12:00:00.000Z',
-    orderRank: '0|500000:',
     venue: 'Highway 33 Fuel Stop',
     visitedAt: '2025-04-01',
     order: { styleOrFlavor: 'Whatever was left', pieceCount: 4 },
@@ -343,13 +343,13 @@ export const fixtureNaBeers: NaBeer[] = [
   },
   {
     _id: 'na-flat-tonic-brew',
+    recommendationStatus: 'notRecommended',
     _type: 'naBeer',
     _createdAt: '2025-04-06T12:00:00.000Z',
     _updatedAt: '2025-04-06T12:00:00.000Z',
     title: 'Flat Tonic Brew',
     slug: 'flat-tonic-brew',
     publishedAt: '2025-04-06T12:00:00.000Z',
-    orderRank: '0|400000:',
     brewery: 'Value Cellar',
     style: 'Pale ale',
     abvNote: 'Alcohol free',
@@ -431,13 +431,13 @@ export const fixtureReubens: ReubenReview[] = [
   },
   {
     _id: 'reuben-pub-grill',
+    recommendationStatus: 'notRecommended',
     _type: 'reubenReview',
     _createdAt: '2025-04-25T12:00:00.000Z',
     _updatedAt: '2025-04-25T12:00:00.000Z',
     title: 'Pub Grill Reuben',
     slug: 'pub-grill-reuben',
     publishedAt: '2025-04-25T12:00:00.000Z',
-    orderRank: '0|400000:',
     restaurant: 'The Landing Pub',
     visitedAt: '2025-04-24',
     rating: 2.5,
@@ -542,8 +542,8 @@ export const fixtureSyrups: SyrupReview[] = [
   },
   {
     _id: 'syrup-hamel',
+    recommendationStatus: 'notRecommended',
     _type: 'syrupReview',
-    orderRank: '0|500000:',
     _createdAt: '2024-09-24T12:00:00.000Z',
     _updatedAt: '2024-09-25T12:00:00.000Z',
     title: 'Hamel',
@@ -864,9 +864,26 @@ function byPublishedDesc<
   )
 }
 
-/** Mirrors the `order(orderRank asc)` the real collection query runs. */
-function byRank<T extends { orderRank: string }>(documents: T[]): T[] {
-  return [...documents].sort((a, b) => a.orderRank.localeCompare(b.orderRank))
+/** Recommended entries stay ranked first; non-recommendations are newest first. */
+function byRank<
+  T extends {
+    orderRank?: string
+    recommendationStatus?: string
+    publishedAt?: string
+    _createdAt: string
+  },
+>(documents: T[]): T[] {
+  return [...documents].sort((a, b) => {
+    const aNotRecommended = a.recommendationStatus === 'notRecommended'
+    const bNotRecommended = b.recommendationStatus === 'notRecommended'
+    if (aNotRecommended !== bNotRecommended) return aNotRecommended ? 1 : -1
+    if (!aNotRecommended)
+      return (a.orderRank ?? '').localeCompare(b.orderRank ?? '')
+    return (
+      new Date(b.publishedAt ?? b._createdAt).getTime() -
+      new Date(a.publishedAt ?? a._createdAt).getTime()
+    )
+  })
 }
 
 const collections = {

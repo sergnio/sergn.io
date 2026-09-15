@@ -16,11 +16,21 @@ export function CollectionPage({
   title,
 }: CollectionPageProps) {
   const ranked = isRankedCollection(collection)
+  const recommended = ranked
+    ? documents.filter(
+        (document) => document.recommendationStatus !== 'notRecommended',
+      )
+    : documents
+  const notRecommended = ranked
+    ? documents.filter(
+        (document) => document.recommendationStatus === 'notRecommended',
+      )
+    : []
 
   // The topmost card that actually has an image is what this page paints its
   // Largest Contentful Paint with. Left lazy it cannot start loading until
   // layout runs, which measurably delays LCP on every collection index.
-  const priorityIndex = documents.findIndex((document) =>
+  const priorityIndex = recommended.findIndex((document) =>
     Boolean(cardImage(document)),
   )
 
@@ -35,14 +45,40 @@ export function CollectionPage({
           Nothing published here yet. Check back soon.
         </p>
       ) : ranked ? (
-        <RankedCollection
-          collection={collection}
-          documents={documents}
-          title={title}
-        />
+        <>
+          {recommended.length ? (
+            <section aria-labelledby="recommended-title">
+              <h2 id="recommended-title">Recommended</h2>
+              <RankedCollection
+                collection={collection}
+                documents={recommended}
+                title={title}
+              />
+            </section>
+          ) : null}
+          {notRecommended.length ? (
+            <section aria-labelledby="not-recommended-title">
+              <h2 id="not-recommended-title">Not recommended</h2>
+              <ul
+                aria-label={`${title}, not recommended`}
+                className="card-grid"
+              >
+                {notRecommended.map((document) => (
+                  <li key={document._id}>
+                    <ContentCard
+                      collection={collection}
+                      document={document}
+                      headingLevel={3}
+                    />
+                  </li>
+                ))}
+              </ul>
+            </section>
+          ) : null}
+        </>
       ) : (
         <ul aria-label={title} className="card-grid">
-          {documents.map((document, index) => (
+          {recommended.map((document, index) => (
             <li key={document._id}>
               <ContentCard
                 collection={collection}

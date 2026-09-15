@@ -32,7 +32,8 @@ const commonFields = `
   _updatedAt,
   title,
   "slug": slug.current,
-  publishedAt
+  publishedAt,
+  recommendationStatus
 `
 
 const richTextProjection = `[] {
@@ -152,7 +153,7 @@ const sanityTypes: Record<CollectionName, string> = {
  */
 export function collectionQuery(collection: CollectionName) {
   const order = isRankedCollection(collection)
-    ? 'orderRank asc'
+    ? 'coalesce(recommendationStatus, \"recommended\") asc, orderRank asc'
     : 'coalesce(publishedAt, _createdAt) desc'
 
   return `*[_type == $type && defined(slug.current)] | order(${order}) ${projections[collection]}`
