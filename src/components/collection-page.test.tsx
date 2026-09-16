@@ -125,6 +125,17 @@ describe('a ranked collection page', () => {
     expect(card).not.toContain('<img')
   })
 
+  it('prioritises the first non-recommendation photo when it is the only section', () => {
+    const documents = getFixtureCollection('syrup').filter(isNotRecommended)
+    const rejects = listMarkup(
+      markupFor('syrup', documents),
+      'syrup, not recommended',
+    )
+
+    expect(rejects.match(/fetchPriority="high"/g)).toHaveLength(1)
+    expect(rejects).toContain('loading="eager"')
+  })
+
   it('drops a section entirely rather than printing an empty heading', () => {
     const documents = getFixtureCollection('wings').filter(
       (document) => !isNotRecommended(document),

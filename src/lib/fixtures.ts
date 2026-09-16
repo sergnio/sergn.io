@@ -17,14 +17,16 @@ const fixtureImage = (id: string, alt: string) => ({
   },
 })
 
-const paragraph = (text: string) => [
+const block = (key: string, text: string) => [
   {
-    _key: 'paragraph',
+    _key: key,
     _type: 'block' as const,
-    children: [{ _key: 'span', _type: 'span' as const, text }],
+    children: [{ _key: `${key}-span`, _type: 'span' as const, text }],
     style: 'normal',
   },
 ]
+
+const paragraph = (text: string) => block('paragraph', text)
 
 /**
  * Ranked collections are stored in rank order, best first, exactly as the
@@ -207,9 +209,48 @@ export const fixtureWings: WingReview[] = [
       'photo-1527477396000-e27163b481c2',
       'A plate of sauced chicken wings',
     ),
-    notes: paragraph(
-      'Crisp skin, a bright vinegar tang, and just enough heat.',
-    ),
+    notes: [
+      ...block(
+        'first',
+        'Crisp skin, a bright vinegar tang, and just enough heat. The fry is hard enough to hold the sauce without going brittle, and the drums come out as dry as the flats.',
+      ),
+      ...block(
+        'second',
+        'The sauce leans vinegar over butter, so it stays sharp through a full order instead of turning heavy by the last piece. Medium here lands where most kitchens put hot.',
+      ),
+      {
+        ...fixtureImage(
+          'photo-1527477396000-e27163b481c2',
+          'A drum and a flat pulled from the basket',
+        ),
+        _key: 'wide-image',
+        _type: 'imageWithAlt' as const,
+        caption: 'Ten pieces, split evenly between drums and flats.',
+        display: 'wide' as const,
+      },
+      ...block(
+        'third',
+        'Celery arrives cold and cut the same day, and the blue cheese is thick enough to sit on a flat rather than run off it. Both come in portions that actually match ten wings.',
+      ),
+      ...block(
+        'fourth',
+        'The kitchen sends them out in under fifteen minutes on a full Tuesday night, which is the part I keep coming back for.',
+      ),
+      {
+        ...fixtureImage(
+          'photo-1527477396000-e27163b481c2',
+          'The empty basket at the end of the order',
+        ),
+        _key: 'full-image',
+        _type: 'imageWithAlt' as const,
+        caption: 'Nothing left but the celery.',
+        display: 'full' as const,
+      },
+      ...block(
+        'fifth',
+        'Worth the trip when a plain Buffalo order is what you want, and cheap enough that a second basket is never a real decision.',
+      ),
+    ],
   },
   {
     _id: 'wings-smokehouse-dry-rub',
