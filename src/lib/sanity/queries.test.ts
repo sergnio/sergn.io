@@ -85,6 +85,7 @@ describe('published content queries', () => {
       orderRank?: string
       publishedAt?: string
       recommendationStatus?: string
+      visitedAt?: string
     },
     type: string,
   ) => ({ _id, _type: type, slug: { current: _id }, ...fields })
@@ -126,6 +127,40 @@ describe('published content queries', () => {
         'second',
         'newer-reject',
         'older-reject',
+      ])
+    },
+  )
+
+  // A place's card prints the date it was visited, so the section it sits in
+  // has to read in that order rather than by when the write was published.
+  it.each(['wings', 'reubens'] as const)(
+    'orders %s non-recommendations by the visit their cards print',
+    async (collection) => {
+      const type = sanityTypes[collection]
+      const dataset = [
+        entry(
+          'earlier-visit',
+          {
+            publishedAt: '2025-09-01',
+            recommendationStatus: 'notRecommended',
+            visitedAt: '2025-01-01',
+          },
+          type,
+        ),
+        entry(
+          'later-visit',
+          {
+            publishedAt: '2025-08-01',
+            recommendationStatus: 'notRecommended',
+            visitedAt: '2025-06-01',
+          },
+          type,
+        ),
+      ]
+
+      expect(await run(collectionQuery(collection), dataset, type)).toEqual([
+        'later-visit',
+        'earlier-visit',
       ])
     },
   )

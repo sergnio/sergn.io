@@ -78,7 +78,7 @@ describe('a ranked collection page', () => {
     const rejects = listMarkup(markup, 'wings, not recommended')
 
     expect(markup).toContain('Not recommended</h2>')
-    expect(rejects.match(/Not recommended by Sergio/g)?.length).toBe(
+    expect(rejects.match(/Not recommended<\/p>/g)?.length).toBe(
       documents.filter(isNotRecommended).length,
     )
   })

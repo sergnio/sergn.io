@@ -152,11 +152,12 @@ const sanityTypes: Record<CollectionName, string> = {
  * writes, so the site renders best to worst; the blog stays newest first.
  * "recommended" sorts after "notRecommended" alphabetically, so the status key
  * runs descending to put the ranking first, and only recommendations carry a
- * rank - the date key is what gives the rest a stable order between builds.
+ * rank - the date key orders the rest by the same date their cards print,
+ * which is the visit for a place and the publish date for everything else.
  */
 export function collectionQuery(collection: CollectionName) {
   const order = isRankedCollection(collection)
-    ? 'coalesce(recommendationStatus, "recommended") desc, orderRank asc, coalesce(publishedAt, _createdAt) desc'
+    ? 'coalesce(recommendationStatus, "recommended") desc, orderRank asc, coalesce(visitedAt, publishedAt, _createdAt) desc'
     : 'coalesce(publishedAt, _createdAt) desc'
 
   return `*[_type == $type && defined(slug.current)] | order(${order}) ${projections[collection]}`
