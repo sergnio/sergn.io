@@ -20,7 +20,9 @@ Turn rough notes and a photo into a complete `wingReview` through the authentica
 
 Accept conversational input with an attached image or local image path. No template is required. Extract everything already supplied, then ask one compact question covering only missing required information or genuine ambiguity.
 
-- Required: title, unique URL slug, venue, visit date, order's style/flavor, hero image with alt text, and review notes.
+- Required of a recommendation: title, unique URL slug, venue, visit date, order's style/flavor, hero image with alt text, and review notes.
+- Required of a non-recommendation: title, unique URL slug, and the notes saying why it is not worth returning to. Every other field stays optional, so fill in what is known and leave the rest unset rather than inventing a fuller record.
+- Recommendation status: settle it from Sergio's notes, and ask when they do not. Write `recommendationStatus` explicitly on every draft instead of leaning on the schema default; it decides which fields the contract demands, which Studio list the review appears in, and whether it is ranked at all.
 - Derive a concise title from venue and flavor. Generate a lowercase, hyphen-separated slug of at most 96 characters; ask only if ambiguous. Check uniqueness across both drafts and published wing reviews.
 - Ask for the visit date if absent. Do not default to today. Resolve relative dates against the user's local date and clarify ambiguous dates; use an approximate exact date only with user approval.
 - Rating: optional, 0-5 to at most two decimal places. Do not round or convert another scale without clarification. Preserve category ratings in notes and ask which score, if any, is overall; do not invent an average.
@@ -51,6 +53,7 @@ Use `npx sanity assets upload --help`, then upload the local file with explicit 
 Prepare JSON/NDJSON in a unique temporary directory outside the repository. For a new review, generate a UUID and set `_id` to `drafts.<uuid>`, never the bare UUID. Use the exact schema shape:
 
 - `_type: "wingReview"`.
+- `recommendationStatus: "recommended"` or `"notRecommended"`, always set explicitly.
 - `slug: { _type: "slug", current: "..." }`.
 - `visitedAt: "YYYY-MM-DD"`.
 - `order: { styleOrFlavor: "..." }`, plus supplied optional order values.
@@ -82,9 +85,13 @@ npx sanity api 'data/mutate/{dataset}' --project-hosted --api-version v2021-06-0
 
 Read back the exact draft using an authenticated raw query. Verify persisted title, venue, date, flavor, rating, notes, image reference, alt text, optional values, and draft ID. Validate the read-back document as well. Do not report success solely because the write command exited successfully.
 
-### 5. Rank in the Studio before publishing
+### 5. Rank a recommendation before the upload is finished
 
-Every non-blog collection is a ranking. The CLI cannot safely assign a unique `orderRank`: it is assigned by the Studio's drag-and-drop collection list. After saving and verifying a new or changed draft, stop before publishing and direct the user to open the **Wing reviews** list in the Studio and drag the draft into its intended position. Resume only after they confirm that it has been ranked; read the draft back and verify that `orderRank` is present and unique among wing reviews. If the draft already has an unchanged rank, still verify its uniqueness before proceeding. Do not publish an unranked or duplicate-ranked review.
+A rank belongs to a recommendation only, so this step follows `recommendationStatus`.
+
+**Not recommended: skip this step.** `src/lib/content-contract.ts` exempts a non-recommendation from the rank rule, `studio/deskStructure.ts` keeps it out of the orderable list, and the site sorts it by date beneath the ranking. There is nothing to drag and nothing to wait for. Go straight to step 6.
+
+**Recommended: the upload is not finished until the review has a rank.** The CLI cannot safely assign a unique `orderRank`: it is assigned by the Studio's drag-and-drop collection list. After saving and verifying the draft, stop and direct the user to open **Wing reviews - Recommended** in the Studio and drag it into its intended position. Resume only once they confirm, then read the draft back and verify `orderRank` is present and unique among recommended wing reviews. If the draft already has an unchanged rank, still verify its uniqueness. An unranked or duplicate-ranked recommendation is an incomplete upload: do not publish it, and do not report it as done. Say plainly that it is waiting on a rank.
 
 ### 6. Publish only when explicitly requested
 
@@ -96,7 +103,7 @@ Read back the published base ID and verify its content and draft state. The publ
 
 ## Finish
 
-Reply briefly with title, overall rating if supplied, and verified draft/published status. Include the document ID and, if the Studio route can be established from repository configuration, a Studio link (never claim it was opened or verified in a browser). Report blockers or incomplete fields clearly. Do not commit/push code for a content upload.
+Reply briefly with title, overall rating if supplied, recommendation status, and verified draft/published status. For a recommendation, say whether it is ranked. Include the document ID and, if the Studio route can be established from repository configuration, a Studio link (never claim it was opened or verified in a browser). Report blockers or incomplete fields clearly. Do not commit/push code for a content upload.
 
 ## Invocation
 
