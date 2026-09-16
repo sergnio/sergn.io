@@ -66,6 +66,8 @@ npx sanity assets upload --file /tmp/<unique-directory>/syrup.jpg --type image -
 
 It prints JSON whose asset ID is nested at `.asset._id`, not at the top level. Save the output in a temporary directory and use that actual `_id` as the image reference. Do not guess asset IDs or URLs. Use a neutral filename rather than exposing the original camera filename. Reuse a verified asset from an earlier successful upload when resuming instead of uploading again.
 
+A non-recommendation with no photo skips this step. Do not ask for one twice or hold the upload waiting on it; the detail page renders without a hero image.
+
 ### 3. Prepare and validate the draft
 
 Prepare JSON in a unique temporary directory outside the repository. For a new review, generate a UUID and set `_id` to `drafts.<uuid>`, never the bare UUID. Use the exact schema shape:
@@ -73,7 +75,7 @@ Prepare JSON in a unique temporary directory outside the repository. For a new r
 - `_type: "syrupReview"`.
 - `recommendationStatus: "recommended"` or `"notRecommended"`, always set explicitly.
 - `slug: { _type: "slug", current: "..." }`.
-- `heroImage: { _type: "imageWithAlt", image: { _type: "image", asset: { _type: "reference", _ref: "<uploaded asset ID>" } }, alt: "..." }`.
+- `heroImage: { _type: "imageWithAlt", image: { _type: "image", asset: { _type: "reference", _ref: "<uploaded asset ID>" } }, alt: "..." }`, and `producer`. A recommendation owes both. On a non-recommendation each is optional: include what the user actually supplied and omit the rest entirely. Never fabricate a producer or a photo to fill the shape out.
 - `notes`: Portable Text blocks with unique `_key` values, `_type: "block"`, `style: "normal"`, `markDefs: []`, and `children` containing `_type: "span"`, `_key`, `text`, and `marks: []`.
 - `price: { amountCents: <integer>, currency: "USD" }`, or omit entirely. Do not create a partial money object.
 
@@ -99,7 +101,7 @@ Authenticated mutations can be sent without exposing credentials:
 npx sanity api 'data/mutate/{dataset}' --project-hosted --api-version v2021-06-07 --project-id 0vbjaawm --dataset production --method POST --input /tmp/<unique-directory>/mutation.json --header 'Content-Type: application/json'
 ```
 
-Read back the exact draft using an authenticated raw query. Verify persisted title, producer, grade, origin, volume, rating, notes, image reference, alt text, optional values, and draft ID. Validate the read-back document as well. Do not report success solely because the write command exited successfully.
+Read back the exact draft using an authenticated raw query. Verify persisted title, `recommendationStatus`, producer, grade, origin, volume, rating, notes, image reference, alt text, optional values, and draft ID. Check the status against what was intended before step 5 branches on it: an absent value reads as a recommendation, so a partial write would route a non-recommendation into the ranking path while the read-back looks fine. Validate the read-back document as well. Do not report success solely because the write command exited successfully.
 
 ### 5. Rank a recommendation before the upload is finished
 
