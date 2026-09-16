@@ -20,9 +20,11 @@ Turn rough notes and a photo into a complete `wingReview` through the authentica
 
 Accept conversational input with an attached image or local image path. No template is required. Extract everything already supplied, then ask one compact question covering only missing required information or genuine ambiguity.
 
-- Required: title, unique URL slug, venue, visit date, order's style/flavor, hero image with alt text, and review notes.
+- Required of a recommendation: title, unique URL slug, venue, visit date, order's style/flavor, hero image with alt text, and review notes.
+- Required of a non-recommendation: title, unique URL slug, and the notes saying why it is not worth returning to. Every other field stays optional, so fill in what is known and leave the rest unset rather than inventing a fuller record.
+- Recommendation status: settle it from Sergio's notes, and ask when they do not. Write `recommendationStatus` explicitly on every draft instead of leaning on the schema default; it decides which fields the contract demands, which Studio list the review appears in, and whether it is ranked at all.
 - Derive a concise title from venue and flavor. Generate a lowercase, hyphen-separated slug of at most 96 characters; ask only if ambiguous. Check uniqueness across both drafts and published wing reviews.
-- Ask for the visit date if absent. Do not default to today. Resolve relative dates against the user's local date and clarify ambiguous dates; use an approximate exact date only with user approval.
+- Ask a recommendation for the visit date if absent. Do not default to today. Resolve relative dates against the user's local date and clarify ambiguous dates; use an approximate exact date only with user approval. Ask a non-recommendation once, accept that the date may not be remembered, and leave `visitedAt` unset rather than pressing for it.
 - Rating: optional, 0-5 to at most two decimal places. Do not round or convert another scale without clarification. Preserve category ratings in notes and ask which score, if any, is overall; do not invent an average.
 - Optional: heat, positive integer piece count, sides, price, city, address, venue URL, photo caption/credit, and publication date. Leave unknown optional fields unset. Store a supplied USD price as integer cents; clarify ambiguous currency.
 - Inspect the image locally before writing factual alt text (5-180 characters). Describe visible subjects, not an imagined flavor or filename. Preserve supplied credit; never invent attribution.
@@ -46,15 +48,16 @@ Substitute the actual search terms, constructing queries safely instead of inter
 
 Use `npx sanity assets upload --help`, then upload the local file with explicit project/dataset flags. Save the returned asset JSON in a temporary directory and use its actual `_id` as the image reference. Do not guess asset IDs or URLs. Use a neutral filename such as `wing-review.png` rather than exposing the original camera filename. Reuse a verified asset from an earlier successful upload when resuming instead of uploading again.
 
+A non-recommendation with no photo skips this step. Do not ask for one twice or hold the upload waiting on it; the detail page renders without a hero image.
+
 ### 3. Prepare and validate the draft
 
 Prepare JSON/NDJSON in a unique temporary directory outside the repository. For a new review, generate a UUID and set `_id` to `drafts.<uuid>`, never the bare UUID. Use the exact schema shape:
 
 - `_type: "wingReview"`.
+- `recommendationStatus: "recommended"` or `"notRecommended"`, always set explicitly.
 - `slug: { _type: "slug", current: "..." }`.
-- `visitedAt: "YYYY-MM-DD"`.
-- `order: { styleOrFlavor: "..." }`, plus supplied optional order values.
-- `heroImage: { _type: "imageWithAlt", image: { _type: "image", asset: { _type: "reference", _ref: "<uploaded asset ID>" } }, alt: "..." }`.
+- `visitedAt: "YYYY-MM-DD"`, `order: { styleOrFlavor: "..." }` plus supplied optional order values, and `heroImage: { _type: "imageWithAlt", image: { _type: "image", asset: { _type: "reference", _ref: "<uploaded asset ID>" } }, alt: "..." }`. A recommendation owes all three. On a non-recommendation each is optional: include the ones the user actually supplied and omit the rest entirely. Never fabricate a date, a flavor, or a photo to fill the shape out.
 - `notes`: Portable Text blocks with unique `_key` values, `_type: "block"`, `style: "normal"`, `markDefs: []`, and `children` containing `_type: "span"`, `_key`, `text`, and `marks: []`.
 - Omit unknown optional objects entirely, rather than creating incomplete money/location objects.
 
@@ -80,11 +83,15 @@ Authenticated mutations can be sent without exposing credentials:
 npx sanity api 'data/mutate/{dataset}' --project-hosted --api-version v2021-06-07 --project-id 0vbjaawm --dataset production --method POST --input /tmp/<unique-directory>/mutation.json --header 'Content-Type: application/json'
 ```
 
-Read back the exact draft using an authenticated raw query. Verify persisted title, venue, date, flavor, rating, notes, image reference, alt text, optional values, and draft ID. Validate the read-back document as well. Do not report success solely because the write command exited successfully.
+Read back the exact draft using an authenticated raw query. Verify persisted title, `recommendationStatus`, venue, date, flavor, rating, notes, image reference, alt text, optional values, and draft ID. Check the status against what was intended before step 5 branches on it: an absent value reads as a recommendation, so a partial write would route a non-recommendation into the ranking path while the read-back looks fine. Validate the read-back document as well. Do not report success solely because the write command exited successfully.
 
-### 5. Rank in the Studio before publishing
+### 5. Rank a recommendation before the upload is finished
 
-Every non-blog collection is a ranking. The CLI cannot safely assign a unique `orderRank`: it is assigned by the Studio's drag-and-drop collection list. After saving and verifying a new or changed draft, stop before publishing and direct the user to open the **Wing reviews** list in the Studio and drag the draft into its intended position. Resume only after they confirm that it has been ranked; read the draft back and verify that `orderRank` is present and unique among wing reviews. If the draft already has an unchanged rank, still verify its uniqueness before proceeding. Do not publish an unranked or duplicate-ranked review.
+A rank belongs to a recommendation only, so this step follows `recommendationStatus`.
+
+**Not recommended: skip this step.** `src/lib/content-contract.ts` exempts a non-recommendation from the rank rule, `studio/deskStructure.ts` keeps it out of the orderable list, and the site sorts it by date beneath the ranking. There is nothing to drag and nothing to wait for. Go straight to step 6.
+
+**Recommended: the upload is not finished until the review has a rank.** The CLI cannot safely assign a unique `orderRank`: it is assigned by the Studio's drag-and-drop collection list. After saving and verifying the draft, stop and direct the user to open **Wing reviews - Recommended** in the Studio and drag it into its intended position. Resume only once they confirm, then read the draft back and verify `orderRank` is present and unique among recommended wing reviews. If the draft already has an unchanged rank, still verify its uniqueness. An unranked or duplicate-ranked recommendation is an incomplete upload: do not publish it, and do not report it as done. Say plainly that it is waiting on a rank.
 
 ### 6. Publish only when explicitly requested
 
@@ -96,7 +103,7 @@ Read back the published base ID and verify its content and draft state. The publ
 
 ## Finish
 
-Reply briefly with title, overall rating if supplied, and verified draft/published status. Include the document ID and, if the Studio route can be established from repository configuration, a Studio link (never claim it was opened or verified in a browser). Report blockers or incomplete fields clearly. Do not commit/push code for a content upload.
+Reply briefly with title, overall rating if supplied, recommendation status, and verified draft/published status. For a recommendation, say whether it is ranked. Include the document ID and, if the Studio route can be established from repository configuration, a Studio link (never claim it was opened or verified in a browser). Report blockers or incomplete fields clearly. Do not commit/push code for a content upload.
 
 ## Invocation
 
