@@ -78,6 +78,7 @@ test('long review notes and embedded images stay beside the hero and above the f
 }) => {
   await page.setViewportSize({ width: 1280, height: 900 })
   await page.goto('/wings/neighborhood-buffalo-wings')
+  await page.evaluate(() => document.fonts.ready)
   await page.evaluate(() => {
     const notes = document.querySelector('.detail-hero__notes .rich-text')!
     const paragraph = notes.querySelector('p')!
@@ -91,6 +92,16 @@ test('long review notes and embedded images stay beside the hero and above the f
       figure.className = `rich-text__image rich-text__image--${display}`
       notes.append(figure)
     }
+  })
+
+  // A cloned image refetches before it takes up any height, so the column is
+  // still growing at the moment the mutation returns.
+  await page.evaluate(async () => {
+    await Promise.all(
+      Array.from(document.images)
+        .filter((image) => !image.complete)
+        .map((image) => image.decode().catch(() => undefined)),
+    )
   })
 
   const hero = await bounds(page.locator('.detail-hero__image'))
