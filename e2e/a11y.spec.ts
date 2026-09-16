@@ -107,6 +107,20 @@ test.describe('screen-reader semantics', () => {
     }
   })
 
+  test('non-recommendations retain labelled list semantics', async ({
+    page,
+  }) => {
+    await page.goto('/syrup')
+
+    const list = page.getByRole('list', {
+      name: 'Maple syrup, not recommended',
+      exact: true,
+    })
+    await expect(list).toHaveJSProperty('tagName', 'UL')
+    await expect(list).toHaveAttribute('role', 'list')
+    await expect(list.getByRole('listitem')).toHaveCount(2)
+  })
+
   test('ratings and dates are readable out of context', async ({ page }) => {
     await page.goto('/wings')
 
