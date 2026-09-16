@@ -84,6 +84,7 @@ export function CollectionPage({
               <ul
                 aria-label={`${title}, not recommended`}
                 className="card-grid"
+                role="list"
               >
                 {notRecommended.map((document) => (
                   <li key={document._id}>
