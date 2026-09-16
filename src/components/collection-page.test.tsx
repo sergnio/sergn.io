@@ -136,6 +136,25 @@ describe('a ranked collection page', () => {
     expect(rejects).toContain('loading="eager"')
   })
 
+  // A photoless podium leaves the first non-recommendation photo as the page's
+  // largest image, so the priority has to follow the image rather than the
+  // section that happens to be on top.
+  it('hands the priority down to a non-recommendation when no podium card has a photo', () => {
+    const documents = getFixtureCollection('syrup').map((document) =>
+      isNotRecommended(document)
+        ? document
+        : { ...document, heroImage: undefined },
+    )
+    const markup = markupFor('syrup', documents)
+    const rejects = listMarkup(markup, 'syrup, not recommended')
+
+    expect(listMarkup(markup, 'syrup, ranked best to worst')).not.toContain(
+      'fetchPriority="high"',
+    )
+    expect(rejects.match(/fetchPriority="high"/g)).toHaveLength(1)
+    expect(rejects).toContain('loading="eager"')
+  })
+
   it('drops a section entirely rather than printing an empty heading', () => {
     const documents = getFixtureCollection('wings').filter(
       (document) => !isNotRecommended(document),

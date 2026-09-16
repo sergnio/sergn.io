@@ -8,7 +8,7 @@ import { ContentCard } from './content-card'
  * How many entries lead a ranking as full cards. The rest render as rows, so
  * a long collection stays scannable and the best few still get a photo.
  */
-const podiumSize = 3
+export const podiumSize = 3
 
 type RankedCollectionProps = {
   collection: CollectionName

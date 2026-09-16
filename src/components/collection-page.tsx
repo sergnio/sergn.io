@@ -2,7 +2,7 @@ import { cardImage } from '#/lib/card-fields'
 import type { CollectionName, ContentDocument } from '#/lib/content-types'
 import { isRankedCollection } from '#/lib/content-types'
 import { ContentCard } from './content-card'
-import { RankedCollection } from './ranked-collection'
+import { podiumSize, RankedCollection } from './ranked-collection'
 
 type CollectionPageProps = {
   collection: CollectionName
@@ -30,11 +30,13 @@ export function CollectionPage({
   // The topmost card that actually has an image is what this page paints its
   // Largest Contentful Paint with. Left lazy it cannot start loading until
   // layout runs, which measurably delays LCP on every collection index.
-  const priorityIndex = recommended.findIndex((document) =>
-    Boolean(cardImage(document)),
-  )
+  // A ranked section only paints images on its podium, so a recommendation
+  // below it never takes the priority away from the section underneath.
+  const priorityIndex = (
+    ranked ? recommended.slice(0, podiumSize) : recommended
+  ).findIndex((document) => Boolean(cardImage(document)))
   const notRecommendedPriorityIndex =
-    recommended.length === 0
+    priorityIndex === -1
       ? notRecommended.findIndex((document) => Boolean(cardImage(document)))
       : -1
 
