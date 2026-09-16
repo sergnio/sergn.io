@@ -202,12 +202,26 @@ describe('content contract', () => {
       title: 'Not worth it',
       slug: 'not-worth-it',
       recommendationStatus: 'notRecommended',
+      notes: [{ _key: 'a', _type: 'block' }],
     }
 
     it('publishes with nothing but the fields every document has', () => {
       expect(() =>
         assertValidCollection('coffee', [notRecommended]),
       ).not.toThrow()
+    })
+
+    // The Studio asks for this too, but a document can reach the dataset by
+    // import or API mutation without ever meeting a Studio rule.
+    it('still has to say why, since the callout alone explains nothing', () => {
+      expect(() =>
+        assertValidCollection('coffee', [
+          { ...notRecommended, notes: undefined },
+        ]),
+      ).toThrow(/"notes"/)
+      expect(() =>
+        assertValidCollection('coffee', [{ ...notRecommended, notes: [] }]),
+      ).toThrow(/"notes"/)
     })
 
     it('still has to carry a title, a slug and a URL-safe one at that', () => {
@@ -242,6 +256,26 @@ describe('content contract', () => {
         ]),
       ).not.toThrow()
     })
+  })
+
+  /**
+   * The ranking sorts on the status key, so a value the site does not know
+   * sorts into a group of its own and lands above the ranking rather than
+   * inside it.
+   */
+  it('rejects a recommendation status it does not know', () => {
+    expect(() =>
+      assertValidCollection('coffee', [
+        { ...validCoffee, recommendationStatus: 'notrecommended' },
+      ]),
+    ).toThrow(/unknown recommendation status: "notrecommended"/)
+    for (const status of ['recommended', 'notRecommended', undefined]) {
+      expect(() =>
+        assertValidCollection('coffee', [
+          { ...validCoffee, recommendationStatus: status },
+        ]),
+      ).not.toThrow(/unknown recommendation status/)
+    }
   })
 
   it('validates single documents too, and passes a missing one through untouched', () => {

@@ -21,6 +21,14 @@ const requiredByCollection: Record<CollectionName, string[]> = {
 
 const alwaysRequired = ['_id', '_type', 'title', 'slug']
 
+/**
+ * A non-recommendation is exempt from the full record, but not from saying
+ * why: the detail page has nothing but a generic callout without it.
+ */
+const requiredOfNonRecommendations = ['notes']
+
+const recommendationStatuses = ['recommended', 'notRecommended']
+
 /** Slugs become URL path segments, so anything else breaks the URL graph. */
 const slugPattern = /^[a-z0-9]+(?:-[a-z0-9]+)*$/
 
@@ -114,10 +122,22 @@ function violationsFor(collection: CollectionName, document: unknown) {
     readPath(document, 'recommendationStatus') === 'notRecommended'
   const violations = [
     ...alwaysRequired,
-    ...(notRecommended ? [] : requiredByCollection[collection]),
+    ...(notRecommended
+      ? requiredOfNonRecommendations
+      : requiredByCollection[collection]),
   ]
     .filter((path) => isMissing(readPath(document, path)))
     .map((path) => `${subject} is missing required field "${path}"`)
+
+  const status = readPath(document, 'recommendationStatus')
+  if (
+    !isMissing(status) &&
+    !recommendationStatuses.includes(status as string)
+  ) {
+    violations.push(
+      `${subject} has an unknown recommendation status: ${JSON.stringify(status)} (expected ${recommendationStatuses.join(' or ')})`,
+    )
+  }
 
   const slug = (document as { slug?: unknown }).slug
   if (typeof slug === 'string' && slug !== '' && !slugPattern.test(slug)) {
