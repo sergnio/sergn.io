@@ -95,7 +95,7 @@ test.describe('screen-reader semantics', () => {
     // Safari strips list semantics from a list styled `list-style: none`,
     // which would take the only rank a screen reader gets with it.
     await expect(list).toHaveAttribute('role', 'list')
-    await expect(list.getByRole('listitem')).toHaveCount(4)
+    await expect(list.getByRole('listitem')).toHaveCount(3)
     await expect(page.locator('.ranked-list')).toHaveCount(1)
 
     // The rank badges are hidden from the accessible tree, so the only rank

@@ -35,7 +35,7 @@ async function errorsFor(document: Record<string, unknown>) {
       schema,
       getClient: () => client,
       i18n: getFallbackLocaleSource(),
-    } as never,
+    },
   })
 
   return markers

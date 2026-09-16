@@ -204,7 +204,7 @@ test.describe('collection browsing flow', () => {
     )
   })
 
-  test('coffee detail page falls back to "Not listed" roaster and plain-text bought-from when unset', async ({
+  test('coffee detail page drops the roaster row and plain-texts bought-from when unset', async ({
     page,
   }) => {
     await page.goto('/coffee/ethiopia-direct-trade')
@@ -212,9 +212,7 @@ test.describe('collection browsing flow', () => {
     await expect(
       page.getByRole('heading', { level: 1, name: 'Ethiopia Direct Trade' }),
     ).toBeVisible()
-    await expect(
-      page.getByRole('definition').filter({ hasText: 'Not listed' }),
-    ).toBeVisible()
+    await expect(page.getByRole('term', { name: 'Roaster' })).toHaveCount(0)
     await expect(
       page.getByText('Farmer direct import', { exact: true }),
     ).toBeVisible()
@@ -633,7 +631,6 @@ test.describe('ranked collections', () => {
     'Smokehouse Dry Rub Wings',
     'Corner Bar Honey Hot',
     'Arena Concession Wings',
-    'Gas Station Case Wings',
   ]
 
   test('wings reads best to worst, top to bottom, on mobile and desktop', async ({
@@ -657,7 +654,7 @@ test.describe('ranked collections', () => {
         items.map((item) => item.getBoundingClientRect().top),
       )
       const headings = await entries
-        .locator('h2')
+        .locator('h3')
         .evaluateAll((items) => items.map((item) => item.textContent.trim()))
 
       const at = `at ${viewport.width}px`
@@ -683,9 +680,9 @@ test.describe('ranked collections', () => {
       .locator('.content-card__rank, .ranked-row__rank')
       .allTextContents()
 
-    expect(badges).toEqual(['#1', '#2', '#3', '#4', '#5'])
+    expect(badges).toEqual(['#1', '#2', '#3', '#4'])
     await expect(page.locator('.ranked-list__podium')).toHaveCount(3)
-    await expect(page.locator('.ranked-list__row')).toHaveCount(2)
+    await expect(page.locator('.ranked-list__row')).toHaveCount(1)
   })
 
   test('the ranking a crawler reads matches the one on the page', async ({
@@ -710,7 +707,7 @@ test.describe('ranked collections', () => {
     ).toEqual(rankedOrder)
     expect(
       list.itemListElement.map((item: { position: number }) => item.position),
-    ).toEqual([1, 2, 3, 4, 5])
+    ).toEqual([1, 2, 3, 4])
   })
 
   test('the blog is not a ranking, so it ships no ItemList and no ranks', async ({
