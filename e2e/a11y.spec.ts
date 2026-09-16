@@ -95,7 +95,7 @@ test.describe('screen-reader semantics', () => {
     // Safari strips list semantics from a list styled `list-style: none`,
     // which would take the only rank a screen reader gets with it.
     await expect(list).toHaveAttribute('role', 'list')
-    await expect(list.getByRole('listitem')).toHaveCount(4)
+    await expect(list.getByRole('listitem')).toHaveCount(3)
     await expect(page.locator('.ranked-list')).toHaveCount(1)
 
     // The rank badges are hidden from the accessible tree, so the only rank
@@ -105,6 +105,20 @@ test.describe('screen-reader semantics', () => {
       .all()) {
       await expect(badge).toHaveAttribute('aria-hidden', 'true')
     }
+  })
+
+  test('non-recommendations retain labelled list semantics', async ({
+    page,
+  }) => {
+    await page.goto('/syrup')
+
+    const list = page.getByRole('list', {
+      name: 'Maple syrup, not recommended',
+      exact: true,
+    })
+    await expect(list).toHaveJSProperty('tagName', 'UL')
+    await expect(list).toHaveAttribute('role', 'list')
+    await expect(list.getByRole('listitem')).toHaveCount(2)
   })
 
   test('ratings and dates are readable out of context', async ({ page }) => {

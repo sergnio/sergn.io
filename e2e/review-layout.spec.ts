@@ -78,20 +78,7 @@ test('long review notes and embedded images stay beside the hero and above the f
 }) => {
   await page.setViewportSize({ width: 1280, height: 900 })
   await page.goto('/wings/neighborhood-buffalo-wings')
-  await page.evaluate(() => {
-    const notes = document.querySelector('.detail-hero__notes .rich-text')!
-    const paragraph = notes.querySelector('p')!
-    for (let index = 0; index < 8; index++) {
-      notes.append(paragraph.cloneNode(true))
-    }
-    for (const display of ['wide', 'full']) {
-      const figure = document
-        .querySelector('.detail-hero__image')!
-        .cloneNode(true) as HTMLElement
-      figure.className = `rich-text__image rich-text__image--${display}`
-      notes.append(figure)
-    }
-  })
+  await page.evaluate(() => document.fonts.ready)
 
   const hero = await bounds(page.locator('.detail-hero__image'))
   const notes = await bounds(page.locator('.detail-hero__notes'))
@@ -99,7 +86,9 @@ test('long review notes and embedded images stay beside the hero and above the f
   expect(notes.bottom).toBeGreaterThan(hero.bottom)
   expect(facts.top).toBeGreaterThan(notes.bottom)
 
-  for (const figure of await page.locator('.detail-hero__notes figure').all()) {
+  const figures = page.locator('.detail-hero__notes figure')
+  expect(await figures.count()).toBeGreaterThan(0)
+  for (const figure of await figures.all()) {
     const image = await bounds(figure)
     expect(image.left).toBe(notes.left)
     expect(image.right).toBeLessThan(hero.left)

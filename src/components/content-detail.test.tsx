@@ -26,6 +26,10 @@ const notRenderedInBody: Array<{
   collections?: Array<CollectionName>
   why: string
 }> = [
+  {
+    path: /^recommendationStatus$/,
+    why: 'status uses its explicit callout instead of raw enum text',
+  },
   { path: /^_(id|type|createdAt|updatedAt)$/, why: 'Sanity system fields' },
   { path: /^slug$/, why: 'the page is already at its own URL' },
   {
@@ -187,7 +191,8 @@ describe('review facts', () => {
     const markup = markupFor(requireDocument('coffee', 'ethiopia-direct-trade'))
 
     expect(markup).not.toContain('<dt>Price</dt>')
-    expect(markup).toContain('<dt>Roaster</dt><dd>Not listed</dd>')
+    expect(markup).not.toContain('<dt>Roaster</dt>')
+    expect(markup).toContain('<dt>Origin</dt><dd>Ethiopia</dd>')
   })
 })
 
@@ -196,11 +201,14 @@ describe('brew recipes', () => {
     const coffee = requireDocument('coffee', 'colombia-perky')
     if (coffee._type !== 'coffee') throw new Error('expected a coffee fixture')
 
+    const recipe = coffee.brewRecipes?.[0]
+    if (!recipe) throw new Error('expected a brew recipe fixture')
+
     const markup = markupFor({
       ...coffee,
       brewRecipes: [
         {
-          ...coffee.brewRecipes[0],
+          ...recipe,
           label: undefined,
           method: 'Other',
           methodOther: 'Cold brew in a mason jar',
@@ -210,5 +218,72 @@ describe('brew recipes', () => {
 
     expect(markup).toContain('Cold brew in a mason jar')
     expect(markup).not.toContain('>Other<')
+  })
+})
+
+/**
+ * A non-recommendation is worth publishing even when Sergio recorded nothing
+ * beyond why he would not go back, so the contract asks it only for the
+ * fields every document has. The page has to render around whatever is
+ * missing rather than throw the prerender.
+ */
+describe('a non-recommendation', () => {
+  const base = {
+    _id: 'lightweight',
+    _createdAt: '2025-05-01T12:00:00.000Z',
+    _updatedAt: '2025-05-01T12:00:00.000Z',
+    slug: 'lightweight',
+    recommendationStatus: 'notRecommended',
+  } as const
+
+  const sparse: ContentDocument[] = [
+    { ...base, _type: 'coffee', title: 'Sparse coffee' },
+    { ...base, _type: 'wingReview', title: 'Sparse wings' },
+    { ...base, _type: 'naBeer', title: 'Sparse beer' },
+    { ...base, _type: 'reubenReview', title: 'Sparse reuben' },
+    { ...base, _type: 'syrupReview', title: 'Sparse syrup' },
+  ]
+
+  it.each(sparse.map((document) => [document._type, document] as const))(
+    'renders a %s carrying nothing but a title and a slug',
+    (_type, document) => {
+      const markup = markupFor(document)
+
+      expect(markup).toContain(document.title)
+      expect(markup).toContain('Sergio does not recommend this.')
+      expect(markup).not.toContain('<dd></dd>')
+      expect(markup).not.toContain('Brew recipes')
+    },
+  )
+
+  it('says nothing about a place when the entry is a product', () => {
+    for (const collection of ['coffee', 'syrup', 'na-beers'] as const) {
+      const document = getFixtureCollection(collection).find(
+        (entry) => entry.recommendationStatus === 'notRecommended',
+      )
+      if (!document) throw new Error(`No ${collection} non-recommendation`)
+
+      const markup = markupFor(document)
+
+      expect(markup).toContain('detail-callout')
+      expect(markup).not.toContain('this place')
+    }
+  })
+
+  it('drops the facts table on the sparse fixture rather than printing one empty row', () => {
+    const markup = markupFor(
+      requireDocument('syrup', 'airport-gift-shop-syrup'),
+    )
+
+    expect(markup).toContain('Sergio does not recommend this.')
+    expect(markup).toContain('Corn syrup first on the label.')
+    expect(markup).not.toContain('class="facts"')
+    expect(markup).not.toContain('<figure')
+  })
+
+  it('leaves a recommendation unlabelled', () => {
+    expect(
+      markupFor(requireDocument('coffee', 'colombia-perky')),
+    ).not.toContain('detail-callout')
   })
 })

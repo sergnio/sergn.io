@@ -21,6 +21,14 @@ const requiredByCollection: Record<CollectionName, string[]> = {
 
 const alwaysRequired = ['_id', '_type', 'title', 'slug']
 
+/**
+ * A non-recommendation is exempt from the full record, but not from saying
+ * why: the detail page has nothing but a generic callout without it.
+ */
+const requiredOfNonRecommendations = ['notes']
+
+const recommendationStatuses = ['recommended', 'notRecommended']
+
 /** Slugs become URL path segments, so anything else breaks the URL graph. */
 const slugPattern = /^[a-z0-9]+(?:-[a-z0-9]+)*$/
 
@@ -110,9 +118,26 @@ function violationsFor(collection: CollectionName, document: unknown) {
   }
 
   const subject = describe(collection, document)
-  const violations = [...alwaysRequired, ...requiredByCollection[collection]]
+  const notRecommended =
+    readPath(document, 'recommendationStatus') === 'notRecommended'
+  const violations = [
+    ...alwaysRequired,
+    ...(notRecommended
+      ? requiredOfNonRecommendations
+      : requiredByCollection[collection]),
+  ]
     .filter((path) => isMissing(readPath(document, path)))
     .map((path) => `${subject} is missing required field "${path}"`)
+
+  const status = readPath(document, 'recommendationStatus')
+  if (
+    !isMissing(status) &&
+    !recommendationStatuses.includes(status as string)
+  ) {
+    violations.push(
+      `${subject} has an unknown recommendation status: ${JSON.stringify(status)} (expected ${recommendationStatuses.join(' or ')})`,
+    )
+  }
 
   const slug = (document as { slug?: unknown }).slug
   if (typeof slug === 'string' && slug !== '' && !slugPattern.test(slug)) {
@@ -142,7 +167,11 @@ function rankViolations(
   document: unknown,
   subject: string,
 ) {
-  if (!isRankedCollection(collection)) return []
+  if (
+    !isRankedCollection(collection) ||
+    readPath(document, 'recommendationStatus') === 'notRecommended'
+  )
+    return []
   if (!isMissing(readPath(document, 'orderRank'))) return []
 
   return [
@@ -159,17 +188,22 @@ function duplicateRankViolations(
 
   const seen = new Set<string>()
 
-  return documents.flatMap((document) => {
-    const rank = readPath(document, 'orderRank')
-    if (typeof rank !== 'string' || rank === '') return []
-    if (!seen.has(rank)) {
-      seen.add(rank)
-      return []
-    }
-    return [
-      `${collection} has more than one document ranked at "${rank}", so which of them places higher is undefined - reset the order from the ${collection} list in the Studio`,
-    ]
-  })
+  return documents
+    .filter(
+      (document) =>
+        readPath(document, 'recommendationStatus') !== 'notRecommended',
+    )
+    .flatMap((document) => {
+      const rank = readPath(document, 'orderRank')
+      if (typeof rank !== 'string' || rank === '') return []
+      if (!seen.has(rank)) {
+        seen.add(rank)
+        return []
+      }
+      return [
+        `${collection} has more than one document ranked at "${rank}", so which of them places higher is undefined - reset the order from the ${collection} list in the Studio`,
+      ]
+    })
 }
 
 function duplicateSlugViolations(

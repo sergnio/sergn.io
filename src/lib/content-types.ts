@@ -60,6 +60,14 @@ export type Money = {
 
 export type Rating = number
 
+/**
+ * Omitted legacy values are recommended. A non-recommendation is a record of
+ * something not worth returning to, so `content-contract.ts` asks it only for
+ * the fields every document has: everything a collection demands of a
+ * recommendation is optional on one, and the pages render around the gaps.
+ */
+export type RecommendationStatus = 'recommended' | 'notRecommended'
+
 export type PortableTextBlock = {
   _key: string
   _type: 'block'
@@ -144,7 +152,7 @@ export type BrewRecipe = {
  * position that falls out is the rank it prints.
  */
 type RankedDocument = {
-  orderRank: string
+  orderRank?: string
 }
 
 type BaseDocument = {
@@ -155,6 +163,7 @@ type BaseDocument = {
   title: string
   slug: string
   publishedAt?: string
+  recommendationStatus?: RecommendationStatus
 }
 
 export type Coffee = BaseDocument &
@@ -162,41 +171,41 @@ export type Coffee = BaseDocument &
     _type: 'coffee'
     roaster?: string
     origin?: string
-    boughtFrom: string
+    boughtFrom?: string
     purchaseUrl?: string
     purchasedAt?: string
     price?: Money
-    bagSize: { amount: number; unit: 'g' | 'oz' }
+    bagSize?: { amount: number; unit: 'g' | 'oz' }
     roastDate?: string
     rating?: Rating
     heroImage?: SanityImage
     tastingNotes?: string[]
     notes?: PortableTextContent
-    brewRecipes: BrewRecipe[]
+    brewRecipes?: BrewRecipe[]
   }
 
 export type WingReview = BaseDocument &
   RankedDocument & {
     _type: 'wingReview'
-    venue: string
+    venue?: string
     location?: { city?: string; address?: string; url?: string }
-    visitedAt: string
-    order: {
-      styleOrFlavor: string
+    visitedAt?: string
+    order?: {
+      styleOrFlavor?: string
       heat?: string
       pieceCount?: number
       sides?: string[]
     }
     price?: Money
     rating?: Rating
-    notes: PortableTextContent
+    notes?: PortableTextContent
     heroImage?: SanityImage
   }
 
 export type NaBeer = BaseDocument &
   RankedDocument & {
     _type: 'naBeer'
-    brewery: string
+    brewery?: string
     style?: string
     abvPercent?: number
     abvNote?: string
@@ -213,9 +222,9 @@ export type NaBeer = BaseDocument &
 export type ReubenReview = BaseDocument &
   RankedDocument & {
     _type: 'reubenReview'
-    restaurant: string
+    restaurant?: string
     location?: { city?: string; address?: string; url?: string }
-    visitedAt: string
+    visitedAt?: string
     price?: Money
     orderDetails?: {
       meat?: string
@@ -234,7 +243,7 @@ export type ReubenReview = BaseDocument &
 export type SyrupReview = BaseDocument &
   RankedDocument & {
     _type: 'syrupReview'
-    producer: string
+    producer?: string
     grade?: string
     origin?: string
     boughtFrom?: string

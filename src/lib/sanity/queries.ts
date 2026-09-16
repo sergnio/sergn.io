@@ -32,7 +32,8 @@ const commonFields = `
   _updatedAt,
   title,
   "slug": slug.current,
-  publishedAt
+  publishedAt,
+  recommendationStatus
 `
 
 const richTextProjection = `[] {
@@ -149,10 +150,14 @@ const sanityTypes: Record<CollectionName, string> = {
 /**
  * A ranked collection is ordered by the rank the Studio's orderable list
  * writes, so the site renders best to worst; the blog stays newest first.
+ * "recommended" sorts after "notRecommended" alphabetically, so the status key
+ * runs descending to put the ranking first, and only recommendations carry a
+ * rank - the date key orders the rest by the same date their cards print,
+ * which is the visit for a place and the publish date for everything else.
  */
 export function collectionQuery(collection: CollectionName) {
   const order = isRankedCollection(collection)
-    ? 'orderRank asc'
+    ? 'coalesce(recommendationStatus, "recommended") desc, orderRank asc, coalesce(visitedAt, publishedAt, _createdAt) desc'
     : 'coalesce(publishedAt, _createdAt) desc'
 
   return `*[_type == $type && defined(slug.current)] | order(${order}) ${projections[collection]}`

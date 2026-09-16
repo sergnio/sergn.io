@@ -32,7 +32,9 @@ If the label contradicts a number Sergio supplied, trust the label and say so. D
 
 Accept conversational input with an attached image or local image path. No template is required. Extract everything already supplied, then ask one compact question covering only missing required information or genuine ambiguity.
 
-- Required by the schema and the content contract: title, unique URL slug, producer, hero image with alt text.
+- Required of a recommendation by the schema and the content contract: title, unique URL slug, producer, hero image with alt text.
+- Required of a non-recommendation: title, unique URL slug, and the notes saying why it is not worth buying again. Every other field stays optional, so fill in what is known and leave the rest unset rather than inventing a fuller record.
+- Recommendation status: settle it from Sergio's notes, and ask when they do not. Write `recommendationStatus` explicitly on every draft instead of leaning on the schema default; it decides which fields the contract demands, which Studio list the review appears in, and whether it is ranked at all.
 - Derive a title from how Sergio refers to the syrup. Generate a lowercase, hyphen-separated slug of at most 96 characters; ask only if ambiguous. Check uniqueness across both drafts and published syrup reviews.
 - Rating: optional, 0-5 to at most two decimal places. Do not round or convert another scale without clarification. An untasted syrup has no rating; say so in the notes rather than inventing one.
 - Optional: grade, origin, boughtFrom, volumeLiters, price, publishedAt, photo caption/credit. Store a supplied USD price as integer cents; clarify ambiguous currency. Leave unknown optional fields unset rather than guessing.
@@ -64,13 +66,16 @@ npx sanity assets upload --file /tmp/<unique-directory>/syrup.jpg --type image -
 
 It prints JSON whose asset ID is nested at `.asset._id`, not at the top level. Save the output in a temporary directory and use that actual `_id` as the image reference. Do not guess asset IDs or URLs. Use a neutral filename rather than exposing the original camera filename. Reuse a verified asset from an earlier successful upload when resuming instead of uploading again.
 
+A non-recommendation with no photo skips this step. Do not ask for one twice or hold the upload waiting on it; the detail page renders without a hero image.
+
 ### 3. Prepare and validate the draft
 
 Prepare JSON in a unique temporary directory outside the repository. For a new review, generate a UUID and set `_id` to `drafts.<uuid>`, never the bare UUID. Use the exact schema shape:
 
 - `_type: "syrupReview"`.
+- `recommendationStatus: "recommended"` or `"notRecommended"`, always set explicitly.
 - `slug: { _type: "slug", current: "..." }`.
-- `heroImage: { _type: "imageWithAlt", image: { _type: "image", asset: { _type: "reference", _ref: "<uploaded asset ID>" } }, alt: "..." }`.
+- `heroImage: { _type: "imageWithAlt", image: { _type: "image", asset: { _type: "reference", _ref: "<uploaded asset ID>" } }, alt: "..." }`, and `producer`. A recommendation owes both. On a non-recommendation each is optional: include what the user actually supplied and omit the rest entirely. Never fabricate a producer or a photo to fill the shape out.
 - `notes`: Portable Text blocks with unique `_key` values, `_type: "block"`, `style: "normal"`, `markDefs: []`, and `children` containing `_type: "span"`, `_key`, `text`, and `marks: []`.
 - `price: { amountCents: <integer>, currency: "USD" }`, or omit entirely. Do not create a partial money object.
 
@@ -96,11 +101,15 @@ Authenticated mutations can be sent without exposing credentials:
 npx sanity api 'data/mutate/{dataset}' --project-hosted --api-version v2021-06-07 --project-id 0vbjaawm --dataset production --method POST --input /tmp/<unique-directory>/mutation.json --header 'Content-Type: application/json'
 ```
 
-Read back the exact draft using an authenticated raw query. Verify persisted title, producer, grade, origin, volume, rating, notes, image reference, alt text, optional values, and draft ID. Validate the read-back document as well. Do not report success solely because the write command exited successfully.
+Read back the exact draft using an authenticated raw query. Verify persisted title, `recommendationStatus`, producer, grade, origin, volume, rating, notes, image reference, alt text, optional values, and draft ID. Check the status against what was intended before step 5 branches on it: an absent value reads as a recommendation, so a partial write would route a non-recommendation into the ranking path while the read-back looks fine. Validate the read-back document as well. Do not report success solely because the write command exited successfully.
 
-### 5. Rank in the Studio before publishing
+### 5. Rank a recommendation before the upload is finished
 
-Every non-blog collection is a ranking. The CLI cannot safely assign a unique `orderRank`: it is assigned by the Studio's drag-and-drop collection list. After saving and verifying a new or changed draft, stop before publishing and direct the user to open the **Syrup reviews** list in the Studio and drag the draft into its intended position. Resume only after they confirm that it has been ranked; read the draft back and verify that `orderRank` is present and unique among syrup reviews. If the draft already has an unchanged rank, still verify its uniqueness before proceeding. Do not publish an unranked or duplicate-ranked review.
+A rank belongs to a recommendation only, so this step follows `recommendationStatus`.
+
+**Not recommended: skip this step.** `src/lib/content-contract.ts` exempts a non-recommendation from the rank rule, `studio/deskStructure.ts` keeps it out of the orderable list, and the site sorts it by date beneath the ranking. There is nothing to drag and nothing to wait for. Go straight to step 6.
+
+**Recommended: the upload is not finished until the review has a rank.** The CLI cannot safely assign a unique `orderRank`: it is assigned by the Studio's drag-and-drop collection list. After saving and verifying the draft, stop and direct the user to open **Syrup reviews - Recommended** in the Studio and drag it into its intended position. Resume only once they confirm, then read the draft back and verify `orderRank` is present and unique among recommended syrup reviews. If the draft already has an unchanged rank, still verify its uniqueness. An unranked or duplicate-ranked recommendation is an incomplete upload: do not publish it, and do not report it as done. Say plainly that it is waiting on a rank.
 
 ### 6. Publish only when explicitly requested
 
@@ -112,7 +121,7 @@ Read back the published base ID and verify its content and draft state. The publ
 
 ## Finish
 
-Reply briefly with title, rating if supplied, and verified draft/published status. Include the document ID and, if the Studio route can be established from repository configuration, a Studio link (never claim it was opened or verified in a browser). Report blockers, unset fields, and any place the label contradicted the supplied notes. Do not commit/push code for a content upload.
+Reply briefly with title, rating if supplied, recommendation status, and verified draft/published status. For a recommendation, say whether it is ranked. Include the document ID and, if the Studio route can be established from repository configuration, a Studio link (never claim it was opened or verified in a browser). Report blockers, unset fields, and any place the label contradicted the supplied notes. Do not commit/push code for a content upload.
 
 ## Invocation
 

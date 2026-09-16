@@ -46,7 +46,16 @@ function contentImage(document: ContentDocument) {
   return document._type === 'post' ? document.coverImage : document.heroImage
 }
 
+/**
+ * What a shared link previews as. A non-recommendation may carry nothing but
+ * its title, so a document with no details described falls back to it rather
+ * than publishing an empty description.
+ */
 export function contentDescription(document: ContentDocument) {
+  return describeContent(document) || document.title
+}
+
+function describeContent(document: ContentDocument) {
   if (document._type === 'post') {
     return document.seo?.description ?? document.excerpt
   }
@@ -62,7 +71,9 @@ export function contentDescription(document: ContentDocument) {
   }
 
   if (document._type === 'wingReview') {
-    return `${document.venue} - ${document.order.styleOrFlavor}`
+    return [document.venue, document.order?.styleOrFlavor]
+      .filter(Boolean)
+      .join(' - ')
   }
 
   if (document._type === 'naBeer') {
@@ -233,10 +244,16 @@ export function collectionScripts(
   collection: CollectionName,
   documents?: ContentDocument[],
 ) {
+  // A ranking lists what Sergio stands behind, so the entries he does not
+  // recommend stay out of the structured data the collection publishes.
+  const recommended = documents?.filter(
+    (document) => document.recommendationStatus !== 'notRecommended',
+  )
+
   const jsonLd = [
     collectionJsonLd(collection),
-    isRankedCollection(collection) && documents?.length
-      ? rankingJsonLd(collection, documents)
+    isRankedCollection(collection) && recommended?.length
+      ? rankingJsonLd(collection, recommended)
       : undefined,
   ].filter((entry) => entry !== undefined)
 
@@ -267,7 +284,9 @@ function reviewedItem(document: RatedDocument) {
     return {
       '@type': 'Product',
       name: document.title,
-      brand: { '@type': 'Brand', name: document.brewery },
+      ...(document.brewery
+        ? { brand: { '@type': 'Brand', name: document.brewery } }
+        : {}),
     }
   }
 
@@ -275,7 +294,9 @@ function reviewedItem(document: RatedDocument) {
     return {
       '@type': 'Product',
       name: document.title,
-      brand: { '@type': 'Brand', name: document.producer },
+      ...(document.producer
+        ? { brand: { '@type': 'Brand', name: document.producer } }
+        : {}),
     }
   }
 
@@ -285,7 +306,7 @@ function reviewedItem(document: RatedDocument) {
 
   return {
     '@type': 'Restaurant',
-    name,
+    name: name ?? document.title,
     ...(city
       ? { address: { '@type': 'PostalAddress', addressLocality: city } }
       : {}),

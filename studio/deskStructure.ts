@@ -4,6 +4,12 @@ import type { StructureResolver } from 'sanity/structure'
  * Every collection but the blog publishes as a ranking, so its list is the
  * drag-and-drop one: the order the editor sees here is the order the site
  * renders, best first. The blog stays a plain list ordered by date.
+ *
+ * Only recommendations are ranked, so each type splits into the orderable list
+ * and a plain list of what Sergio does not recommend. The orderable plugin
+ * already scopes its query to `_type == $type`, so these filters add only the
+ * status clause; a document written before the field existed has no status and
+ * stays in the ranking.
  */
 const rankedTypes = [
   { type: 'coffee', title: 'Coffee' },
@@ -25,10 +31,23 @@ export const deskStructure: StructureResolver = async (S, context) => {
       ...rankedTypes.map((ranked) =>
         orderableDocumentListDeskItem({
           type: ranked.type,
-          title: ranked.title,
+          title: `${ranked.title} - Recommended`,
+          filter: 'recommendationStatus != "notRecommended"',
           S,
           context,
         }),
+      ),
+      ...rankedTypes.map((ranked) =>
+        S.listItem()
+          .title(`${ranked.title} - Not recommended`)
+          .child(
+            S.documentList()
+              .title(`${ranked.title} - Not recommended`)
+              .filter(
+                '_type == $type && recommendationStatus == "notRecommended"',
+              )
+              .params({ type: ranked.type }),
+          ),
       ),
       S.listItem()
         .title('Blog posts')

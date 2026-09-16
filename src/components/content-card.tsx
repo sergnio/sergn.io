@@ -68,7 +68,11 @@ export function ContentCard({
         ) : null}
       </Link>
       <div className="content-card__body">
-        <p className="eyebrow">{labels[collection]}</p>
+        {document.recommendationStatus === 'notRecommended' ? (
+          <p className="eyebrow eyebrow--not-recommended">Not recommended</p>
+        ) : (
+          <p className="eyebrow">{labels[collection]}</p>
+        )}
         <Heading>
           <Link params={{ slug: document.slug }} to={`/${collection}/$slug`}>
             {document.title}

@@ -1,42 +1,47 @@
 import type { Template } from 'sanity'
 
-export const documentTemplates: Template[] = [
+const today = () => new Date().toISOString().slice(0, 10)
+
+/** What each review starts with before its recommendation status is applied. */
+const reviewTemplates = [
+  { schemaType: 'coffee', name: 'coffee', initialValue: { brewRecipes: [] } },
   {
-    id: 'new-coffee',
-    title: 'New coffee',
-    schemaType: 'coffee',
-    value: { _type: 'coffee', brewRecipes: [] },
-  },
-  {
-    id: 'new-wing-review',
-    title: 'New wing review',
     schemaType: 'wingReview',
-    value: {
-      _type: 'wingReview',
-      visitedAt: new Date().toISOString().slice(0, 10),
-    },
+    name: 'wing review',
+    initialValue: { visitedAt: today() },
   },
+  { schemaType: 'naBeer', name: 'N/A beer', initialValue: {} },
   {
-    id: 'new-na-beer',
-    title: 'New N/A beer',
-    schemaType: 'naBeer',
-    value: { _type: 'naBeer' },
-  },
-  {
-    id: 'new-reuben',
-    title: 'New reuben',
     schemaType: 'reubenReview',
-    value: {
-      _type: 'reubenReview',
-      visitedAt: new Date().toISOString().slice(0, 10),
+    name: 'reuben',
+    initialValue: { visitedAt: today() },
+  },
+  { schemaType: 'syrupReview', name: 'syrup review', initialValue: {} },
+] as const
+
+export const documentTemplates: Template[] = [
+  ...reviewTemplates.flatMap(({ schemaType, name, initialValue }) => [
+    {
+      id: `new-recommended-${schemaType}`,
+      title: `New recommended ${name}`,
+      schemaType,
+      value: {
+        _type: schemaType,
+        ...initialValue,
+        recommendationStatus: 'recommended',
+      },
     },
-  },
-  {
-    id: 'new-syrup-review',
-    title: 'New syrup review',
-    schemaType: 'syrupReview',
-    value: { _type: 'syrupReview' },
-  },
+    {
+      id: `new-not-recommended-${schemaType}`,
+      title: `New not-recommended ${name}`,
+      schemaType,
+      value: {
+        _type: schemaType,
+        ...initialValue,
+        recommendationStatus: 'notRecommended',
+      },
+    },
+  ]),
   {
     id: 'new-post',
     title: 'New post',

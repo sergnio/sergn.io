@@ -63,7 +63,7 @@ type Fact = { label: string; value: ReactNode }
 function facts(document: ContentDocument): Fact[] {
   if (document._type === 'coffee') {
     return [
-      { label: 'Roaster', value: document.roaster ?? 'Not listed' },
+      { label: 'Roaster', value: document.roaster },
       { label: 'Origin', value: document.origin },
       {
         label: 'Bought from',
@@ -86,10 +86,10 @@ function facts(document: ContentDocument): Fact[] {
     return [
       { label: 'Venue', value: document.venue },
       { label: 'Where', value: locationValue(document) },
-      { label: 'Order', value: document.order.styleOrFlavor },
-      { label: 'Heat', value: document.order.heat },
-      { label: 'Pieces', value: document.order.pieceCount },
-      { label: 'Sides', value: formatList(document.order.sides) },
+      { label: 'Order', value: document.order?.styleOrFlavor },
+      { label: 'Heat', value: document.order?.heat },
+      { label: 'Pieces', value: document.order?.pieceCount },
+      { label: 'Sides', value: formatList(document.order?.sides) },
       { label: 'Price', value: formatMoney(document.price) },
       { label: 'Rating', value: formatRating(document.rating) },
     ]
@@ -181,6 +181,8 @@ function CoffeeRecipes({
 }: {
   document: Extract<ContentDocument, { _type: 'coffee' }>
 }) {
+  if (!document.brewRecipes?.length) return null
+
   return (
     <section aria-labelledby="recipes-title" className="detail-section">
       <div className="section-heading">
@@ -235,6 +237,9 @@ export function ContentDetail({ document }: ContentDetailProps) {
         <header className="detail-hero__copy">
           <p className="eyebrow">{detailLabel(document)}</p>
           <h1>{document.title}</h1>
+          {document.recommendationStatus === 'notRecommended' ? (
+            <p className="detail-callout">Sergio does not recommend this.</p>
+          ) : null}
           {publishedDate(document) ? (
             <p className="detail-hero__date">
               <time dateTime={publishedDate(document)}>

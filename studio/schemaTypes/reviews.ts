@@ -1,12 +1,18 @@
 import { orderRankField } from './orderRank'
 import { defineField, defineType } from 'sanity'
-import { slugField } from './shared'
+import {
+  recommendationStatusField,
+  requiredForNonRecommendations,
+  requiredForRecommendations,
+  slugField,
+} from './shared'
 
 const documentGroups = [
   { name: 'essentials', title: 'Essentials', default: true },
   { name: 'photo', title: 'Photo' },
   { name: 'tasting', title: 'Tasting and recipe' },
   { name: 'optional', title: 'Optional details' },
+  { name: 'publication', title: 'Publication' },
 ]
 
 const optionalFieldset = [
@@ -24,7 +30,8 @@ function commonFields(type: string) {
       title: 'Hero image',
       type: 'imageWithAlt',
       group: 'photo',
-      validation: (Rule) => Rule.required(),
+      validation: (Rule) =>
+        Rule.custom(requiredForRecommendations('Add a hero image.')),
     }),
     defineField({
       name: 'rating',
@@ -37,6 +44,12 @@ function commonFields(type: string) {
       title: 'Review notes',
       type: 'blockContent',
       group: 'tasting',
+      validation: (Rule) =>
+        Rule.custom(
+          requiredForNonRecommendations(
+            'Say why you would not recommend this.',
+          ),
+        ),
     }),
     defineField({
       name: 'publishedAt',
@@ -45,6 +58,7 @@ function commonFields(type: string) {
       group: 'optional',
       fieldset: 'optionalDetails',
     }),
+    recommendationStatusField(),
     orderRankField(type),
   ]
 }
@@ -69,7 +83,8 @@ export const wingReview = defineType({
       title: 'Venue',
       type: 'string',
       group: 'essentials',
-      validation: (Rule) => Rule.required(),
+      validation: (Rule) =>
+        Rule.custom(requiredForRecommendations('Name the venue.')),
     }),
     defineField({
       name: 'visitedAt',
@@ -77,7 +92,8 @@ export const wingReview = defineType({
       type: 'date',
       group: 'essentials',
       initialValue: () => new Date().toISOString().slice(0, 10),
-      validation: (Rule) => Rule.required(),
+      validation: (Rule) =>
+        Rule.custom(requiredForRecommendations('Record the visit date.')),
     }),
     defineField({
       name: 'order',
@@ -89,7 +105,10 @@ export const wingReview = defineType({
           name: 'styleOrFlavor',
           title: 'Style or flavor',
           type: 'string',
-          validation: (Rule) => Rule.required(),
+          validation: (Rule) =>
+            Rule.custom(
+              requiredForRecommendations('Record the style or flavor.'),
+            ),
         }),
         defineField({ name: 'heat', title: 'Heat', type: 'string' }),
         defineField({
@@ -107,7 +126,8 @@ export const wingReview = defineType({
           validation: (Rule) => Rule.unique(),
         }),
       ],
-      validation: (Rule) => Rule.required(),
+      validation: (Rule) =>
+        Rule.custom(requiredForRecommendations('Record what was ordered.')),
     }),
     defineField({
       name: 'price',
@@ -128,6 +148,8 @@ export const wingReview = defineType({
         defineField({ name: 'url', title: 'Venue URL', type: 'url' }),
       ],
     }),
+    // Wings owe their notes either way: recommended or not, the write-up is
+    // the review.
     ...commonFields('wingReview').map((field) =>
       field.name === 'notes'
         ? defineField({ ...field, validation: (Rule) => Rule.required() })
@@ -171,7 +193,8 @@ export const naBeer = defineType({
       title: 'Brewery',
       type: 'string',
       group: 'essentials',
-      validation: (Rule) => Rule.required(),
+      validation: (Rule) =>
+        Rule.custom(requiredForRecommendations('Name the brewery.')),
     }),
     defineField({
       name: 'style',
@@ -273,7 +296,8 @@ export const reubenReview = defineType({
       title: 'Restaurant',
       type: 'string',
       group: 'essentials',
-      validation: (Rule) => Rule.required(),
+      validation: (Rule) =>
+        Rule.custom(requiredForRecommendations('Name the restaurant.')),
     }),
     defineField({
       name: 'visitedAt',
@@ -281,7 +305,8 @@ export const reubenReview = defineType({
       type: 'date',
       group: 'essentials',
       initialValue: () => new Date().toISOString().slice(0, 10),
-      validation: (Rule) => Rule.required(),
+      validation: (Rule) =>
+        Rule.custom(requiredForRecommendations('Record the visit date.')),
     }),
     defineField({
       name: 'price',
@@ -382,7 +407,8 @@ export const syrupReview = defineType({
       title: 'Producer',
       type: 'string',
       group: 'essentials',
-      validation: (Rule) => Rule.required(),
+      validation: (Rule) =>
+        Rule.custom(requiredForRecommendations('Name the producer.')),
     }),
     defineField({
       name: 'grade',
