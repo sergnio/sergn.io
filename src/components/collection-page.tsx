@@ -33,6 +33,10 @@ export function CollectionPage({
   const priorityIndex = recommended.findIndex((document) =>
     Boolean(cardImage(document)),
   )
+  const notRecommendedPriorityIndex =
+    recommended.length === 0
+      ? notRecommended.findIndex((document) => Boolean(cardImage(document)))
+      : -1
 
   return (
     <div className="page-shell collection-page">
@@ -85,12 +89,13 @@ export function CollectionPage({
                 aria-label={`${title}, not recommended`}
                 className="card-grid"
               >
-                {notRecommended.map((document) => (
+                {notRecommended.map((document, index) => (
                   <li key={document._id}>
                     <ContentCard
                       collection={collection}
                       document={document}
                       headingLevel={3}
+                      priority={index === notRecommendedPriorityIndex}
                     />
                   </li>
                 ))}
