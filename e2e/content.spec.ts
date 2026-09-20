@@ -710,6 +710,48 @@ test.describe('ranked collections', () => {
     ).toEqual([1, 2, 3, 4])
   })
 
+  test('every point on an entry, card or row, opens that entry', async ({
+    page,
+  }) => {
+    // Hit-testing only sees what is in the viewport, so give the whole
+    // ranking room rather than probing it a scroll position at a time.
+    await page.setViewportSize({ width: 1280, height: 2000 })
+    await page.goto('/wings')
+
+    const entries = page.locator('.ranked-list > li')
+    const misses = await entries.evaluateAll((items) =>
+      items.flatMap((item) => {
+        const box = item.getBoundingClientRect()
+        const href = item.querySelector('h3 a')?.getAttribute('href')
+        const fractions = [0.05, 0.25, 0.5, 0.75, 0.95]
+
+        return fractions.flatMap((x) =>
+          fractions
+            .map((y) => ({
+              x: box.left + box.width * x,
+              y: box.top + box.height * y,
+            }))
+            .filter((point) => {
+              const hit = document.elementFromPoint(point.x, point.y)
+              return hit?.closest('a')?.getAttribute('href') !== href
+            })
+            .map(
+              (point) =>
+                `${href} at ${Math.round(point.x)},${Math.round(point.y)}`,
+            ),
+        )
+      }),
+    )
+    expect(misses).toEqual([])
+
+    // The row past the podium is the one that used to need its title: click
+    // its date, the furthest thing on it from the link text.
+    const row = page.locator('.ranked-list__row').first()
+    const date = (await row.locator('time').boundingBox())!
+    await page.mouse.click(date.x + date.width / 2, date.y + date.height / 2)
+    await expect(page).toHaveURL(/\/wings\/arena-concession-wings\/?$/)
+  })
+
   test('the blog is not a ranking, so it ships no ItemList and no ranks', async ({
     page,
   }) => {

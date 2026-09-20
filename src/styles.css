@@ -495,6 +495,16 @@ h3 {
   text-decoration: none;
 }
 
+/* The whole card is the target, not just its title: the title link stretches
+   an invisible overlay across the card so any click on it opens the entry. */
+.content-card__body :is(h2, h3) a::after,
+.ranked-row__body h3 a::after {
+  position: absolute;
+  z-index: 1;
+  content: '';
+  inset: 0;
+}
+
 .content-card__body > p:not(.eyebrow) {
   min-height: 2.8em;
   margin-bottom: 1rem;
@@ -556,6 +566,7 @@ h3 {
 }
 
 .ranked-row {
+  position: relative;
   display: grid;
   width: 100%;
   padding: 0.9rem 1.15rem;
