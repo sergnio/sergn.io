@@ -97,7 +97,7 @@ test.describe('collection browsing flow', () => {
       page.getByRole('definition').filter({ hasText: '10' }),
     ).toBeVisible()
     await expect(
-      page.getByRole('definition').filter({ hasText: '4.25 / 5' }),
+      page.getByRole('definition').filter({ hasText: /^A\+$/ }),
     ).toBeVisible()
     await expect(page.locator('meta[name="description"]')).toHaveAttribute(
       'content',
@@ -130,7 +130,7 @@ test.describe('collection browsing flow', () => {
     await expect(card.getByText('Ethiopia', { exact: true })).toBeVisible()
   })
 
-  test('wings index card shows the venue, rating, and visited date', async ({
+  test('wings index card shows the venue, grade, and visited date', async ({
     page,
   }) => {
     await page.goto('/wings')
@@ -140,7 +140,7 @@ test.describe('collection browsing flow', () => {
       .filter({ hasText: 'Neighborhood Buffalo Wings' })
 
     await expect(card.getByText('Neighborhood Tavern')).toBeVisible()
-    await expect(card.getByText('4.25 / 5')).toBeVisible()
+    await expect(card.locator('.content-card__grade')).toHaveText('Grade: A+')
     await expect(card.locator('time')).toHaveText('Feb 11, 2025')
   })
 
@@ -166,7 +166,7 @@ test.describe('collection browsing flow', () => {
       page.getByRole('definition').filter({ hasText: '355 ml can' }),
     ).toBeVisible()
     await expect(
-      page.getByRole('definition').filter({ hasText: '4 / 5' }),
+      page.getByRole('definition').filter({ hasText: /^A$/ }),
     ).toBeVisible()
     await expect(page.locator('meta[name="description"]')).toHaveAttribute(
       'content',
@@ -196,7 +196,7 @@ test.describe('collection browsing flow', () => {
       page.getByRole('definition').filter({ hasText: 'Marbled rye' }),
     ).toBeVisible()
     await expect(
-      page.getByRole('definition').filter({ hasText: '4.5 / 5' }),
+      page.getByRole('definition').filter({ hasText: /^S-$/ }),
     ).toBeVisible()
     await expect(page.locator('meta[name="description"]')).toHaveAttribute(
       'content',
@@ -740,7 +740,7 @@ test.describe('structured data', () => {
     )
   })
 
-  test('a review detail page carries its rating and breadcrumb trail', async ({
+  test('a review detail page carries its grade and breadcrumb trail', async ({
     page,
   }) => {
     await page.goto('/wings/neighborhood-buffalo-wings')
@@ -748,7 +748,7 @@ test.describe('structured data', () => {
     const blocks = await jsonLdBlocks(page)
     expect(blocks.find((block) => block['@type'] === 'Review')).toMatchObject({
       itemReviewed: { '@type': 'Restaurant', name: 'Neighborhood Tavern' },
-      reviewRating: { ratingValue: 4.25, bestRating: 5, worstRating: 1 },
+      reviewRating: { ratingValue: 4.3, bestRating: 5, worstRating: 1 },
       url: 'https://sergn.io/wings/neighborhood-buffalo-wings',
     })
     expect(
@@ -799,7 +799,7 @@ test.describe('structured data', () => {
         name: 'Colombia Perky',
         brand: { '@type': 'Brand', name: 'Avo Coffee Roasters' },
       },
-      reviewRating: { ratingValue: 4.75, bestRating: 5, worstRating: 1 },
+      reviewRating: { ratingValue: 4.8, bestRating: 5, worstRating: 1 },
       url: 'https://sergn.io/coffee/colombia-perky',
     })
   })

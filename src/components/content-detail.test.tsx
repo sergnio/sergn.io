@@ -24,6 +24,7 @@ const requireDocument = (collection: CollectionName, slug: string) => {
 const notRenderedInBody: Array<{
   path: RegExp
   collections?: Array<CollectionName>
+  when?: (document: ContentDocument) => boolean
   why: string
 }> = [
   {
@@ -44,6 +45,11 @@ const notRenderedInBody: Array<{
   { path: /currency$/, why: 'rendered as a symbol by formatMoney' },
   { path: /\.grinder\.system$/, why: 'chooses the grinder sentence shape' },
   { path: /\.marks\[\d+\]$/, why: 'mark keys pointing at markDefs' },
+  {
+    path: /^grade$/,
+    when: (document) => 'isCrowned' in document && document.isCrowned === true,
+    why: 'the crown stands in for the S+ it is the only grade allowed to hide',
+  },
   {
     path: /^publishedAt$/,
     collections: ['wings', 'reubens'] as Array<CollectionName>,
@@ -112,7 +118,8 @@ describe('detail page field coverage', () => {
           notRenderedInBody.every(
             (exclusion) =>
               !exclusion.path.test(path) ||
-              !(exclusion.collections ?? [collection]).includes(collection),
+              !(exclusion.collections ?? [collection]).includes(collection) ||
+              !(exclusion.when ?? (() => true))(document),
           ),
         )
         .filter(

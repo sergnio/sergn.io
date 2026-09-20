@@ -2,19 +2,13 @@ import { coffeeSchemaTypes } from './coffee'
 import { post } from './post'
 import { callout, codeBlock, divider, postBody } from './postBody'
 import { naBeer, reubenReview, syrupReview, wingReview } from './reviews'
-import {
-  blockContent,
-  imageWithAlt,
-  money,
-  packageSize,
-  rating,
-} from './shared'
+import { blockContent, grade, imageWithAlt, money, packageSize } from './shared'
 
 export const schemaTypes = [
   imageWithAlt,
   money,
   packageSize,
-  rating,
+  grade,
   blockContent,
   callout,
   codeBlock,

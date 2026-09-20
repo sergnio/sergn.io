@@ -50,7 +50,7 @@ export const fixtureCoffee: Coffee[] = [
     purchaseUrl: 'https://avocoffeeroasters.example.com',
     price: { amountCents: 1543, currency: 'USD' },
     bagSize: { amount: 250, unit: 'g' },
-    rating: 4.75,
+    grade: 'S',
     heroImage: {
       ...fixtureImage(
         'photo-1495474472287-4d71bcdd2085',
@@ -103,7 +103,7 @@ export const fixtureCoffee: Coffee[] = [
     origin: 'Indonesia',
     boughtFrom: 'Ninth Street Roasting',
     bagSize: { amount: 340, unit: 'g' },
-    rating: 4,
+    grade: 'A',
     heroImage: fixtureImage(
       'photo-1442512595331-e89e73853f31',
       'Coffee poured slowly through a ceramic dripper',
@@ -164,7 +164,7 @@ export const fixtureCoffee: Coffee[] = [
     roaster: 'Store Brand',
     boughtFrom: 'The supermarket down the street',
     bagSize: { amount: 12, unit: 'oz' },
-    rating: 1.75,
+    grade: 'D',
     price: { amountCents: 699, currency: 'USD' },
     notes: paragraph('Flat and papery, but it was there at 6am.'),
     brewRecipes: [
@@ -204,7 +204,7 @@ export const fixtureWings: WingReview[] = [
       sides: ['Celery', 'Blue cheese'],
     },
     price: { amountCents: 1650, currency: 'USD' },
-    rating: 4.25,
+    grade: 'A+',
     heroImage: fixtureImage(
       'photo-1527477396000-e27163b481c2',
       'A plate of sauced chicken wings',
@@ -266,7 +266,7 @@ export const fixtureWings: WingReview[] = [
     visitedAt: '2025-02-19',
     order: { styleOrFlavor: 'Dry rub', heat: 'Mild', pieceCount: 8 },
     price: { amountCents: 1400, currency: 'USD' },
-    rating: 4,
+    grade: 'A',
     heroImage: fixtureImage(
       'photo-1527477396000-e27163b481c2',
       'Smoked chicken wings dusted with a dark spice rub',
@@ -285,7 +285,7 @@ export const fixtureWings: WingReview[] = [
     venue: 'The Corner Bar',
     visitedAt: '2025-03-03',
     order: { styleOrFlavor: 'Honey hot', heat: 'Hot', pieceCount: 12 },
-    rating: 3.5,
+    grade: 'B+',
     notes: paragraph('Sweet up front, genuinely hot on the finish.'),
   },
   {
@@ -301,7 +301,7 @@ export const fixtureWings: WingReview[] = [
     visitedAt: '2025-03-17',
     order: { styleOrFlavor: 'Buffalo', pieceCount: 6 },
     price: { amountCents: 1899, currency: 'USD' },
-    rating: 2.25,
+    grade: 'C',
     notes: paragraph('Warm, soft, and priced like they were not.'),
   },
   {
@@ -316,7 +316,7 @@ export const fixtureWings: WingReview[] = [
     venue: 'Highway 33 Fuel Stop',
     visitedAt: '2025-04-01',
     order: { styleOrFlavor: 'Whatever was left', pieceCount: 4 },
-    rating: 1,
+    grade: 'F',
     notes: paragraph('A decision, not a meal. Reported here for completeness.'),
   },
 ]
@@ -339,7 +339,7 @@ export const fixtureNaBeers: NaBeer[] = [
     boughtFrom: 'Corner Bottle Shop',
     purchasedAt: '2025-03-01',
     price: { amountCents: 399, currency: 'USD' },
-    rating: 4,
+    grade: 'A',
     heroImage: fixtureImage(
       'photo-1510812431401-41d2bd2722f3',
       'A chilled golden beer in a glass',
@@ -360,7 +360,7 @@ export const fixtureNaBeers: NaBeer[] = [
     abvPercent: 0.4,
     package: { amount: 12, unit: 'fl-oz' },
     packageFormat: 'Can',
-    rating: 3.75,
+    grade: 'A-',
     heroImage: fixtureImage(
       'photo-1510812431401-41d2bd2722f3',
       'A cloudy pale beer in a stemmed glass',
@@ -379,7 +379,7 @@ export const fixtureNaBeers: NaBeer[] = [
     brewery: 'Kettle & Coal',
     style: 'Stout',
     abvPercent: 0.5,
-    rating: 3,
+    grade: 'B-',
     notes: paragraph('Coffee and cocoa, but it drinks watery when it warms.'),
   },
   {
@@ -394,7 +394,7 @@ export const fixtureNaBeers: NaBeer[] = [
     brewery: 'Value Cellar',
     style: 'Pale ale',
     abvNote: 'Alcohol free',
-    rating: 1.5,
+    grade: 'D',
     notes: paragraph('Sweet, still, and closer to malt soda than to beer.'),
   },
 ]
@@ -412,7 +412,7 @@ export const fixtureReubens: ReubenReview[] = [
     restaurant: 'The Rye House',
     location: { city: 'Columbus' },
     visitedAt: '2025-03-13',
-    rating: 4.5,
+    grade: 'S-',
     heroImage: fixtureImage(
       'photo-1550507992-eb63ffee0847',
       'A grilled sandwich cut in half on a plate',
@@ -441,7 +441,7 @@ export const fixtureReubens: ReubenReview[] = [
     restaurant: 'Fifth Street Deli',
     location: { city: 'Columbus' },
     visitedAt: '2025-03-27',
-    rating: 4,
+    grade: 'A',
     heroImage: fixtureImage(
       'photo-1414235077428-338989a2e8c0',
       'A rye sandwich stacked high on a paper wrapper',
@@ -466,7 +466,7 @@ export const fixtureReubens: ReubenReview[] = [
     orderRank: '0|300000:',
     restaurant: 'Route 3 Diner',
     visitedAt: '2025-04-10',
-    rating: 3.25,
+    grade: 'B',
     orderDetails: { meat: 'Corned beef', bread: 'Marbled rye' },
     notes: paragraph('Exactly what the menu promised and nothing more.'),
   },
@@ -481,7 +481,7 @@ export const fixtureReubens: ReubenReview[] = [
     publishedAt: '2025-04-25T12:00:00.000Z',
     restaurant: 'The Landing Pub',
     visitedAt: '2025-04-24',
-    rating: 2.5,
+    grade: 'C',
     orderDetails: { meat: 'Corned beef', sauerkraut: 'From a jar' },
     price: { amountCents: 1550, currency: 'USD' },
     notes: paragraph('Under-drained kraut turned the bottom slice to paste.'),
@@ -499,12 +499,13 @@ export const fixtureSyrups: SyrupReview[] = [
     slug: 'sweet-ontario',
     publishedAt: '2024-09-20T12:00:00.000Z',
     producer: 'Mountain Maple Products',
-    grade: 'Amber, Rich Taste',
+    mapleGrade: 'Amber, Rich Taste',
     origin: 'St. Joseph Island, Ontario',
     boughtFrom: 'Canada',
     volumeLiters: 0.5,
     price: { amountCents: 799, currency: 'USD' },
-    rating: 5,
+    grade: 'S+',
+    isCrowned: true,
     heroImage: fixtureImage(
       'photo-1589985270826-4b7bb135bc9d',
       'A jug of amber maple syrup on a wooden table',
@@ -526,7 +527,7 @@ export const fixtureSyrups: SyrupReview[] = [
     origin: 'New Prague, Minnesota',
     boughtFrom: '320th Street, New Prague',
     price: { amountCents: 799, currency: 'USD' },
-    rating: 4.55,
+    grade: 'S-',
     heroImage: fixtureImage(
       'photo-1600271886742-f049cd451bba',
       'A glass bottle of dark maple syrup from a local farm',
@@ -545,12 +546,12 @@ export const fixtureSyrups: SyrupReview[] = [
     slug: 'hidden-springs',
     publishedAt: '2024-09-21T12:00:00.000Z',
     producer: 'Hidden Springs Maple',
-    grade: 'Amber, Rich Taste',
+    mapleGrade: 'Amber, Rich Taste',
     origin: 'Putney, Vermont',
     boughtFrom: 'Amazon',
     volumeLiters: 0.946,
     price: { amountCents: 799, currency: 'USD' },
-    rating: 4,
+    grade: 'A',
     heroImage: fixtureImage(
       'photo-1518449007707-1c9b4f0c1c47',
       'A dark bottle of maple syrup beside a stack of pancakes',

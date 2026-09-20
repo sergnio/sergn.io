@@ -165,14 +165,15 @@ describe('published content queries', () => {
     },
   )
 
-  it('fetches the rank and rating each ranked page prints', () => {
+  it('fetches the rank and grade each ranked page prints', () => {
     for (const collection of rankedCollections) {
       for (const shape of [
         collectionQuery(collection),
         documentQuery(collection),
       ]) {
         expect(shape).toMatch(/\borderRank\b/)
-        expect(shape).toMatch(/\brating\b/)
+        expect(shape).toMatch(/\bgrade\b/)
+        expect(shape).toMatch(/\bisCrowned\b/)
         expect(shape).toMatch(/\brecommendationStatus\b/)
       }
     }

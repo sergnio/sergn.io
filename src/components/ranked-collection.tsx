@@ -1,5 +1,5 @@
 import { Link } from '@tanstack/react-router'
-import { cardDate, cardImage, cardRating, cardSummary } from '#/lib/card-fields'
+import { cardDate, cardGrade, cardImage, cardSummary } from '#/lib/card-fields'
 import type { CollectionName, ContentDocument } from '#/lib/content-types'
 import { formatDate } from '#/lib/formatters'
 import { ContentCard } from './content-card'
@@ -80,7 +80,7 @@ export function RankedCollection({
 
 function RankedRow({ collection, document, rank }: RankedEntryProps) {
   const date = cardDate(document)
-  const rating = cardRating(document)
+  const grade = cardGrade(document)
   const summary = cardSummary(document)
 
   return (
@@ -97,10 +97,10 @@ function RankedRow({ collection, document, rank }: RankedEntryProps) {
         {summary ? <p>{summary}</p> : null}
       </div>
       <div className="ranked-row__meta">
-        {rating ? (
-          <span className="content-card__rating">
-            <span className="visually-hidden">Rating: </span>
-            {rating}
+        {grade ? (
+          <span className="content-card__grade">
+            <span className="visually-hidden">Grade: </span>
+            {grade}
           </span>
         ) : null}
         {date ? <time dateTime={date}>{formatDate(date)}</time> : null}

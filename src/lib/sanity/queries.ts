@@ -54,7 +54,8 @@ const richTextProjection = `[] {
 const reviewFields = `
   ${commonFields},
   orderRank,
-  rating,
+  grade,
+  isCrowned,
   heroImage ${imageProjection},
   notes ${richTextProjection}
 `
@@ -63,7 +64,8 @@ const projections: Record<CollectionName, string> = {
   coffee: `{
     ${commonFields},
     orderRank,
-    rating,
+    grade,
+    isCrowned,
     roaster,
     origin,
     boughtFrom,
@@ -122,7 +124,7 @@ const projections: Record<CollectionName, string> = {
   syrup: `{
     ${reviewFields},
     producer,
-    grade,
+    mapleGrade,
     origin,
     boughtFrom,
     volumeLiters,

@@ -1,5 +1,5 @@
 import type { ContentDocument } from './content-types'
-import { formatRating } from './formatters'
+import { formatGrade } from './formatters'
 
 /**
  * How a document summarises itself in a list. Podium cards and ranked rows
@@ -32,7 +32,8 @@ export function cardDate(document: ContentDocument) {
   return document.publishedAt
 }
 
-export function cardRating(document: ContentDocument) {
-  if ('rating' in document) return formatRating(document.rating)
+export function cardGrade(document: ContentDocument) {
+  if ('grade' in document)
+    return formatGrade(document.grade, document.isCrowned)
   return undefined
 }

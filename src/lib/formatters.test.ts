@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import {
   formatBrewSettings,
+  formatGrade,
   formatGrinder,
   formatMoney,
   formatPackageSize,
@@ -41,5 +42,19 @@ describe('content formatters', () => {
         brewTimeSeconds: 180,
       }),
     ).toBe('18g dose · 93°C · 180 sec')
+  })
+})
+
+describe('grades', () => {
+  it('prints the letter an uncrowned entry earned', () => {
+    expect(formatGrade('A-')).toBe('A-')
+  })
+
+  it('shows the crown alone, because it can only ever hide an S+', () => {
+    expect(formatGrade('S+', true)).toBe('👑')
+  })
+
+  it('has nothing to print for an ungraded entry', () => {
+    expect(formatGrade(undefined)).toBeUndefined()
   })
 })

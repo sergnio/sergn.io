@@ -513,9 +513,10 @@ h3 {
   font-size: 0.68rem;
 }
 
-.content-card__rating::before {
-  content: '★ ';
+.content-card__grade {
   color: var(--highlight);
+  font-weight: 600;
+  letter-spacing: 0.04em;
 }
 
 /* A ranking is one ordered list whose first entries lead as full cards and

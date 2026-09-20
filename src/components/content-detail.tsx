@@ -16,7 +16,7 @@ import {
   formatMoney,
   formatPackageSize,
   formatPricePerLiter,
-  formatRating,
+  formatGrade,
 } from '#/lib/formatters'
 import { ImageFigure } from './content-image'
 import { RichText } from './rich-text'
@@ -78,7 +78,10 @@ function facts(document: ContentDocument): Fact[] {
       { label: 'Roasted', value: formatDate(document.roastDate) },
       { label: 'Purchased', value: formatDate(document.purchasedAt) },
       { label: 'Price', value: formatMoney(document.price) },
-      { label: 'Rating', value: formatRating(document.rating) },
+      {
+        label: 'Grade',
+        value: formatGrade(document.grade, document.isCrowned),
+      },
     ]
   }
 
@@ -91,7 +94,10 @@ function facts(document: ContentDocument): Fact[] {
       { label: 'Pieces', value: document.order?.pieceCount },
       { label: 'Sides', value: formatList(document.order?.sides) },
       { label: 'Price', value: formatMoney(document.price) },
-      { label: 'Rating', value: formatRating(document.rating) },
+      {
+        label: 'Grade',
+        value: formatGrade(document.grade, document.isCrowned),
+      },
     ]
   }
 
@@ -109,7 +115,10 @@ function facts(document: ContentDocument): Fact[] {
       { label: 'Bought from', value: document.boughtFrom },
       { label: 'Purchased', value: formatDate(document.purchasedAt) },
       { label: 'Price', value: formatMoney(document.price) },
-      { label: 'Rating', value: formatRating(document.rating) },
+      {
+        label: 'Grade',
+        value: formatGrade(document.grade, document.isCrowned),
+      },
     ]
   }
 
@@ -125,14 +134,17 @@ function facts(document: ContentDocument): Fact[] {
       })),
       ...(other ?? []).map(({ label, value }) => ({ label, value })),
       { label: 'Price', value: formatMoney(document.price) },
-      { label: 'Rating', value: formatRating(document.rating) },
+      {
+        label: 'Grade',
+        value: formatGrade(document.grade, document.isCrowned),
+      },
     ]
   }
 
   if (document._type === 'syrupReview') {
     return [
       { label: 'Producer', value: document.producer },
-      { label: 'Grade', value: document.grade },
+      { label: 'Maple grade', value: document.mapleGrade },
       { label: 'Origin', value: document.origin },
       { label: 'Bought from', value: document.boughtFrom },
       {
@@ -144,7 +156,10 @@ function facts(document: ContentDocument): Fact[] {
         label: 'Price per liter',
         value: formatPricePerLiter(document.price, document.volumeLiters),
       },
-      { label: 'Rating', value: formatRating(document.rating) },
+      {
+        label: 'Grade',
+        value: formatGrade(document.grade, document.isCrowned),
+      },
     ]
   }
 

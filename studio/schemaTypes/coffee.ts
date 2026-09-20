@@ -1,6 +1,8 @@
 import { orderRankField } from './orderRank'
 import { defineField, defineType } from 'sanity'
 import {
+  crownField,
+  formatGradeBadge,
   recommendationStatusField,
   requiredForNonRecommendations,
   requiredForRecommendations,
@@ -295,11 +297,12 @@ export const coffee = defineType({
         Rule.custom(requiredForRecommendations('Add at least one recipe.')),
     }),
     defineField({
-      name: 'rating',
-      title: 'Rating',
-      type: 'rating',
+      name: 'grade',
+      title: 'Grade',
+      type: 'grade',
       group: 'tasting',
     }),
+    crownField(),
     defineField({
       name: 'tastingNotes',
       title: 'Tasting notes',
@@ -377,12 +380,13 @@ export const coffee = defineType({
     select: {
       title: 'title',
       roaster: 'roaster',
-      rating: 'rating',
+      grade: 'grade',
+      isCrowned: 'isCrowned',
       media: 'heroImage.image',
     },
-    prepare: ({ title, roaster, rating, media }) => ({
+    prepare: ({ title, roaster, grade, isCrowned, media }) => ({
       title,
-      subtitle: [roaster, rating === undefined ? undefined : `${rating}/5`]
+      subtitle: [roaster, formatGradeBadge(grade, isCrowned)]
         .filter(Boolean)
         .join(' · '),
       media,

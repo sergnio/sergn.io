@@ -1,5 +1,5 @@
 import { Link } from '@tanstack/react-router'
-import { cardDate, cardImage, cardRating, cardSummary } from '#/lib/card-fields'
+import { cardDate, cardGrade, cardImage, cardSummary } from '#/lib/card-fields'
 import type { CollectionName, ContentDocument } from '#/lib/content-types'
 import { formatDate } from '#/lib/formatters'
 import { ContentImage } from './content-image'
@@ -34,7 +34,7 @@ export function ContentCard({
 }: ContentCardProps) {
   const Heading = `h${headingLevel}` as const
   const date = cardDate(document)
-  const rating = cardRating(document)
+  const grade = cardGrade(document)
 
   return (
     <article className="content-card">
@@ -80,10 +80,10 @@ export function ContentCard({
         </Heading>
         {cardSummary(document) ? <p>{cardSummary(document)}</p> : null}
         <div className="content-card__meta">
-          {rating ? (
-            <span className="content-card__rating">
-              <span className="visually-hidden">Rating: </span>
-              {rating}
+          {grade ? (
+            <span className="content-card__grade">
+              <span className="visually-hidden">Grade: </span>
+              {grade}
             </span>
           ) : null}
           {date ? <time dateTime={date}>{formatDate(date)}</time> : null}
