@@ -111,4 +111,4 @@ Reply briefly with title, overall grade if supplied, recommendation status, and 
 - Pi: `/skill:upload-wings`
 - Claude Code: `/upload-wings`
 
-Example input: "Buffalo wings at Example Tavern, visited June 5, 2026. 4.25/5. Crispy, good heat, a little dry. 10 wings for $16. Photo: /path/wings.HEIC. Save as draft."
+Example input: "Buffalo wings at Example Tavern, visited June 5, 2026. Grade A+. Crispy, good heat, a little dry. 10 wings for $16. Photo: /path/wings.HEIC. Save as draft."
