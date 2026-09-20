@@ -185,14 +185,83 @@ export const packageSize = defineType({
   ],
 })
 
-export const rating = defineType({
-  name: 'rating',
-  title: 'Rating',
-  type: 'number',
-  // precision(2) is the whole rule: rate to the hundredth and stop there, so
-  // a rating stays a number someone can defend rather than a long float.
-  validation: (Rule) => Rule.min(0).max(5).precision(2),
+/**
+ * The grades, best first. The S tier sits above A because a few things are
+ * better than the best of an ordinary scale; C, D and F take no modifier
+ * because the difference between a C+ and a C- is not one worth defending.
+ */
+export const grades = [
+  'S+',
+  'S',
+  'S-',
+  'A+',
+  'A',
+  'A-',
+  'B+',
+  'B',
+  'B-',
+  'C',
+  'D',
+  'F',
+] as const
+
+export const grade = defineType({
+  name: 'grade',
+  title: 'Grade',
+  type: 'string',
+  options: { list: grades.map((value) => ({ title: value, value })) },
 })
+
+/**
+ * How a grade reads in a Studio list row. Only an S+ wears the crown, so a
+ * draft mid-edit never previews as a winner validation would reject.
+ */
+export function formatGradeBadge(value?: string, isCrowned?: boolean) {
+  if (isCrowned && value === 'S+') return '👑'
+  return value
+}
+
+/**
+ * The crown marks the single best entry in a category. It is not a tier of
+ * its own: only an S+ can wear it, so the crown picks a winner among the
+ * best rather than inventing a grade nothing else can reach.
+ */
+export function crownField() {
+  return defineField({
+    name: 'isCrowned',
+    title: 'King of the category',
+    type: 'boolean',
+    group: 'tasting',
+    initialValue: false,
+    description: 'Only one per category, and only on an S+.',
+    validation: (Rule) =>
+      Rule.custom(async (value, context) => {
+        if (!value) return true
+
+        const document = context.document
+        if (!document) return true
+
+        if ((document as { grade?: string }).grade !== 'S+') {
+          return 'Only an S+ can be crowned. Raise the grade or drop the crown.'
+        }
+
+        const type = document._type
+        const id = document._id.replace(/^drafts\./, '')
+        if (!type || !id) return true
+
+        const rivals = await context
+          .getClient({ apiVersion: '2025-05-01' })
+          .fetch<string[]>(
+            '*[_type == $type && isCrowned == true && !(_id in [$draftId, $publishedId])].title',
+            { type, draftId: `drafts.${id}`, publishedId: id },
+          )
+
+        return rivals.length === 0
+          ? true
+          : `"${rivals[0]}" already wears this category's crown. Take it off that one first.`
+      }),
+  })
+}
 
 export const blockContent = defineType({
   name: 'blockContent',

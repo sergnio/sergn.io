@@ -2,6 +2,7 @@ import type {
   Coffee,
   CollectionName,
   ContentDocument,
+  Grade,
   NaBeer,
   Post,
   RankedCollection,
@@ -10,7 +11,7 @@ import type {
   SyrupReview,
   WingReview,
 } from './content-types'
-import { isRankedCollection } from './content-types'
+import { isGrade, isRankedCollection } from './content-types'
 import { imageUrl } from './sanity/image'
 
 export const siteUrl = 'https://sergn.io'
@@ -81,7 +82,7 @@ function describeContent(document: ContentDocument) {
   }
 
   if (document._type === 'syrupReview') {
-    return [document.producer, document.grade].filter(Boolean).join(' · ')
+    return [document.producer, document.mapleGrade].filter(Boolean).join(' · ')
   }
 
   return document.restaurant
@@ -316,11 +317,32 @@ function reviewedItem(document: RatedDocument) {
 
 /**
  * Reviews are the bulk of the site, but only blog posts carried structured
- * data. A rating is what makes a document a review, so an entry without one
+ * data. A grade is what makes a document a review, so an entry without one
  * is left unmarked rather than published with a missing reviewRating.
  */
+/**
+ * Search engines want a number on a 1-5 scale and the site grades in letters,
+ * so the grades are spread evenly across that scale here. This mapping exists
+ * for crawlers alone: it is never stored and never rendered, because the
+ * grade, not a score derived from it, is what Sergio actually decided.
+ */
+const starsByGrade: Record<Grade, number> = {
+  'S+': 5,
+  S: 4.8,
+  'S-': 4.5,
+  'A+': 4.3,
+  A: 4.1,
+  'A-': 3.8,
+  'B+': 3.6,
+  B: 3.4,
+  'B-': 3.1,
+  C: 2.5,
+  D: 1.5,
+  F: 1,
+}
+
 export function reviewJsonLd(document: ContentDocument, path: string) {
-  if (!isRated(document) || document.rating === undefined) return undefined
+  if (!isRated(document) || !isGrade(document.grade)) return undefined
 
   return JSON.stringify({
     '@context': 'https://schema.org',
@@ -329,7 +351,7 @@ export function reviewJsonLd(document: ContentDocument, path: string) {
     itemReviewed: reviewedItem(document),
     reviewRating: {
       '@type': 'Rating',
-      ratingValue: document.rating,
+      ratingValue: starsByGrade[document.grade],
       bestRating: 5,
       worstRating: 1,
     },

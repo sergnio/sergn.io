@@ -1,5 +1,5 @@
 import type { CollectionName } from './content-types'
-import { isRankedCollection } from './content-types'
+import { grades, isGrade, isRankedCollection } from './content-types'
 import { classifyLinkHref } from './links'
 
 /**
@@ -147,6 +147,7 @@ function violationsFor(collection: CollectionName, document: unknown) {
   }
 
   return violations.concat(
+    gradeViolations(document, subject),
     rankViolations(collection, document, subject),
     collectImagesMissingAlt(document, '').map(
       (path) => `${subject} has an image without alt text at "${path}"`,
@@ -155,6 +156,30 @@ function violationsFor(collection: CollectionName, document: unknown) {
       (problem) => `${subject} has a rich text link ${problem}`,
     ),
   )
+}
+
+/**
+ * A grade off the list cannot be rendered or converted to stars, and a crown
+ * on anything but an S+ contradicts what the crown means. Both are cheaper to
+ * catch here, naming the document, than to find as a blank row on the page.
+ */
+function gradeViolations(document: unknown, subject: string) {
+  const grade = readPath(document, 'grade')
+  const violations: string[] = []
+
+  if (!isMissing(grade) && !isGrade(grade)) {
+    violations.push(
+      `${subject} has an unknown grade: ${JSON.stringify(grade)} (expected one of ${grades.join(', ')})`,
+    )
+  }
+
+  if (readPath(document, 'isCrowned') === true && grade !== 'S+') {
+    violations.push(
+      `${subject} wears the crown on a grade of ${JSON.stringify(grade)} - only an S+ can be crowned`,
+    )
+  }
+
+  return violations
 }
 
 /**
@@ -225,6 +250,29 @@ function duplicateSlugViolations(
   })
 }
 
+/**
+ * The Studio checks for a rival crown before writing, which two concurrent
+ * edits can both pass. This is the check that cannot race: the whole
+ * collection is in hand, so a second crown fails the build.
+ */
+function duplicateCrownViolations(
+  collection: CollectionName,
+  documents: unknown[],
+) {
+  const crowned = documents
+    .filter((document) => readPath(document, 'isCrowned') === true)
+    .map((document) => {
+      const slug = readPath(document, 'slug')
+      return typeof slug === 'string' ? slug : '(no slug)'
+    })
+
+  if (crowned.length < 2) return []
+
+  return [
+    `${collection} crowns more than one entry (${crowned.join(', ')}), but a category has one king - take the crown off all but the best`,
+  ]
+}
+
 function fail(violations: string[]): never {
   const message = `Content contract violated:\n${violations.map((violation) => `  - ${violation}`).join('\n')}`
 
@@ -248,6 +296,7 @@ export function assertValidCollection<T>(
     ...documents.flatMap((document) => violationsFor(collection, document)),
     ...duplicateSlugViolations(collection, documents),
     ...duplicateRankViolations(collection, documents),
+    ...duplicateCrownViolations(collection, documents),
   ]
 
   if (violations.length > 0) fail(violations)

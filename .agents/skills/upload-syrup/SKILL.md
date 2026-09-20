@@ -1,6 +1,6 @@
 ---
 name: upload-syrup
-description: Add a maple syrup review to Sergio's Sanity Studio using the Sanity CLI from a bottle photo, rough notes, and a rating. Use when asked to upload syrup, add a syrup review to Studio, or save/publish maple syrup on sergn.io. No browser involvement. Defaults to a draft; publishes only when explicitly requested.
+description: Add a maple syrup review to Sergio's Sanity Studio using the Sanity CLI from a bottle photo, rough notes, and a grade. Use when asked to upload syrup, add a syrup review to Studio, or save/publish maple syrup on sergn.io. No browser involvement. Defaults to a draft; publishes only when explicitly requested.
 ---
 
 # Upload syrup
@@ -23,7 +23,7 @@ Most of a syrup document is printed on the bottle. Read it off the photo rather 
 
 - `producer` is the maker on the label, not the brand nickname Sergio uses as the title. "Sweet Ontario" is the product; `Mountain Maple Products` is the producer.
 - `volumeLiters` comes from the stated net contents. Convert to liters: 8 fl oz = 0.237, 1 quart / 32 fl oz = 0.946, 500 ml = 0.5. Never infer volume from the apparent size of the bottle.
-- `grade` must match the schema's list exactly (for example `Amber, Rich Taste`). US and Canadian Grade A wording maps onto the same four descriptors. If the label shows no grade, leave it unset.
+- `mapleGrade` is the descriptor on the label, not Sergio's verdict, and must match the schema's list exactly (for example `Amber, Rich Taste`). US and Canadian Grade A wording maps onto the same four descriptors. If the label shows no grade, leave it unset.
 - `origin` is where it was produced, which is often not where it was bought. `boughtFrom` is the latter. A syrup made in Lutsen, MN and bought in New Prague sets both, differently.
 
 If the label contradicts a number Sergio supplied, trust the label and say so. Do not carry forward a price or volume that cannot be sourced: an identical price across bottles of very different sizes is a placeholder, not data.
@@ -36,8 +36,9 @@ Accept conversational input with an attached image or local image path. No templ
 - Required of a non-recommendation: title, unique URL slug, and the notes saying why it is not worth buying again. Every other field stays optional, so fill in what is known and leave the rest unset rather than inventing a fuller record.
 - Recommendation status: settle it from Sergio's notes, and ask when they do not. Write `recommendationStatus` explicitly on every draft instead of leaning on the schema default; it decides which fields the contract demands, which Studio list the review appears in, and whether it is ranked at all.
 - Derive a title from how Sergio refers to the syrup. Generate a lowercase, hyphen-separated slug of at most 96 characters; ask only if ambiguous. Check uniqueness across both drafts and published syrup reviews.
-- Rating: optional, 0-5 to at most two decimal places. Do not round or convert another scale without clarification. An untasted syrup has no rating; say so in the notes rather than inventing one.
-- Optional: grade, origin, boughtFrom, volumeLiters, price, publishedAt, photo caption/credit. Store a supplied USD price as integer cents; clarify ambiguous currency. Leave unknown optional fields unset rather than guessing.
+- Grade: optional, one of `S+`, `S`, `S-`, `A+`, `A`, `A-`, `B+`, `B`, `B-`, `C`, `D`, `F`. Do not convert a score out of five or any other scale without clarification. An untasted syrup has no grade; say so in the notes rather than inventing one.
+- `isCrowned` marks the single best entry in the category. Only an `S+` can wear it, and only one per category, so never set it unless Sergio says so outright. The Studio rejects a second crown, and the page prints the crown in place of the letter.
+- Optional: mapleGrade, origin, boughtFrom, volumeLiters, price, publishedAt, photo caption/credit. Store a supplied USD price as integer cents; clarify ambiguous currency. Leave unknown optional fields unset rather than guessing.
 - Price per liter is computed at render time from `price` and `volumeLiters`. Setting only one of the pair silently hides that row, so set both or neither.
 - Inspect the image locally before writing factual alt text (5-180 characters). Describe the visible bottle and setting, not the flavor or the filename. An empty bottle is worth saying; it is visible and it tells the reader something.
 - Strip EXIF before uploading. Phone photos of bottles taken at home or at a farm carry a GPS IFD, and the asset lands on a public CDN. `sips` preserves EXIF, so it is not sufficient on its own; drop the APP1/APP2 segments explicitly and verify they are gone.
@@ -101,7 +102,7 @@ Authenticated mutations can be sent without exposing credentials:
 npx sanity api 'data/mutate/{dataset}' --project-hosted --api-version v2021-06-07 --project-id 0vbjaawm --dataset production --method POST --input /tmp/<unique-directory>/mutation.json --header 'Content-Type: application/json'
 ```
 
-Read back the exact draft using an authenticated raw query. Verify persisted title, `recommendationStatus`, producer, grade, origin, volume, rating, notes, image reference, alt text, optional values, and draft ID. Check the status against what was intended before step 5 branches on it: an absent value reads as a recommendation, so a partial write would route a non-recommendation into the ranking path while the read-back looks fine. Validate the read-back document as well. Do not report success solely because the write command exited successfully.
+Read back the exact draft using an authenticated raw query. Verify persisted title, `recommendationStatus`, producer, mapleGrade, origin, volume, grade, notes, image reference, alt text, optional values, and draft ID. Check the status against what was intended before step 5 branches on it: an absent value reads as a recommendation, so a partial write would route a non-recommendation into the ranking path while the read-back looks fine. Validate the read-back document as well. Do not report success solely because the write command exited successfully.
 
 ### 5. Rank a recommendation before the upload is finished
 
@@ -121,7 +122,7 @@ Read back the published base ID and verify its content and draft state. The publ
 
 ## Finish
 
-Reply briefly with title, rating if supplied, recommendation status, and verified draft/published status. For a recommendation, say whether it is ranked. Include the document ID and, if the Studio route can be established from repository configuration, a Studio link (never claim it was opened or verified in a browser). Report blockers, unset fields, and any place the label contradicted the supplied notes. Do not commit/push code for a content upload.
+Reply briefly with title, grade if supplied, recommendation status, and verified draft/published status. For a recommendation, say whether it is ranked. Include the document ID and, if the Studio route can be established from repository configuration, a Studio link (never claim it was opened or verified in a browser). Report blockers, unset fields, and any place the label contradicted the supplied notes. Do not commit/push code for a content upload.
 
 ## Invocation
 

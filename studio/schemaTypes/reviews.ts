@@ -1,6 +1,8 @@
 import { orderRankField } from './orderRank'
 import { defineField, defineType } from 'sanity'
 import {
+  crownField,
+  formatGradeBadge,
   recommendationStatusField,
   requiredForNonRecommendations,
   requiredForRecommendations,
@@ -34,11 +36,12 @@ function commonFields(type: string) {
         Rule.custom(requiredForRecommendations('Add a hero image.')),
     }),
     defineField({
-      name: 'rating',
-      title: 'Rating',
-      type: 'rating',
+      name: 'grade',
+      title: 'Grade',
+      type: 'grade',
       group: 'tasting',
     }),
+    crownField(),
     defineField({
       name: 'notes',
       title: 'Review notes',
@@ -160,12 +163,13 @@ export const wingReview = defineType({
     select: {
       title: 'title',
       venue: 'venue',
-      rating: 'rating',
+      grade: 'grade',
+      isCrowned: 'isCrowned',
       media: 'heroImage.image',
     },
-    prepare: ({ title, venue, rating, media }) => ({
+    prepare: ({ title, venue, grade, isCrowned, media }) => ({
       title,
-      subtitle: [venue, rating === undefined ? undefined : `${rating}/5`]
+      subtitle: [venue, formatGradeBadge(grade, isCrowned)]
         .filter(Boolean)
         .join(' · '),
       media,
@@ -263,12 +267,13 @@ export const naBeer = defineType({
     select: {
       title: 'title',
       brewery: 'brewery',
-      rating: 'rating',
+      grade: 'grade',
+      isCrowned: 'isCrowned',
       media: 'heroImage.image',
     },
-    prepare: ({ title, brewery, rating, media }) => ({
+    prepare: ({ title, brewery, grade, isCrowned, media }) => ({
       title,
-      subtitle: [brewery, rating === undefined ? undefined : `${rating}/5`]
+      subtitle: [brewery, formatGradeBadge(grade, isCrowned)]
         .filter(Boolean)
         .join(' · '),
       media,
@@ -374,12 +379,13 @@ export const reubenReview = defineType({
     select: {
       title: 'title',
       restaurant: 'restaurant',
-      rating: 'rating',
+      grade: 'grade',
+      isCrowned: 'isCrowned',
       media: 'heroImage.image',
     },
-    prepare: ({ title, restaurant, rating, media }) => ({
+    prepare: ({ title, restaurant, grade, isCrowned, media }) => ({
       title,
-      subtitle: [restaurant, rating === undefined ? undefined : `${rating}/5`]
+      subtitle: [restaurant, formatGradeBadge(grade, isCrowned)]
         .filter(Boolean)
         .join(' · '),
       media,
@@ -411,8 +417,8 @@ export const syrupReview = defineType({
         Rule.custom(requiredForRecommendations('Name the producer.')),
     }),
     defineField({
-      name: 'grade',
-      title: 'Grade',
+      name: 'mapleGrade',
+      title: 'Maple grade',
       type: 'string',
       group: 'essentials',
       options: {
@@ -458,12 +464,13 @@ export const syrupReview = defineType({
     select: {
       title: 'title',
       producer: 'producer',
-      rating: 'rating',
+      grade: 'grade',
+      isCrowned: 'isCrowned',
       media: 'heroImage.image',
     },
-    prepare: ({ title, producer, rating, media }) => ({
+    prepare: ({ title, producer, grade, isCrowned, media }) => ({
       title,
-      subtitle: [producer, rating === undefined ? undefined : `${rating}/5`]
+      subtitle: [producer, formatGradeBadge(grade, isCrowned)]
         .filter(Boolean)
         .join(' · '),
       media,

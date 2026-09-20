@@ -58,7 +58,37 @@ export type Money = {
   currency: string
 }
 
-export type Rating = number
+/**
+ * The grades, best first. Mirrors the Studio's list in
+ * `studio/schemaTypes/shared.ts`; the order is what the star conversion and
+ * any grade comparison read, so it is the ordering that matters, not the
+ * individual strings.
+ */
+export const grades = [
+  'S+',
+  'S',
+  'S-',
+  'A+',
+  'A',
+  'A-',
+  'B+',
+  'B',
+  'B-',
+  'C',
+  'D',
+  'F',
+] as const
+
+export type Grade = (typeof grades)[number]
+
+/**
+ * The dataset is not typed, so a stale or hand-written value can reach the
+ * renderer wearing the Grade type. Anything off the list is treated as no
+ * grade at all rather than printed as one.
+ */
+export function isGrade(value: unknown): value is Grade {
+  return grades.includes(value as Grade)
+}
 
 /**
  * Omitted legacy values are recommended. A non-recommendation is a record of
@@ -177,7 +207,8 @@ export type Coffee = BaseDocument &
     price?: Money
     bagSize?: { amount: number; unit: 'g' | 'oz' }
     roastDate?: string
-    rating?: Rating
+    grade?: Grade
+    isCrowned?: boolean
     heroImage?: SanityImage
     tastingNotes?: string[]
     notes?: PortableTextContent
@@ -197,7 +228,8 @@ export type WingReview = BaseDocument &
       sides?: string[]
     }
     price?: Money
-    rating?: Rating
+    grade?: Grade
+    isCrowned?: boolean
     notes?: PortableTextContent
     heroImage?: SanityImage
   }
@@ -214,7 +246,8 @@ export type NaBeer = BaseDocument &
     boughtFrom?: string
     purchasedAt?: string
     price?: Money
-    rating?: Rating
+    grade?: Grade
+    isCrowned?: boolean
     notes?: PortableTextContent
     heroImage?: SanityImage
   }
@@ -235,7 +268,8 @@ export type ReubenReview = BaseDocument &
       portion?: string
       other?: Array<{ label: string; value: string }>
     }
-    rating?: Rating
+    grade?: Grade
+    isCrowned?: boolean
     notes?: PortableTextContent
     heroImage?: SanityImage
   }
@@ -244,12 +278,13 @@ export type SyrupReview = BaseDocument &
   RankedDocument & {
     _type: 'syrupReview'
     producer?: string
-    grade?: string
+    mapleGrade?: string
     origin?: string
     boughtFrom?: string
     volumeLiters?: number
     price?: Money
-    rating?: Rating
+    grade?: Grade
+    isCrowned?: boolean
     notes?: PortableTextContent
     heroImage?: SanityImage
   }

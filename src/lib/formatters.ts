@@ -1,4 +1,5 @@
-import type { BrewRecipe, Money } from './content-types'
+import type { BrewRecipe, Grade, Money } from './content-types'
+import { isGrade } from './content-types'
 
 export function formatMoney(money?: Money) {
   if (!money) return undefined
@@ -23,9 +24,14 @@ export function formatPricePerLiter(price?: Money, liters?: number) {
   return `${formatMoney({ ...price, amountCents: price.amountCents / liters })} / L`
 }
 
-export function formatRating(rating?: number) {
-  if (rating === undefined) return undefined
-  return `${formatNumber(rating)} / 5`
+/**
+ * The crown stands in for the grade rather than decorating it. Only an S+
+ * can be crowned, so the letter it hides is always the same one and printing
+ * both would say the same thing twice.
+ */
+export function formatGrade(grade?: Grade, isCrowned?: boolean) {
+  if (isCrowned) return '👑'
+  return isGrade(grade) ? grade : undefined
 }
 
 export function formatDate(date?: string) {

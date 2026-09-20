@@ -60,7 +60,7 @@ test.describe('accessibility', () => {
 
 // Semantics that axe's WCAG ruleset does not flag but a screen-reader user
 // relies on: a card grid announced as a list with a count, an unambiguous
-// accessible name on every repeated link, and terse visual meta ("4.25 / 5")
+// accessible name on every repeated link, and terse visual meta ("A+")
 // that still carries its label when read out of visual context.
 test.describe('screen-reader semantics', () => {
   test('collection cards are exposed as a labelled list', async ({ page }) => {
@@ -121,14 +121,16 @@ test.describe('screen-reader semantics', () => {
     await expect(list.getByRole('listitem')).toHaveCount(2)
   })
 
-  test('ratings and dates are readable out of context', async ({ page }) => {
+  test('grades and dates are readable out of context', async ({ page }) => {
     await page.goto('/wings')
 
     const card = page
       .getByRole('list', { name: 'Wings' })
       .getByRole('listitem')
       .first()
-    await expect(card.locator('.content-card__rating')).toHaveText(/Rating: \d/)
+    await expect(card.locator('.content-card__grade')).toHaveText(
+      /^Grade: (?:[SAB][+-]?|[CDF]|👑)$/,
+    )
     await expect(card.locator('time')).toHaveAttribute(
       'datetime',
       /^\d{4}-\d{2}-\d{2}/,
