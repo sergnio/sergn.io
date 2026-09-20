@@ -278,6 +278,54 @@ describe('content contract', () => {
     }
   })
 
+  describe('grades and the crown', () => {
+    it('accepts a document carrying no grade at all', () => {
+      expect(() =>
+        assertValidCollection('coffee', [{ ...validCoffee }]),
+      ).not.toThrow()
+    })
+
+    it('rejects a value that is not on the grade list', () => {
+      expect(() =>
+        assertValidCollection('coffee', [
+          { ...validCoffee, grade: 'Amber, Rich Taste' },
+        ]),
+      ).toThrow(/unknown grade/)
+    })
+
+    it('rejects a crown on anything but an S+', () => {
+      expect(() =>
+        assertValidCollection('coffee', [
+          { ...validCoffee, grade: 'S', isCrowned: true },
+        ]),
+      ).toThrow(/only an S\+ can be crowned/)
+    })
+
+    it('accepts the crown on an S+', () => {
+      expect(() =>
+        assertValidCollection('coffee', [
+          { ...validCoffee, grade: 'S+', isCrowned: true },
+        ]),
+      ).not.toThrow()
+    })
+
+    it('rejects a second crown, which the Studio check can race past', () => {
+      expect(() =>
+        assertValidCollection('coffee', [
+          { ...validCoffee, grade: 'S+', isCrowned: true },
+          {
+            ...validCoffee,
+            _id: 'coffee-2',
+            slug: 'another-coffee',
+            orderRank: '0|200000:',
+            grade: 'S+',
+            isCrowned: true,
+          },
+        ]),
+      ).toThrow(/one king/)
+    })
+  })
+
   it('validates single documents too, and passes a missing one through untouched', () => {
     expect(assertValidDocument('coffee', undefined)).toBeUndefined()
     expect(assertValidDocument('coffee', validCoffee)).toBe(validCoffee)

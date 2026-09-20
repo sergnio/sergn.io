@@ -57,4 +57,8 @@ describe('grades', () => {
   it('has nothing to print for an ungraded entry', () => {
     expect(formatGrade(undefined)).toBeUndefined()
   })
+
+  it('prints nothing for a value that is not a grade', () => {
+    expect(formatGrade('Amber, Rich Taste' as never)).toBeUndefined()
+  })
 })

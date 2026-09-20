@@ -82,6 +82,15 @@ export const grades = [
 export type Grade = (typeof grades)[number]
 
 /**
+ * The dataset is not typed, so a stale or hand-written value can reach the
+ * renderer wearing the Grade type. Anything off the list is treated as no
+ * grade at all rather than printed as one.
+ */
+export function isGrade(value: unknown): value is Grade {
+  return grades.includes(value as Grade)
+}
+
+/**
  * Omitted legacy values are recommended. A non-recommendation is a record of
  * something not worth returning to, so `content-contract.ts` asks it only for
  * the fields every document has: everything a collection demands of a

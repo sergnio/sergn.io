@@ -33,6 +33,15 @@ describe('grades as search-engine stars', () => {
     expect(ratingFor('S+').ratingValue).toBe(5)
   })
 
+  it('claims no rating for a value it cannot convert to stars', () => {
+    expect(
+      reviewJsonLd(
+        { ...wing, grade: 'Amber, Rich Taste' as never },
+        '/wings/x',
+      ),
+    ).toBeUndefined()
+  })
+
   it('claims no rating at all for an ungraded entry', () => {
     expect(
       reviewJsonLd({ ...wing, grade: undefined }, '/wings/x'),

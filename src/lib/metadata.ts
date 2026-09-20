@@ -11,7 +11,7 @@ import type {
   SyrupReview,
   WingReview,
 } from './content-types'
-import { isRankedCollection } from './content-types'
+import { isGrade, isRankedCollection } from './content-types'
 import { imageUrl } from './sanity/image'
 
 export const siteUrl = 'https://sergn.io'
@@ -342,7 +342,7 @@ const starsByGrade: Record<Grade, number> = {
 }
 
 export function reviewJsonLd(document: ContentDocument, path: string) {
-  if (!isRated(document) || document.grade === undefined) return undefined
+  if (!isRated(document) || !isGrade(document.grade)) return undefined
 
   return JSON.stringify({
     '@context': 'https://schema.org',

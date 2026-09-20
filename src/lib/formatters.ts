@@ -1,4 +1,5 @@
 import type { BrewRecipe, Grade, Money } from './content-types'
+import { isGrade } from './content-types'
 
 export function formatMoney(money?: Money) {
   if (!money) return undefined
@@ -30,7 +31,7 @@ export function formatPricePerLiter(price?: Money, liters?: number) {
  */
 export function formatGrade(grade?: Grade, isCrowned?: boolean) {
   if (isCrowned) return '👑'
-  return grade
+  return isGrade(grade) ? grade : undefined
 }
 
 export function formatDate(date?: string) {
