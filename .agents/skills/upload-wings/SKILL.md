@@ -1,6 +1,6 @@
 ---
 name: upload-wings
-description: Add a wing review to Sergio's Sanity Studio using the Sanity CLI from rough notes, ratings, and a photo. Use when asked to upload wings, add a wing review to Studio, or save/publish wings on sergn.io. No browser involvement. Defaults to a draft; publishes only when explicitly requested.
+description: Add a wing review to Sergio's Sanity Studio using the Sanity CLI from rough notes, grades, and a photo. Use when asked to upload wings, add a wing review to Studio, or save/publish wings on sergn.io. No browser involvement. Defaults to a draft; publishes only when explicitly requested.
 ---
 
 # Upload wings
@@ -25,7 +25,8 @@ Accept conversational input with an attached image or local image path. No templ
 - Recommendation status: settle it from Sergio's notes, and ask when they do not. Write `recommendationStatus` explicitly on every draft instead of leaning on the schema default; it decides which fields the contract demands, which Studio list the review appears in, and whether it is ranked at all.
 - Derive a concise title from venue and flavor. Generate a lowercase, hyphen-separated slug of at most 96 characters; ask only if ambiguous. Check uniqueness across both drafts and published wing reviews.
 - Ask a recommendation for the visit date if absent. Do not default to today. Resolve relative dates against the user's local date and clarify ambiguous dates; use an approximate exact date only with user approval. Ask a non-recommendation once, accept that the date may not be remembered, and leave `visitedAt` unset rather than pressing for it.
-- Rating: optional, 0-5 to at most two decimal places. Do not round or convert another scale without clarification. Preserve category ratings in notes and ask which score, if any, is overall; do not invent an average.
+- Grade: optional, one of `S+`, `S`, `S-`, `A+`, `A`, `A-`, `B+`, `B`, `B-`, `C`, `D`, `F`. Do not convert a score out of five or any other scale without clarification. Preserve category grades in notes and ask which grade, if any, is overall; do not invent an average.
+- `isCrowned` marks the single best entry in the category. Only an `S+` can wear it, and only one per category, so never set it unless Sergio says so outright. The Studio rejects a second crown, and the page prints the crown in place of the letter.
 - Optional: heat, positive integer piece count, sides, price, city, address, venue URL, photo caption/credit, and publication date. Leave unknown optional fields unset. Store a supplied USD price as integer cents; clarify ambiguous currency.
 - Inspect the image locally before writing factual alt text (5-180 characters). Describe visible subjects, not an imagined flavor or filename. Preserve supplied credit; never invent attribution.
 - Strip EXIF before uploading a photo. Phone photos can carry a GPS IFD, and the asset lands on a public CDN. `sips` preserves EXIF, so it is not sufficient on its own; drop the APP1/APP2 segments explicitly and verify they are gone.
@@ -83,7 +84,7 @@ Authenticated mutations can be sent without exposing credentials:
 npx sanity api 'data/mutate/{dataset}' --project-hosted --api-version v2021-06-07 --project-id 0vbjaawm --dataset production --method POST --input /tmp/<unique-directory>/mutation.json --header 'Content-Type: application/json'
 ```
 
-Read back the exact draft using an authenticated raw query. Verify persisted title, `recommendationStatus`, venue, date, flavor, rating, notes, image reference, alt text, optional values, and draft ID. Check the status against what was intended before step 5 branches on it: an absent value reads as a recommendation, so a partial write would route a non-recommendation into the ranking path while the read-back looks fine. Validate the read-back document as well. Do not report success solely because the write command exited successfully.
+Read back the exact draft using an authenticated raw query. Verify persisted title, `recommendationStatus`, venue, date, flavor, grade, notes, image reference, alt text, optional values, and draft ID. Check the status against what was intended before step 5 branches on it: an absent value reads as a recommendation, so a partial write would route a non-recommendation into the ranking path while the read-back looks fine. Validate the read-back document as well. Do not report success solely because the write command exited successfully.
 
 ### 5. Rank a recommendation before the upload is finished
 
@@ -103,7 +104,7 @@ Read back the published base ID and verify its content and draft state. The publ
 
 ## Finish
 
-Reply briefly with title, overall rating if supplied, recommendation status, and verified draft/published status. For a recommendation, say whether it is ranked. Include the document ID and, if the Studio route can be established from repository configuration, a Studio link (never claim it was opened or verified in a browser). Report blockers or incomplete fields clearly. Do not commit/push code for a content upload.
+Reply briefly with title, overall grade if supplied, recommendation status, and verified draft/published status. For a recommendation, say whether it is ranked. Include the document ID and, if the Studio route can be established from repository configuration, a Studio link (never claim it was opened or verified in a browser). Report blockers or incomplete fields clearly. Do not commit/push code for a content upload.
 
 ## Invocation
 
