@@ -212,9 +212,12 @@ export const grade = defineType({
   options: { list: grades.map((value) => ({ title: value, value })) },
 })
 
-/** How a grade reads in a Studio list row. A crown stands in for its S+. */
+/**
+ * How a grade reads in a Studio list row. Only an S+ wears the crown, so a
+ * draft mid-edit never previews as a winner validation would reject.
+ */
 export function formatGradeBadge(value?: string, isCrowned?: boolean) {
-  if (isCrowned) return '👑'
+  if (isCrowned && value === 'S+') return '👑'
   return value
 }
 
