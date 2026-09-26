@@ -64,7 +64,10 @@ async function countScan(request: Request, ip: string, path: string) {
       }),
     })
     if (!response.ok) {
-      console.error(`GoatCounter rejected scan of ${path}: ${response.status}`)
+      console.error(
+        `GoatCounter rejected scan of ${path}: ${response.status}`,
+        await response.text(),
+      )
     }
   } catch (error) {
     console.error(`GoatCounter unreachable for scan of ${path}`, error)
