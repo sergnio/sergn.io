@@ -10,6 +10,16 @@
   targetPort = 3000
   port = 8888
 
+# Short links for printed QR codes. The QR encodes the sergn.io URL, so the
+# destination can change here without reprinting it. 302, not 301, so browsers
+# and scanners never cache the old destination. Must sit above the /* 404 rule,
+# since Netlify applies the first match. QR images live in docs/qr/.
+[[redirects]]
+  from = "/ai-class"
+  to = "https://minneapolis.arux.app/course/67744/adult-enrichment-fall-2026/beware-the-ai-southwest"
+  status = 302
+  force = true
+
 [[redirects]]
   from = "/*"
   to = "/not-found"
