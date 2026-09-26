@@ -1,9 +1,14 @@
 # QR codes
 
 Each QR code here encodes a short `sergn.io` URL, not the final destination.
-The short URL is a `302` redirect in `netlify.toml`, so a printed code keeps
-working and can be repointed by editing that rule — no reprint, no paid QR
-service.
+The short URL is a `302` from the Netlify Edge Function in
+`netlify/edge-functions/short-links/short-links.ts`, so a printed code keeps working and can
+be repointed by editing that file - no reprint, no paid QR service.
+
+Every scan is counted in GoatCounter under the path `/ai` (titled `QR: /ai`).
+That needs a `GOATCOUNTER_API_TOKEN` Netlify environment variable holding a
+GoatCounter API token with the "Record pageviews" permission. Without it the
+redirect still works but scans go uncounted.
 
 | Code           | Encodes               | Redirects to                                                     |
 | -------------- | --------------------- | ---------------------------------------------------------------- |
@@ -11,8 +16,8 @@ service.
 
 The SVG scales to any print size; the PNG is 1024×1024 for quick sharing.
 
-To add one, add a `[[redirects]]` rule above the `/*` 404 rule in
-`netlify.toml`, then generate the images with the `qrcode` npm package:
+To add one, add its path to both `SHORT_LINKS` and `config.path` in
+`short-links.ts`, then generate the images with the `qrcode` npm package:
 
 ```sh
 npx qrcode -e M -m 4 -w 1024 -o docs/qr/<name>.png "https://sergn.io/<name>"

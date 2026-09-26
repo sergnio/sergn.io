@@ -6,6 +6,11 @@ export default defineConfig({
     // Unit tests render against the committed fixtures, so image URLs resolve
     // without reaching for the real project's env vars.
     env: { VITE_CONTENT_SOURCE: 'fixtures' },
-    include: ['src/**/*.test.ts', 'src/**/*.test.tsx', 'studio/**/*.test.ts'],
+    include: [
+      'src/**/*.test.ts',
+      'src/**/*.test.tsx',
+      'studio/**/*.test.ts',
+      'netlify/**/*.test.ts',
+    ],
   },
 })
