@@ -5,9 +5,9 @@ The short URL is a `302` redirect in `netlify.toml`, so a printed code keeps
 working and can be repointed by editing that rule — no reprint, no paid QR
 service.
 
-| Code                       | Encodes                     | Redirects to                                                     |
-| -------------------------- | --------------------------- | ---------------------------------------------------------------- |
-| [`ai-class`](ai-class.svg) | `https://sergn.io/ai-class` | Minneapolis Community Ed, _Beware the AI_ (Southwest, Fall 2026) |
+| Code           | Encodes               | Redirects to                                                     |
+| -------------- | --------------------- | ---------------------------------------------------------------- |
+| [`ai`](ai.svg) | `https://sergn.io/ai` | Minneapolis Community Ed, _Beware the AI_ (Southwest, Fall 2026) |
 
 The SVG scales to any print size; the PNG is 1024×1024 for quick sharing.
 

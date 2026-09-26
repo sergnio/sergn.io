@@ -15,7 +15,7 @@
 # and scanners never cache the old destination. Must sit above the /* 404 rule,
 # since Netlify applies the first match. QR images live in docs/qr/.
 [[redirects]]
-  from = "/ai-class"
+  from = "/ai"
   to = "https://minneapolis.arux.app/course/67744/adult-enrichment-fall-2026/beware-the-ai-southwest"
   status = 302
   force = true
