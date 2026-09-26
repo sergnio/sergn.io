@@ -2,7 +2,7 @@
 
 Each QR code here encodes a short `sergn.io` URL, not the final destination.
 The short URL is a `302` from the Netlify Edge Function in
-`netlify/edge-functions/short-links.ts`, so a printed code keeps working and can
+`netlify/edge-functions/short-links/short-links.ts`, so a printed code keeps working and can
 be repointed by editing that file - no reprint, no paid QR service.
 
 Every scan is counted in GoatCounter under the path `/ai` (titled `QR: /ai`).
