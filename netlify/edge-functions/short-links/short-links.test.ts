@@ -22,6 +22,7 @@ function scan(
 }
 
 beforeEach(() => {
+  fetchMock.mockReset()
   fetchMock.mockResolvedValue(new Response(null, { status: 202 }))
   vi.stubGlobal('fetch', fetchMock)
   vi.spyOn(console, 'error').mockImplementation(() => {})
