@@ -322,7 +322,6 @@ h3 {
 }
 
 .home-hero > p:last-child,
-.lede,
 .not-found > p:not(.eyebrow) {
   max-width: 41rem;
   color: var(--muted);
@@ -721,10 +720,6 @@ h3 {
   color: var(--muted);
   font-family: 'DM Mono', monospace;
   font-size: 0.75rem;
-}
-
-.detail-hero__date + .lede {
-  margin-top: 1.3rem;
 }
 
 .detail-hero__image {
