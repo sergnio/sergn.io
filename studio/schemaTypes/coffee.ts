@@ -450,6 +450,7 @@ export const coffee = defineType({
       name: 'purchaseUrl',
       title: 'Purchase URL',
       type: 'url',
+      description: "The coffee's product page. The page title links to it.",
       group: 'optional',
       fieldset: 'optionalDetails',
     }),
