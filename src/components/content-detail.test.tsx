@@ -227,6 +227,26 @@ describe('brew recipes', () => {
     expect(markup).not.toContain('>Other<')
   })
 
+  it('prints a recipe whose grind was not recorded', () => {
+    const coffee = requireDocument('coffee', 'colombia-perky')
+    if (coffee._type !== 'coffee') throw new Error('expected a coffee fixture')
+
+    const markup = markupFor({
+      ...coffee,
+      brewRecipes: [
+        {
+          _key: 'from-memory',
+          method: 'V60',
+          doseGrams: 18,
+          notes: 'Did not write the grind down.',
+        },
+      ],
+    })
+
+    expect(markup).toContain('<h3>V60</h3>')
+    expect(markup).toContain('<p>Did not write the grind down.</p>')
+  })
+
   it('heads a milk drink with the drink and lists what went in the cup', () => {
     const markup = markupFor(requireDocument('coffee', 'colombia-perky'))
 
