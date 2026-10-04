@@ -256,6 +256,14 @@ describe('brew recipes', () => {
     expect(markup).toContain('<dt>Process</dt><dd>Washed</dd>')
   })
 
+  it('heads a straight cup with the drink above its brew method', () => {
+    const markup = markupFor(requireDocument('coffee', 'sumatra-long-night'))
+
+    expect(markup).toContain(
+      '<h3>Straight</h3><p class="recipe__method">French Press</p>',
+    )
+  })
+
   it('prints an unlabeled method once', () => {
     const markup = markupFor(requireDocument('coffee', 'colombia-perky'))
 
