@@ -128,6 +128,7 @@ export const fixtureCoffee: Coffee[] = [
       {
         _key: 'press',
         method: 'French Press',
+        drink: 'Straight',
         grinder: {
           name: 'Manual grinder',
           system: 'manual-number-rotations',
