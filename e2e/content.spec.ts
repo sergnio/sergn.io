@@ -37,7 +37,9 @@ test.describe('collection browsing flow', () => {
       page.getByRole('listitem').filter({ hasText: 'Add grounds' }),
     ).toBeVisible()
     await expect(
-      page.getByRole('link', { name: 'Avo Coffee Roasters' }),
+      page.getByRole('heading', { level: 1 }).getByRole('link', {
+        name: 'Colombia Perky',
+      }),
     ).toHaveAttribute('href', 'https://avocoffeeroasters.example.com')
     await expect(
       page.getByRole('definition').filter({ hasText: 'Colombia' }),

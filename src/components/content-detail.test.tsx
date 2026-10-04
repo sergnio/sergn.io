@@ -194,6 +194,21 @@ describe('review facts', () => {
     expect(markup).toContain('<dt>Pickle</dt><dd>House dill spear</dd>')
   })
 
+  it('links a coffee title to its product page', () => {
+    const markup = markupFor(requireDocument('coffee', 'colombia-perky'))
+
+    expect(markup).toContain(
+      '<h1><a href="https://avocoffeeroasters.example.com">Colombia Perky</a></h1>',
+    )
+    expect(markup).toContain('<dt>Bought from</dt><dd>Avo Coffee Roasters</dd>')
+  })
+
+  it('leaves a title without a product page unlinked', () => {
+    const markup = markupFor(requireDocument('coffee', 'ethiopia-direct-trade'))
+
+    expect(markup).toMatch(/<h1>[^<]+<\/h1>/)
+  })
+
   it('drops a fact row rather than printing an empty term', () => {
     const markup = markupFor(requireDocument('coffee', 'ethiopia-direct-trade'))
 

@@ -69,14 +69,7 @@ function facts(document: ContentDocument): Fact[] {
       { label: 'Origin', value: document.origin },
       { label: 'Roast', value: document.roastLevel },
       { label: 'Process', value: document.process },
-      {
-        label: 'Bought from',
-        value: document.purchaseUrl ? (
-          <a href={document.purchaseUrl}>{document.boughtFrom}</a>
-        ) : (
-          document.boughtFrom
-        ),
-      },
+      { label: 'Bought from', value: document.boughtFrom },
       { label: 'Bag', value: formatPackageSize(document.bagSize) },
       { label: 'Tasting notes', value: formatList(document.tastingNotes) },
       { label: 'Roasted', value: formatDate(document.roastDate) },
@@ -256,6 +249,10 @@ function PostDetails({ post }: { post: Post }) {
   )
 }
 
+function productUrl(document: ContentDocument) {
+  return document._type === 'coffee' ? document.purchaseUrl : undefined
+}
+
 export function ContentDetail({ document }: ContentDetailProps) {
   const image = heroImage(document)
   const isReview = document._type !== 'post'
@@ -265,7 +262,13 @@ export function ContentDetail({ document }: ContentDetailProps) {
       <div className={`detail-hero${isReview ? ' detail-hero--review' : ''}`}>
         <header className="detail-hero__copy">
           <p className="eyebrow">{detailLabel(document)}</p>
-          <h1>{document.title}</h1>
+          <h1>
+            {productUrl(document) ? (
+              <a href={productUrl(document)}>{document.title}</a>
+            ) : (
+              document.title
+            )}
+          </h1>
           {document.recommendationStatus === 'notRecommended' ? (
             <p className="detail-callout">Sergio does not recommend this.</p>
           ) : null}
