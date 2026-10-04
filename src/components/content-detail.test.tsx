@@ -51,6 +51,11 @@ const notRenderedInBody: Array<{
     why: 'the crown stands in for the S+ it is the only grade allowed to hide',
   },
   {
+    path: /^excerpt$/,
+    collections: ['blog'] as Array<CollectionName>,
+    why: 'a summary for cards, feeds and the head; the body says it in full',
+  },
+  {
     path: /^publishedAt$/,
     collections: ['wings', 'reubens'] as Array<CollectionName>,
     why: 'a visit shows the date it happened, not the date it was written up',
@@ -171,6 +176,12 @@ describe('review layout', () => {
     expect(markup.indexOf('class="rich-text"')).toBeGreaterThan(
       markup.indexOf('class="detail-content"'),
     )
+  })
+
+  it('leaves the excerpt off a blog post, where the body already says it', () => {
+    for (const post of getFixtureCollection('blog')) {
+      expect(markupFor(post)).not.toContain(escapeHtml(post.excerpt))
+    }
   })
 })
 

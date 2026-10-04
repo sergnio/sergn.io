@@ -279,9 +279,6 @@ export function ContentDetail({ document }: ContentDetailProps) {
               </time>
             </p>
           ) : null}
-          {document._type === 'post' ? (
-            <p className="lede">{document.excerpt}</p>
-          ) : null}
         </header>
         <ImageFigure
           className="detail-hero__image"
