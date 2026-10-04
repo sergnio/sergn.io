@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import {
   formatBrewSettings,
+  formatCupContents,
   formatGrade,
   formatGrinder,
   formatMoney,
@@ -42,6 +43,18 @@ describe('content formatters', () => {
         brewTimeSeconds: 180,
       }),
     ).toBe('18g dose · 93°C · 180 sec')
+  })
+
+  it('lists additions without inventing milk', () => {
+    expect(
+      formatCupContents({
+        _key: 'americano',
+        method: 'Espresso',
+        drink: 'Americano',
+        additions: ['Splash of maple syrup'],
+        grinder: { name: 'Niche', system: 'niche-setting', setting: 12 },
+      }),
+    ).toBe('Splash of maple syrup')
   })
 })
 

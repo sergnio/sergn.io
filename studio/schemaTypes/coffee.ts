@@ -12,6 +12,8 @@ import {
 type BrewRecipeValue = {
   method?: string
   methodOther?: string
+  drink?: string
+  drinkOther?: string
   grinder?: {
     name?: string
     system?: string
@@ -26,6 +28,9 @@ export function validateBrewRecipe(value: BrewRecipeValue | undefined) {
   if (!value?.method) return 'Choose a brew method.'
   if (value.method === 'Other' && !value.methodOther?.trim()) {
     return 'Describe the other brew method.'
+  }
+  if (value.drink === 'Other' && !value.drinkOther?.trim()) {
+    return 'Describe the other drink.'
   }
 
   const grinder = value.grinder
@@ -56,6 +61,23 @@ export function validateBrewRecipe(value: BrewRecipeValue | undefined) {
   }
 
   return true
+}
+
+export const coffeeDrinks = [
+  'Americano',
+  'Cortado',
+  'Cappuccino',
+  'Flat White',
+  'Latte',
+  'Other',
+] as const
+
+const drinksWithoutMilk = new Set<string | undefined>([undefined, 'Americano'])
+
+function isMilkDrink(recipe: unknown) {
+  return !drinksWithoutMilk.has(
+    (recipe as { drink?: string } | undefined)?.drink,
+  )
 }
 
 const grinder = defineType({
@@ -169,6 +191,50 @@ const brewRecipe = defineType({
             : true,
         ),
     }),
+    defineField({
+      name: 'drink',
+      title: 'Drink',
+      type: 'string',
+      description: 'Leave empty for coffee served straight from the brewer.',
+      options: { list: [...coffeeDrinks] },
+    }),
+    defineField({
+      name: 'drinkOther',
+      title: 'Other drink',
+      type: 'string',
+      hidden: ({ parent }) =>
+        (parent as { drink?: string } | undefined)?.drink !== 'Other',
+      validation: (Rule) =>
+        Rule.custom((value, context) =>
+          (context.parent as { drink?: string } | undefined)?.drink ===
+            'Other' && !value?.trim()
+            ? 'Describe the other drink.'
+            : true,
+        ),
+    }),
+    defineField({
+      name: 'milk',
+      title: 'Milk',
+      type: 'string',
+      description: 'For example: whole, oat, half and half.',
+      hidden: ({ parent }) => !isMilkDrink(parent),
+    }),
+    defineField({
+      name: 'milkGrams',
+      title: 'Milk (g)',
+      type: 'number',
+      hidden: ({ parent }) => !isMilkDrink(parent),
+      validation: (Rule) => Rule.positive(),
+    }),
+    defineField({
+      name: 'additions',
+      title: 'Additions',
+      type: 'array',
+      description: 'Anything else in the cup, for example: 5g maple syrup.',
+      of: [{ type: 'string' }],
+      options: { layout: 'tags' },
+      validation: (Rule) => Rule.unique(),
+    }),
     defineField({ name: 'label', title: 'Recipe label', type: 'string' }),
     defineField({ name: 'grinder', title: 'Grinder', type: 'grinder' }),
     defineField({
@@ -219,13 +285,26 @@ const brewRecipe = defineType({
   ],
   validation: (Rule) => Rule.custom((value) => validateBrewRecipe(value)),
   preview: {
-    select: { title: 'label', method: 'method', grinder: 'grinder.name' },
-    prepare: ({ title, method, grinder: grinderName }) => ({
-      title: title || method || 'Brew recipe',
+    select: {
+      title: 'label',
+      drink: 'drink',
+      method: 'method',
+      grinder: 'grinder.name',
+    },
+    prepare: ({ title, drink, method, grinder: grinderName }) => ({
+      title: title || drink || method || 'Brew recipe',
       subtitle: grinderName,
     }),
   },
 })
+
+export const roastLevels = [
+  'Light',
+  'Medium-light',
+  'Medium',
+  'Medium-dark',
+  'Dark',
+] as const
 
 export const coffee = defineType({
   name: 'coffee',
@@ -292,6 +371,7 @@ export const coffee = defineType({
       title: 'Brew recipes',
       type: 'array',
       group: 'tasting',
+      description: 'Lead with the cup that earned the grade.',
       of: [{ type: 'brewRecipe' }],
       validation: (Rule) =>
         Rule.custom(requiredForRecommendations('Add at least one recipe.')),
@@ -337,6 +417,23 @@ export const coffee = defineType({
       type: 'string',
       group: 'optional',
       fieldset: 'optionalDetails',
+    }),
+    defineField({
+      name: 'roastLevel',
+      title: 'Roast level',
+      type: 'string',
+      group: 'optional',
+      fieldset: 'optionalDetails',
+      options: { list: [...roastLevels] },
+    }),
+    defineField({
+      name: 'process',
+      title: 'Process',
+      type: 'string',
+      group: 'optional',
+      fieldset: 'optionalDetails',
+      description:
+        'As printed on the bag, for example: washed, natural, honey.',
     }),
     defineField({
       name: 'purchaseUrl',

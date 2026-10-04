@@ -60,6 +60,23 @@ export function formatMethod(recipe: BrewRecipe) {
   return recipe.method
 }
 
+export function formatDrink(recipe: BrewRecipe) {
+  if (recipe.drink === 'Other')
+    return (recipe.drinkOther ?? '').trim() || undefined
+  return recipe.drink
+}
+
+export function formatCupContents(recipe: BrewRecipe) {
+  const milk = [
+    recipe.milkGrams && `${formatNumber(recipe.milkGrams)}g`,
+    recipe.milk,
+  ]
+    .filter(Boolean)
+    .join(' ')
+  const contents = [milk && `${milk} milk`, ...(recipe.additions ?? [])]
+  return contents.filter(Boolean).join(' · ')
+}
+
 export function formatList(values?: string[]) {
   if (!values?.length) return undefined
   return values.join(', ')
