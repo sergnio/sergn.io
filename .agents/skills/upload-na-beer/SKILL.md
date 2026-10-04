@@ -113,7 +113,23 @@ A rank belongs to a recommendation only, so this step follows `recommendationSta
 
 **Not recommended: skip this step.** `src/lib/content-contract.ts` exempts a non-recommendation from the rank rule, `studio/deskStructure.ts` keeps it out of the orderable list, and the site sorts it by date beneath the ranking. There is nothing to drag and nothing to wait for. Go straight to step 6.
 
-**Recommended: the upload is not finished until the review has a rank.** The CLI cannot safely assign a unique `orderRank`: it is assigned by the Studio's drag-and-drop collection list. After saving and verifying the draft, stop and direct the user to open **N/A beers - Recommended** in the Studio and drag it into its intended position. Resume only once they confirm, then read the draft back and verify `orderRank` is present and unique among recommended N/A beers. If the draft already has an unchanged rank, still verify its uniqueness. An unranked or duplicate-ranked recommendation is an incomplete upload: do not publish it, and do not report it as done. Say plainly that it is waiting on a rank.
+**Recommended: the upload is not finished until the review has a rank, and assigning it is part of the upload.** Place it by grade so Sergio only drags to correct the order, never to fill it in:
+
+1. Fetch the current ranking with an authenticated raw query, counting a draft and its published copy once (prefer the draft): `*[_type == "naBeer" && recommendationStatus != "notRecommended" && defined(orderRank)]{_id, title, grade, isCrowned, orderRank} | order(orderRank asc)`.
+2. Treat the existing order as Sergio's: he reorders by hand, so never re-rank an existing entry. Place the new one directly beneath the last entry graded at or above it (`S+` down to `F`, a crowned entry above all), or at the top if there is none. An ungraded entry goes to the bottom. Place several new entries one at a time, best first, so each sees the last.
+3. Generate a rank between its neighbors with the repository's `lexorank` package, run from a repository checkout with dependencies installed (`npm ci`). Pass an empty string for a missing neighbor, and stop if it prints nothing rather than writing an empty rank:
+
+```sh
+node -e '
+const { LexoRank } = require("lexorank")
+const [above, below] = process.argv.slice(1).map((rank) => rank && LexoRank.parse(rank))
+console.log((above && below ? above.between(below) : above ? above.genNext() : below ? below.genPrev() : LexoRank.middle()).toString())
+' "<rank above>" "<rank below>"
+```
+
+4. Set `orderRank` on the draft with a revision-guarded patch, read it back, and verify it is unique among recommended N/A beers and sorts between its intended neighbors.
+
+Tell Sergio where it landed (between which two entries) and that he can drag it in **N/A beers - Recommended** in the Studio if it is off. An unranked or duplicate-ranked recommendation is an incomplete upload: do not publish it, and do not report it as done.
 
 ### 6. Publish only when explicitly requested
 
@@ -125,7 +141,7 @@ Read back the published base ID and verify its content and draft state. The publ
 
 ## Finish
 
-Reply briefly with title, grade if supplied, recommendation status, and verified draft/published status. For a recommendation, say whether it is ranked. Include the document ID and, if the Studio route can be established from repository configuration, a Studio link (never claim it was opened or verified in a browser). Report blockers, unset fields, and any place the label contradicted the supplied notes. Do not commit/push code for a content upload.
+Reply briefly with title, grade if supplied, recommendation status, and verified draft/published status. For a recommendation, say where it was ranked. Include the document ID and, if the Studio route can be established from repository configuration, a Studio link (never claim it was opened or verified in a browser). Report blockers, unset fields, and any place the label contradicted the supplied notes. Do not commit/push code for a content upload.
 
 ## Invocation
 
