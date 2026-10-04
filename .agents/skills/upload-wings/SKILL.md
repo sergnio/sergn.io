@@ -94,7 +94,8 @@ A rank belongs to a recommendation only, so this step follows `recommendationSta
 
 **Recommended: the upload is not finished until the review has a rank, and assigning it is part of the upload.** Place it by grade so Sergio only drags to correct the order, never to fill it in:
 
-1. Fetch the current ranking with an authenticated raw query, counting a draft and its published copy once (prefer the draft): `*[_type == "wingReview" && recommendationStatus != "notRecommended" && defined(orderRank)]{_id, title, grade, isCrowned, orderRank} | order(orderRank asc)`.
+0. If the entry already has an `orderRank`, keep it: Sergio may have placed it by hand. Skip to step 4 and only verify it.
+1. Fetch the current ranking with an authenticated raw query, counting a draft and its published copy once (prefer the draft) and leaving out both IDs of the entry being ranked: `*[_type == "wingReview" && recommendationStatus != "notRecommended" && defined(orderRank) && !(_id in [$draftId, $publishedId])]{_id, title, grade, isCrowned, orderRank} | order(orderRank asc)`.
 2. Treat the existing order as Sergio's: he reorders by hand, so never re-rank an existing entry. Place the new one directly beneath the last entry graded at or above it (`S+` down to `F`, a crowned entry above all), or at the top if there is none. An ungraded entry goes to the bottom. Place several new entries one at a time, best first, so each sees the last.
 3. Generate a rank between its neighbors with the repository's `lexorank` package, run from a repository checkout with dependencies installed (`npm ci`). Pass each rank in single quotes and only after checking it matches `^[0-9]\|[0-9a-z]+:[0-9a-z]*$`, since it came from the dataset and goes into a shell command. Pass an empty string for a missing neighbor, and stop if it prints nothing rather than writing an empty rank:
 
