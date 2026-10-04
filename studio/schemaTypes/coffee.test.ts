@@ -33,6 +33,16 @@ describe('coffee recipe validation', () => {
     ).toBe('Add a practical note for this grinder system.')
   })
 
+  it('names an other drink', () => {
+    expect(
+      validateBrewRecipe({
+        method: 'Espresso',
+        drink: 'Other',
+        grinder: { name: 'Niche', system: 'niche-setting', setting: 12 },
+      }),
+    ).toBe('Describe the other drink.')
+  })
+
   it('accepts the preserved Perky manual recipe', () => {
     expect(
       validateBrewRecipe({

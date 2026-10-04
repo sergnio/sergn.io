@@ -46,6 +46,8 @@ export const fixtureCoffee: Coffee[] = [
     orderRank: '0|100000:',
     roaster: 'Avo Coffee Roasters',
     origin: 'Colombia',
+    roastLevel: 'Medium',
+    process: 'Washed',
     boughtFrom: 'Avo Coffee Roasters',
     purchaseUrl: 'https://avocoffeeroasters.example.com',
     price: { amountCents: 1543, currency: 'USD' },
@@ -63,6 +65,18 @@ export const fixtureCoffee: Coffee[] = [
     tastingNotes: ['Caramel', 'Citrus', 'Balanced'],
     notes: paragraph('A reliable coffee with a sweet, rounded cup.'),
     brewRecipes: [
+      {
+        _key: 'cappuccino',
+        method: 'Espresso',
+        drink: 'Cappuccino',
+        milk: 'whole',
+        milkGrams: 120,
+        additions: ['5g maple syrup'],
+        grinder: { name: 'Niche', system: 'niche-setting', setting: 12 },
+        doseGrams: 18,
+        yieldGrams: 36,
+        brewTimeSeconds: 28,
+      },
       {
         _key: 'moka',
         method: 'Moka Pot',

@@ -24,6 +24,7 @@ Most of a coffee document is printed on the bag. Read it off the photo rather th
 - `bagSize` comes from the stated net weight and must use `g` or `oz`, the only units the schema accepts for coffee. Never infer weight from the apparent size of the bag.
 - `origin` is where the beans were grown. `boughtFrom` is where Sergio got the bag, which is frequently a local shop rather than the roaster.
 - `roastDate` is printed as "roasted on" and is not the purchase date. A "best by" date is neither; do not convert one into the other.
+- `roastLevel` must match the schema list (`Light`, `Medium-light`, `Medium`, `Medium-dark`, `Dark`) and `process` is copied as printed (washed, natural, honey...). Leave either unset when the bag does not say; never infer roast from bean color, price, or tasting notes.
 - `tastingNotes` on the bag are the roaster's claims. Keep them in `tastingNotes` as the roaster's list and keep Sergio's own impressions in `notes`; do not merge the two.
 
 If the bag contradicts something Sergio supplied, trust the bag and say so. Do not carry forward a price or weight that cannot be sourced.
@@ -38,7 +39,7 @@ Accept conversational input with an attached image or local image path. No templ
 - Derive a concise title from the roaster's name for the coffee. Generate a lowercase, hyphen-separated slug of at most 96 characters; ask only if ambiguous. Check uniqueness across both drafts and published coffees.
 - Grade: optional, one of `S+`, `S`, `S-`, `A+`, `A`, `A-`, `B+`, `B`, `B-`, `C`, `D`, `F`. Do not convert a score out of five or any other scale without clarification. An unbrewed bag has no grade; say so in the notes rather than inventing one.
 - `isCrowned` marks the single best entry in the category. Only an `S+` can wear it, and only one per category, so never set it unless Sergio says so outright. The Studio rejects a second crown, and the page prints the crown in place of the letter.
-- Optional: roaster, origin, purchaseUrl, purchasedAt, price, roastDate, tastingNotes, notes, photo caption/credit, and publication date. Leave unknown optional fields unset. Store a supplied USD price as integer cents; clarify ambiguous currency.
+- Optional: roaster, origin, roastLevel, process, purchaseUrl, purchasedAt, price, roastDate, tastingNotes, notes, photo caption/credit, and publication date. Leave unknown optional fields unset. Store a supplied USD price as integer cents; clarify ambiguous currency.
 - Inspect the image locally before writing factual alt text (5-180 characters). Describe the visible bag and setting, not the flavor or the filename.
 - Strip EXIF before uploading a photo. Phone photos can carry a GPS IFD, and the asset lands on a public CDN. `sips` preserves EXIF, so it is not sufficient on its own; drop the APP1/APP2 segments explicitly and verify they are gone.
 - Convert unsupported images locally without changing the original. On macOS, for example: `sips -s format jpeg -Z 2000 /path/photo.HEIC --out /tmp/coffee-photo.jpg`. Verify the file type and inspect the converted image. Use a unique temporary directory to avoid collisions.
@@ -51,6 +52,9 @@ A recommendation owes at least one recipe, and `validateBrewRecipe` in `studio/s
 - `method` must match the schema list exactly: `Moka Pot`, `Filter`, `V60`, `Espresso`, `AeroPress`, `French Press`, or `Other`. Choosing `Other` also requires `methodOther`.
 - `grinder` needs `name` and `system`. The `system` decides what else is required: `manual-number-rotations` requires both `number` and `rotations`, `niche-setting` requires `setting`, and `other` requires a practical `notes` string. Ask which grinder was used rather than assuming the one on a previous coffee.
 - Everything else on a recipe is optional: `label`, `doseGrams`, `waterGrams`, `yieldGrams`, `waterTemperatureC`, `brewTimeSeconds`, `ratio`, `steps`, `notes`. All the numbers must be positive, and `steps` entries must be unique.
+- The cup is what earns the grade, so a recipe can be a milk drink. `drink` is one of `Americano`, `Cortado`, `Cappuccino`, `Flat White`, `Latte`, or `Other` (which requires `drinkOther`), and is left unset for coffee served straight from the brewer. A milk drink still names its base `method`, usually `Espresso` or `Moka Pot`.
+- `milk` (the kind, for example `whole` or `oat`) and `milkGrams` belong only on milk drinks. `additions` is a list of anything else in the cup, written with its amount when known, for example `5g maple syrup`.
+- Put the recipe that earned the grade first. The grade reflects the bag's best cup, whatever the method.
 - Several recipes for one bag are normal. Give each a `label` when there is more than one, and a unique `_key`.
 
 ## CLI workflow
@@ -115,7 +119,7 @@ Authenticated mutations can be sent without exposing credentials:
 npx sanity api 'data/mutate/{dataset}' --project-hosted --api-version v2021-06-07 --project-id 0vbjaawm --dataset production --method POST --input /tmp/<unique-directory>/mutation.json --header 'Content-Type: application/json'
 ```
 
-Read back the exact draft using an authenticated raw query. Verify persisted title, `recommendationStatus`, boughtFrom, bag size, roaster, origin, grade, tasting notes, every brew recipe, notes, image reference, alt text, optional values, and draft ID. Check the status against what was intended before step 5 branches on it: an absent value reads as a recommendation, so a partial write would route a non-recommendation into the ranking path while the read-back looks fine. Validate the read-back document as well. Do not report success solely because the write command exited successfully.
+Read back the exact draft using an authenticated raw query. Verify persisted title, `recommendationStatus`, boughtFrom, bag size, roaster, origin, roast level, process, grade, tasting notes, every brew recipe, notes, image reference, alt text, optional values, and draft ID. Check the status against what was intended before step 5 branches on it: an absent value reads as a recommendation, so a partial write would route a non-recommendation into the ranking path while the read-back looks fine. Validate the read-back document as well. Do not report success solely because the write command exited successfully.
 
 ### 5. Rank a recommendation before the upload is finished
 
@@ -143,3 +147,5 @@ Reply briefly with title, grade if supplied, recommendation status, and verified
 - Claude Code: `/upload-coffee`
 
 Example input: "Dogwood Neon Owl, 12 oz, bought at Kowalski's. Grade A-. Chocolatey, low acid. V60 on the Comandante, 22 clicks, 20g in 320g out, 94C, 3 minutes. Photo: /path/bag.HEIC. Save as draft."
+
+Example milk drink: "Best as a cappuccino: 18g in, 36g out on the Niche at 12, 28 sec, 120g oat milk, little maple syrup."

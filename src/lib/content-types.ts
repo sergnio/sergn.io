@@ -156,6 +156,11 @@ export type BrewRecipe = {
   _key: string
   method: string
   methodOther?: string
+  drink?: string
+  drinkOther?: string
+  milk?: string
+  milkGrams?: number
+  additions?: string[]
   label?: string
   grinder: {
     name: string
@@ -201,6 +206,8 @@ export type Coffee = BaseDocument &
     _type: 'coffee'
     roaster?: string
     origin?: string
+    roastLevel?: string
+    process?: string
     boughtFrom?: string
     purchaseUrl?: string
     purchasedAt?: string

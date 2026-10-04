@@ -8,7 +8,9 @@ import type {
 import {
   formatAbv,
   formatBrewSettings,
+  formatCupContents,
   formatDate,
+  formatDrink,
   formatGrinder,
   formatList,
   formatLocation,
@@ -65,6 +67,8 @@ function facts(document: ContentDocument): Fact[] {
     return [
       { label: 'Roaster', value: document.roaster },
       { label: 'Origin', value: document.origin },
+      { label: 'Roast', value: document.roastLevel },
+      { label: 'Process', value: document.process },
       {
         label: 'Bought from',
         value: document.purchaseUrl ? (
@@ -205,23 +209,32 @@ function CoffeeRecipes({
         <h2 id="recipes-title">Brew recipes</h2>
       </div>
       <div className="recipe-list">
-        {document.brewRecipes.map((recipe) => (
-          <article className="recipe" key={recipe._key}>
-            <h3>{recipe.label ?? formatMethod(recipe)}</h3>
-            <p className="recipe__method">{formatMethod(recipe)}</p>
-            <p>{formatGrinder(recipe)}</p>
-            {formatBrewSettings(recipe) ? (
-              <p className="recipe__settings">{formatBrewSettings(recipe)}</p>
-            ) : null}
-            {recipe.steps?.length ? (
-              <ol>
-                {recipe.steps.map((step) => (
-                  <li key={step}>{step}</li>
-                ))}
-              </ol>
-            ) : null}
-          </article>
-        ))}
+        {document.brewRecipes.map((recipe) => {
+          const method = formatMethod(recipe)
+          const heading = recipe.label ?? formatDrink(recipe) ?? method
+          return (
+            <article className="recipe" key={recipe._key}>
+              <h3>{heading}</h3>
+              {heading === method ? null : (
+                <p className="recipe__method">{method}</p>
+              )}
+              <p>{formatGrinder(recipe)}</p>
+              {formatCupContents(recipe) ? (
+                <p>{formatCupContents(recipe)}</p>
+              ) : null}
+              {formatBrewSettings(recipe) ? (
+                <p className="recipe__settings">{formatBrewSettings(recipe)}</p>
+              ) : null}
+              {recipe.steps?.length ? (
+                <ol>
+                  {recipe.steps.map((step) => (
+                    <li key={step}>{step}</li>
+                  ))}
+                </ol>
+              ) : null}
+            </article>
+          )
+        })}
       </div>
     </section>
   )

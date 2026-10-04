@@ -226,6 +226,21 @@ describe('brew recipes', () => {
     expect(markup).toContain('Cold brew in a mason jar')
     expect(markup).not.toContain('>Other<')
   })
+
+  it('heads a milk drink with the drink and lists what went in the cup', () => {
+    const markup = markupFor(requireDocument('coffee', 'colombia-perky'))
+
+    expect(markup).toContain('<h3>Cappuccino</h3>')
+    expect(markup).toContain('120g whole milk · 5g maple syrup')
+    expect(markup).toContain('<dt>Roast</dt><dd>Medium</dd>')
+    expect(markup).toContain('<dt>Process</dt><dd>Washed</dd>')
+  })
+
+  it('prints an unlabeled method once', () => {
+    const markup = markupFor(requireDocument('coffee', 'colombia-perky'))
+
+    expect(markup).toContain('<h3>Filter</h3><p>')
+  })
 })
 
 /**
