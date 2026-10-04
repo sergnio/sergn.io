@@ -61,7 +61,6 @@ export function formatMethod(recipe: BrewRecipe) {
 }
 
 export function formatDrink(recipe: BrewRecipe) {
-  if (recipe.drink === 'Straight') return undefined
   if (recipe.drink === 'Other')
     return (recipe.drinkOther ?? '').trim() || undefined
   return recipe.drink
