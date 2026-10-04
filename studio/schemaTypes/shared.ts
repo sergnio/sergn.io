@@ -318,6 +318,7 @@ export const postTags = [
   { title: 'Engineering', value: 'engineering' },
   { title: 'Tools', value: 'tools' },
   { title: 'Opinion', value: 'opinion' },
+  { title: 'Politics', value: 'politics' },
   { title: 'Food', value: 'food' },
   { title: 'Coffee', value: 'coffee' },
   { title: 'Wings', value: 'wings' },
