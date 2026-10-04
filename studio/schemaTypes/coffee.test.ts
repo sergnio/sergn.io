@@ -15,6 +15,10 @@ describe('coffee recipe validation', () => {
     ).toBe('Manual recipes require both a grinder number and rotations.')
   })
 
+  it('accepts a recipe whose grind was not recorded', () => {
+    expect(validateBrewRecipe({ method: 'V60' })).toBe(true)
+  })
+
   it('requires the Niche setting', () => {
     expect(
       validateBrewRecipe({

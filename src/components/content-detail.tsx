@@ -218,7 +218,8 @@ function CoffeeRecipes({
               {heading === method ? null : (
                 <p className="recipe__method">{method}</p>
               )}
-              <p>{formatGrinder(recipe)}</p>
+              {formatGrinder(recipe) ? <p>{formatGrinder(recipe)}</p> : null}
+              {!recipe.grinder && recipe.notes ? <p>{recipe.notes}</p> : null}
               {formatCupContents(recipe) ? (
                 <p>{formatCupContents(recipe)}</p>
               ) : null}

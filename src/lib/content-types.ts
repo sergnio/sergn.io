@@ -162,7 +162,7 @@ export type BrewRecipe = {
   milkGrams?: number
   additions?: string[]
   label?: string
-  grinder: {
+  grinder?: {
     name: string
     system: 'manual-number-rotations' | 'niche-setting' | 'other'
     model?: string

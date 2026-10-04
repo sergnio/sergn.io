@@ -34,7 +34,8 @@ export function validateBrewRecipe(value: BrewRecipeValue | undefined) {
   }
 
   const grinder = value.grinder
-  if (!grinder?.name?.trim() || !grinder.system) {
+  if (!grinder) return true
+  if (!grinder.name?.trim() || !grinder.system) {
     return 'Add the grinder name and system.'
   }
 
@@ -64,6 +65,7 @@ export function validateBrewRecipe(value: BrewRecipeValue | undefined) {
 }
 
 export const coffeeDrinks = [
+  'Straight',
   'Americano',
   'Cortado',
   'Cappuccino',
@@ -72,7 +74,11 @@ export const coffeeDrinks = [
   'Other',
 ] as const
 
-const drinksWithoutMilk = new Set<string | undefined>([undefined, 'Americano'])
+const drinksWithoutMilk = new Set<string | undefined>([
+  undefined,
+  'Straight',
+  'Americano',
+])
 
 function isMilkDrink(recipe: unknown) {
   return !drinksWithoutMilk.has(
@@ -195,7 +201,7 @@ const brewRecipe = defineType({
       name: 'drink',
       title: 'Drink',
       type: 'string',
-      description: 'Leave empty for coffee served straight from the brewer.',
+      description: 'Straight is coffee served as it comes out of the brewer.',
       options: { list: [...coffeeDrinks] },
     }),
     defineField({
@@ -236,7 +242,12 @@ const brewRecipe = defineType({
       validation: (Rule) => Rule.unique(),
     }),
     defineField({ name: 'label', title: 'Recipe label', type: 'string' }),
-    defineField({ name: 'grinder', title: 'Grinder', type: 'grinder' }),
+    defineField({
+      name: 'grinder',
+      title: 'Grinder',
+      type: 'grinder',
+      description: 'Leave empty if the grind was not recorded.',
+    }),
     defineField({
       name: 'doseGrams',
       title: 'Dose (g)',

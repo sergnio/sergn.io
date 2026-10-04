@@ -61,6 +61,7 @@ export function formatMethod(recipe: BrewRecipe) {
 }
 
 export function formatDrink(recipe: BrewRecipe) {
+  if (recipe.drink === 'Straight') return undefined
   if (recipe.drink === 'Other')
     return (recipe.drinkOther ?? '').trim() || undefined
   return recipe.drink
@@ -89,6 +90,7 @@ export function formatLocation(location?: { city?: string; address?: string }) {
 
 export function formatGrinder(recipe: BrewRecipe) {
   const { grinder } = recipe
+  if (!grinder) return undefined
   const model = grinder.model ? ` (${grinder.model})` : ''
 
   switch (grinder.system) {
