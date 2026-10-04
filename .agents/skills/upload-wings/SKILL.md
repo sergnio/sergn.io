@@ -96,14 +96,14 @@ A rank belongs to a recommendation only, so this step follows `recommendationSta
 
 1. Fetch the current ranking with an authenticated raw query, counting a draft and its published copy once (prefer the draft): `*[_type == "wingReview" && recommendationStatus != "notRecommended" && defined(orderRank)]{_id, title, grade, isCrowned, orderRank} | order(orderRank asc)`.
 2. Treat the existing order as Sergio's: he reorders by hand, so never re-rank an existing entry. Place the new one directly beneath the last entry graded at or above it (`S+` down to `F`, a crowned entry above all), or at the top if there is none. An ungraded entry goes to the bottom. Place several new entries one at a time, best first, so each sees the last.
-3. Generate a rank between its neighbors with the repository's `lexorank` package, run from a repository checkout with dependencies installed (`npm ci`). Pass an empty string for a missing neighbor, and stop if it prints nothing rather than writing an empty rank:
+3. Generate a rank between its neighbors with the repository's `lexorank` package, run from a repository checkout with dependencies installed (`npm ci`). Pass each rank in single quotes and only after checking it matches `^[0-9]\|[0-9a-z]+:[0-9a-z]*$`, since it came from the dataset and goes into a shell command. Pass an empty string for a missing neighbor, and stop if it prints nothing rather than writing an empty rank:
 
 ```sh
 node -e '
 const { LexoRank } = require("lexorank")
 const [above, below] = process.argv.slice(1).map((rank) => rank && LexoRank.parse(rank))
 console.log((above && below ? above.between(below) : above ? above.genNext() : below ? below.genPrev() : LexoRank.middle()).toString())
-' "<rank above>" "<rank below>"
+' '<rank above>' '<rank below>'
 ```
 
 4. Set `orderRank` on the draft with a revision-guarded patch, read it back, and verify it is unique among recommended wing reviews and sorts between its intended neighbors.
