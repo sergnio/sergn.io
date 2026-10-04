@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import {
   formatBrewSettings,
   formatCupContents,
+  formatDrink,
   formatGrade,
   formatGrinder,
   formatMoney,
@@ -55,6 +56,17 @@ describe('content formatters', () => {
         grinder: { name: 'Niche', system: 'niche-setting', setting: 12 },
       }),
     ).toBe('Splash of maple syrup')
+  })
+
+  it('leaves a straight cup named by its brew method', () => {
+    expect(
+      formatDrink({
+        _key: 'v60',
+        method: 'V60',
+        drink: 'Straight',
+        grinder: { name: 'Niche', system: 'niche-setting', setting: 20 },
+      }),
+    ).toBeUndefined()
   })
 })
 
