@@ -299,6 +299,7 @@ export const fixtureWings: WingReview[] = [
     orderRank: '0|300000:',
     venue: 'The Corner Bar',
     visitedAt: '2025-03-03',
+    visitCount: 2,
     order: { styleOrFlavor: 'Honey hot', heat: 'Hot', pieceCount: 12 },
     grade: 'B+',
     notes: paragraph('Sweet up front, genuinely hot on the finish.'),
@@ -427,6 +428,7 @@ export const fixtureReubens: ReubenReview[] = [
     restaurant: 'The Rye House',
     location: { city: 'Columbus' },
     visitedAt: '2025-03-13',
+    visitCount: 3,
     grade: 'S-',
     heroImage: fixtureImage(
       'photo-1550507992-eb63ffee0847',

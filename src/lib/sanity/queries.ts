@@ -105,6 +105,7 @@ const projections: Record<CollectionName, string> = {
     venue,
     location,
     visitedAt,
+    visitCount,
     order,
     price
   }`,
@@ -125,6 +126,7 @@ const projections: Record<CollectionName, string> = {
     restaurant,
     location,
     visitedAt,
+    visitCount,
     price,
     orderDetails
   }`,

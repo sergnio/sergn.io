@@ -1,5 +1,5 @@
 import type { ContentDocument } from './content-types'
-import { formatGrade } from './formatters'
+import { formatGrade, formatVisits } from './formatters'
 
 /**
  * How a document summarises itself in a list. Podium cards and ranked rows
@@ -18,11 +18,17 @@ export function cardImage(document: ContentDocument) {
 
 export function cardSummary(document: ContentDocument) {
   if (document._type === 'coffee') return document.roaster ?? document.origin
-  if (document._type === 'wingReview') return document.venue
+  if (document._type === 'wingReview')
+    return restaurantSummary(document.venue, document.visitCount)
   if (document._type === 'naBeer') return document.brewery
-  if (document._type === 'reubenReview') return document.restaurant
+  if (document._type === 'reubenReview')
+    return restaurantSummary(document.restaurant, document.visitCount)
   if (document._type === 'syrupReview') return document.producer
   return document.excerpt
+}
+
+function restaurantSummary(restaurant?: string, visitCount?: number) {
+  return [restaurant, formatVisits(visitCount)].filter(Boolean).join(' · ')
 }
 
 export function cardDate(document: ContentDocument) {

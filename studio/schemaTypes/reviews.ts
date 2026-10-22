@@ -99,6 +99,15 @@ export const wingReview = defineType({
         Rule.custom(requiredForRecommendations('Record the visit date.')),
     }),
     defineField({
+      name: 'visitCount',
+      title: 'Visit count',
+      description: 'How many times we have eaten here. Leave empty for one.',
+      type: 'number',
+      group: 'essentials',
+      initialValue: 1,
+      validation: (Rule) => Rule.integer().min(1),
+    }),
+    defineField({
       name: 'order',
       title: 'Order',
       type: 'object',
@@ -312,6 +321,15 @@ export const reubenReview = defineType({
       initialValue: () => new Date().toISOString().slice(0, 10),
       validation: (Rule) =>
         Rule.custom(requiredForRecommendations('Record the visit date.')),
+    }),
+    defineField({
+      name: 'visitCount',
+      title: 'Visit count',
+      description: 'How many times we have eaten here. Leave empty for one.',
+      type: 'number',
+      group: 'essentials',
+      initialValue: 1,
+      validation: (Rule) => Rule.integer().min(1),
     }),
     defineField({
       name: 'price',

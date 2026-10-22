@@ -196,6 +196,18 @@ describe('review facts', () => {
     expect(markup).toContain('$16.50')
   })
 
+  it('shows one visit when no visit count was recorded', () => {
+    const markup = markupFor(requireDocument('wings', 'neighborhood-buffalo'))
+
+    expect(markup).toContain('<dt>Visits</dt><dd>1 visit</dd>')
+  })
+
+  it('shows the recorded visit count', () => {
+    const markup = markupFor(requireDocument('reubens', 'the-rye-house-reuben'))
+
+    expect(markup).toContain('<dt>Visits</dt><dd>3 visits</dd>')
+  })
+
   it('lists free-form reuben order details alongside the named ones', () => {
     const markup = markupFor(requireDocument('reubens', 'the-rye-house-reuben'))
 
