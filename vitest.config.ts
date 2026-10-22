@@ -11,6 +11,7 @@ export default defineConfig({
       'src/**/*.test.tsx',
       'studio/**/*.test.ts',
       'netlify/**/*.test.ts',
+      'scripts/**/*.test.mjs',
     ],
   },
 })

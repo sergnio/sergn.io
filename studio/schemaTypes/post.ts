@@ -1,5 +1,5 @@
 import { defineField, defineType } from 'sanity'
-import { postTags, slugField } from './shared'
+import { postTags, slugFields } from './shared'
 
 export const post = defineType({
   name: 'post',
@@ -25,7 +25,7 @@ export const post = defineType({
       type: 'postBody',
       validation: (Rule) => Rule.required().min(1),
     }),
-    defineField({ ...slugField(), fieldset: 'settings' }),
+    ...slugFields({ fieldset: 'settings' }),
     defineField({
       name: 'excerpt',
       title: 'Excerpt',

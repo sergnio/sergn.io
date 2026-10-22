@@ -6,7 +6,7 @@ import {
   recommendationStatusField,
   requiredForNonRecommendations,
   requiredForRecommendations,
-  slugField,
+  slugFields,
 } from './shared'
 
 const documentGroups = [
@@ -80,7 +80,7 @@ export const wingReview = defineType({
       group: 'essentials',
       validation: (Rule) => Rule.required(),
     }),
-    defineField({ ...slugField(), group: 'essentials' }),
+    ...slugFields({ group: 'essentials' }),
     defineField({
       name: 'venue',
       title: 'Venue',
@@ -191,7 +191,7 @@ export const naBeer = defineType({
       group: 'essentials',
       validation: (Rule) => Rule.required(),
     }),
-    defineField({ ...slugField(), group: 'essentials' }),
+    ...slugFields({ group: 'essentials' }),
     defineField({
       name: 'brewery',
       title: 'Brewery',
@@ -295,7 +295,7 @@ export const reubenReview = defineType({
       group: 'essentials',
       validation: (Rule) => Rule.required(),
     }),
-    defineField({ ...slugField(), group: 'essentials' }),
+    ...slugFields({ group: 'essentials' }),
     defineField({
       name: 'restaurant',
       title: 'Restaurant',
@@ -407,7 +407,7 @@ export const syrupReview = defineType({
       group: 'essentials',
       validation: (Rule) => Rule.required(),
     }),
-    defineField({ ...slugField(), group: 'essentials' }),
+    ...slugFields({ group: 'essentials' }),
     defineField({
       name: 'producer',
       title: 'Producer',

@@ -6,7 +6,7 @@ import {
   recommendationStatusField,
   requiredForNonRecommendations,
   requiredForRecommendations,
-  slugField,
+  slugFields,
 } from './shared'
 
 type BrewRecipeValue = {
@@ -343,7 +343,7 @@ export const coffee = defineType({
       group: 'essentials',
       validation: (Rule) => Rule.required(),
     }),
-    defineField({ ...slugField(), group: 'essentials' }),
+    ...slugFields({ group: 'essentials' }),
     defineField({
       name: 'boughtFrom',
       title: 'Bought from',
