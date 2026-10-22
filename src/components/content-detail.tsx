@@ -19,6 +19,7 @@ import {
   formatPackageSize,
   formatPricePerLiter,
   formatGrade,
+  formatVisits,
 } from '#/lib/formatters'
 import { ImageFigure } from './content-image'
 import { RichText } from './rich-text'
@@ -86,6 +87,7 @@ function facts(document: ContentDocument): Fact[] {
     return [
       { label: 'Venue', value: document.venue },
       { label: 'Where', value: locationValue(document) },
+      { label: 'Visits', value: formatVisits(document.visitCount) },
       { label: 'Order', value: document.order?.styleOrFlavor },
       { label: 'Heat', value: document.order?.heat },
       { label: 'Pieces', value: document.order?.pieceCount },
@@ -125,6 +127,7 @@ function facts(document: ContentDocument): Fact[] {
     return [
       { label: 'Restaurant', value: document.restaurant },
       { label: 'Where', value: locationValue(document) },
+      { label: 'Visits', value: formatVisits(document.visitCount) },
       ...Object.entries(namedDetails).map(([label, value]) => ({
         label,
         value,

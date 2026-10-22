@@ -72,6 +72,23 @@ describe('a ranked collection page', () => {
     },
   )
 
+  it.each(['wings', 'reubens'] as const)(
+    'shows how often each %s restaurant was visited, one when unrecorded',
+    (collection) => {
+      const documents = getFixtureCollection(collection)
+      const markup = markupFor(collection, documents)
+
+      for (const document of documents) {
+        const visits =
+          'visitCount' in document && document.visitCount
+            ? `${document.visitCount} visits`
+            : '1 visit'
+        const entry = markup.slice(markup.indexOf(document.title))
+        expect(entry.slice(0, entry.indexOf('</article>'))).toContain(visits)
+      }
+    },
+  )
+
   it('labels every non-recommendation on its card, not just in the heading', () => {
     const documents = getFixtureCollection('wings')
     const markup = markupFor('wings', documents)

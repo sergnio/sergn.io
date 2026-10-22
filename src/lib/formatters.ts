@@ -43,6 +43,11 @@ export function formatDate(date?: string) {
   }).format(new Date(date))
 }
 
+/** A restaurant with no recorded count has been visited the once it was reviewed. */
+export function formatVisits(visitCount = 1) {
+  return visitCount === 1 ? '1 visit' : `${visitCount} visits`
+}
+
 export function formatAbv(abv?: number, note?: string) {
   if (note) return note
   if (abv === undefined) return undefined

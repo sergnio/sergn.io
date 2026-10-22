@@ -228,6 +228,7 @@ export type WingReview = BaseDocument &
     venue?: string
     location?: { city?: string; address?: string; url?: string }
     visitedAt?: string
+    visitCount?: number
     order?: {
       styleOrFlavor?: string
       heat?: string
@@ -265,6 +266,7 @@ export type ReubenReview = BaseDocument &
     restaurant?: string
     location?: { city?: string; address?: string; url?: string }
     visitedAt?: string
+    visitCount?: number
     price?: Money
     orderDetails?: {
       meat?: string
