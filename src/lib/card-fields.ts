@@ -27,7 +27,7 @@ export function cardSummary(document: ContentDocument) {
   return document.excerpt
 }
 
-function restaurantSummary(restaurant?: string, visitCount?: number) {
+function restaurantSummary(restaurant?: string, visitCount?: number | null) {
   return [restaurant, formatVisits(visitCount)].filter(Boolean).join(' · ')
 }
 
