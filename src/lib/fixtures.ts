@@ -202,7 +202,7 @@ export const fixtureWings: WingReview[] = [
     _createdAt: '2025-02-12T12:00:00.000Z',
     _updatedAt: '2025-02-12T12:00:00.000Z',
     title: 'Neighborhood Buffalo',
-    slug: 'neighborhood-buffalo-wings',
+    slug: 'neighborhood-buffalo',
     publishedAt: '2025-02-12T12:00:00.000Z',
     orderRank: '0|100000:',
     venue: 'Neighborhood Tavern',

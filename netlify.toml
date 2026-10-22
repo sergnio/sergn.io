@@ -10,6 +10,52 @@
   targetPort = 3000
   port = 8888
 
+# Wing slugs once ended in -wings; keep the old URLs working.
+[[redirects]]
+  from = "/wings/cedar-inn-buffalo-wings"
+  to = "/wings/cedar-inn-buffalo"
+  status = 301
+
+[[redirects]]
+  from = "/wings/king-of-the-wing-wings"
+  to = "/wings/king-of-the-wing"
+  status = 301
+
+[[redirects]]
+  from = "/wings/the-nook-buffalo-wings"
+  to = "/wings/the-nook-buffalo"
+  status = 301
+
+[[redirects]]
+  from = "/wings/monte-carlo-house-asian-zing-wings"
+  to = "/wings/monte-carlo-house-asian-zing"
+  status = 301
+
+[[redirects]]
+  from = "/wings/runyons-buffalo-wings"
+  to = "/wings/runyons-buffalo"
+  status = 301
+
+[[redirects]]
+  from = "/wings/hilltop-buffalo-wings"
+  to = "/wings/hilltop-buffalo"
+  status = 301
+
+[[redirects]]
+  from = "/wings/steve-os-buffalo-wings"
+  to = "/wings/steve-os-buffalo"
+  status = 301
+
+[[redirects]]
+  from = "/wings/wingstop-wings"
+  to = "/wings/wingstop"
+  status = 301
+
+[[redirects]]
+  from = "/wings/northbound-brew-pub-buffalo-wings"
+  to = "/wings/northbound-brew-pub-buffalo"
+  status = 301
+
 [[redirects]]
   from = "/*"
   to = "/not-found"

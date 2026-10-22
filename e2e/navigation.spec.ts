@@ -299,7 +299,7 @@ test.describe('crawler files', () => {
     for (const permalink of [
       'coffee/ethiopia-direct-trade',
       'coffee/colombia-perky',
-      'wings/neighborhood-buffalo-wings',
+      'wings/neighborhood-buffalo',
       'na-beers/bright-lager',
       'reubens/the-rye-house-reuben',
       'syrup/sweet-ontario',
