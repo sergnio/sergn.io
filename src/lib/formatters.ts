@@ -43,7 +43,7 @@ export function formatDate(date?: string) {
   }).format(new Date(date))
 }
 
-/** A restaurant with no recorded count has been visited the once it was reviewed. */
+/** A review with no recorded count stands for a single visit. */
 export function formatVisits(visitCount = 1) {
   return visitCount === 1 ? '1 visit' : `${visitCount} visits`
 }
