@@ -187,9 +187,7 @@ describe('review layout', () => {
 
 describe('review facts', () => {
   it('links a venue to its site and lists the sides ordered', () => {
-    const markup = markupFor(
-      requireDocument('wings', 'neighborhood-buffalo-wings'),
-    )
+    const markup = markupFor(requireDocument('wings', 'neighborhood-buffalo'))
 
     expect(markup).toContain(
       '<a href="https://neighborhood-tavern.example.com">18 Tavern Row, Columbus</a>',

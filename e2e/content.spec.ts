@@ -84,7 +84,7 @@ test.describe('collection browsing flow', () => {
       .first()
       .click()
 
-    await expect(page).toHaveURL(/\/wings\/neighborhood-buffalo-wings\/?$/)
+    await expect(page).toHaveURL(/\/wings\/neighborhood-buffalo\/?$/)
     await expect(
       page.getByRole('heading', {
         level: 1,
@@ -787,13 +787,13 @@ test.describe('structured data', () => {
   test('a review detail page carries its grade and breadcrumb trail', async ({
     page,
   }) => {
-    await page.goto('/wings/neighborhood-buffalo-wings')
+    await page.goto('/wings/neighborhood-buffalo')
 
     const blocks = await jsonLdBlocks(page)
     expect(blocks.find((block) => block['@type'] === 'Review')).toMatchObject({
       itemReviewed: { '@type': 'Restaurant', name: 'Neighborhood Tavern' },
       reviewRating: { ratingValue: 4.3, bestRating: 5, worstRating: 1 },
-      url: 'https://sergn.io/wings/neighborhood-buffalo-wings',
+      url: 'https://sergn.io/wings/neighborhood-buffalo',
     })
     expect(
       blocks.find((block) => block['@type'] === 'BreadcrumbList')
@@ -808,7 +808,7 @@ test.describe('structured data', () => {
       expect.objectContaining({
         position: 3,
         name: 'Neighborhood Buffalo',
-        item: 'https://sergn.io/wings/neighborhood-buffalo-wings',
+        item: 'https://sergn.io/wings/neighborhood-buffalo',
       }),
     ])
   })

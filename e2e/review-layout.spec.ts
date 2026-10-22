@@ -11,7 +11,7 @@ async function bounds(locator: Locator) {
 
 const reviews = [
   '/coffee/colombia-perky',
-  '/wings/neighborhood-buffalo-wings',
+  '/wings/neighborhood-buffalo',
   '/na-beers/bright-lager',
   '/reubens/the-rye-house-reuben',
   '/syrup/sweet-ontario',
@@ -77,7 +77,7 @@ test('long review notes and embedded images stay beside the hero and above the f
   page,
 }) => {
   await page.setViewportSize({ width: 1280, height: 900 })
-  await page.goto('/wings/neighborhood-buffalo-wings')
+  await page.goto('/wings/neighborhood-buffalo')
   await page.evaluate(() => document.fonts.ready)
 
   const hero = await bounds(page.locator('.detail-hero__image'))
