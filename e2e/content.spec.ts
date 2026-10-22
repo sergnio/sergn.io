@@ -80,7 +80,7 @@ test.describe('collection browsing flow', () => {
     await page.goto('/wings')
 
     await page
-      .getByRole('link', { name: 'Neighborhood Buffalo Wings' })
+      .getByRole('link', { name: 'Neighborhood Buffalo' })
       .first()
       .click()
 
@@ -88,7 +88,7 @@ test.describe('collection browsing flow', () => {
     await expect(
       page.getByRole('heading', {
         level: 1,
-        name: 'Neighborhood Buffalo Wings',
+        name: 'Neighborhood Buffalo',
       }),
     ).toBeVisible()
     await expect(page.getByText('Neighborhood Tavern')).toBeVisible()
@@ -139,7 +139,7 @@ test.describe('collection browsing flow', () => {
 
     const card = page
       .locator('.content-card')
-      .filter({ hasText: 'Neighborhood Buffalo Wings' })
+      .filter({ hasText: 'Neighborhood Buffalo' })
 
     await expect(card.getByText('Neighborhood Tavern')).toBeVisible()
     await expect(card.locator('.content-card__grade')).toHaveText('Grade: A+')
@@ -629,7 +629,7 @@ test.describe('collection browsing flow', () => {
 
 test.describe('ranked collections', () => {
   const rankedOrder = [
-    'Neighborhood Buffalo Wings',
+    'Neighborhood Buffalo',
     'Smokehouse Dry Rub Wings',
     'Corner Bar Honey Hot',
     'Arena Concession Wings',
@@ -807,7 +807,7 @@ test.describe('structured data', () => {
       }),
       expect.objectContaining({
         position: 3,
-        name: 'Neighborhood Buffalo Wings',
+        name: 'Neighborhood Buffalo',
         item: 'https://sergn.io/wings/neighborhood-buffalo-wings',
       }),
     ])
