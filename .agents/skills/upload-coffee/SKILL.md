@@ -13,8 +13,8 @@ Turn a bag photo, rough notes, and brew settings into a complete `coffee` docume
 - Before authoring, read `AGENTS.md`, the hosting/content guidance in `README.md`, `studio/sanity.cli.ts`, `studio/schemaTypes/coffee.ts`, `studio/schemaTypes/shared.ts`, and `src/lib/content-contract.ts`. These are authoritative if configuration or fields change.
 - Read `~/.agents/VOICE.md` before editing prose in Sergio's voice. Preserve his opinions and phrasing; lightly clean up notes, never invent tasting experiences.
 - Confirm project and dataset from `studio/sanity.cli.ts`. Use explicit `--project-id` and `--dataset` flags on dataset commands. Current values are `0vbjaawm` and `production`.
-- Use `npx sanity --help` and per-command `--help` for the installed CLI syntax. Use its existing login, not a Studio browser session. Check authentication with `npx sanity api users/me` and project access with `npx sanity users list`.
-- If authentication is absent or expired, stop and ask the user to authenticate independently with `cd studio && npx sanity login`, then resume when ready. Do not launch login or any browser yourself. Never request credentials in chat, read/extract stored tokens, or put credentials in commands, temporary files, the repository, or `.env.local`.
+- Use `npx --no sanity --help` and per-command `--help` for the installed CLI syntax. Use its existing login, not a Studio browser session. Check authentication with `npx --no sanity api users/me` and project access with `npx --no sanity users list`.
+- If authentication is absent or expired, stop and ask the user to authenticate independently with `cd studio && npx --no sanity login`, then resume when ready. Do not launch login or any browser yourself. Never request credentials in chat, read/extract stored tokens, or put credentials in commands, temporary files, the repository, or `.env.local`.
 
 ## The bag is the source of truth
 
@@ -63,17 +63,17 @@ A recommendation owes at least one recipe, and `validateBrewRecipe` in `studio/s
 Query matching coffees by roaster/title before uploading assets or creating documents. Use an authenticated query with API version `2021-06-07` for raw draft and published visibility:
 
 ```sh
-npx sanity documents query '*[_type == "coffee" && (roaster match "*Dogwood*" || title match "*Dogwood*")]' --api-version 2021-06-07 --project-id 0vbjaawm --dataset production
+npx --no sanity documents query '*[_type == "coffee" && (roaster match "*Dogwood*" || title match "*Dogwood*")]' --api-version 2021-06-07 --project-id 0vbjaawm --dataset production
 ```
 
 Substitute the actual search terms, constructing queries safely instead of interpolating unescaped user text. If a likely duplicate exists, ask whether to finish/update it or create a distinct bag. Never overwrite an existing coffee without authorization. Query slug conflicts too, excluding both IDs of the document being edited.
 
 ### 2. Upload the photo
 
-Use `npx sanity assets upload --help`, then upload the local file with explicit project/dataset flags:
+Use `npx --no sanity assets upload --help`, then upload the local file with explicit project/dataset flags:
 
 ```sh
-npx sanity assets upload --file /tmp/<unique-directory>/coffee.jpg --type image --filename coffee-<slug>.jpg --content-type image/jpeg --project-id 0vbjaawm --dataset production
+npx --no sanity assets upload --file /tmp/<unique-directory>/coffee.jpg --type image --filename coffee-<slug>.jpg --content-type image/jpeg --project-id 0vbjaawm --dataset production
 ```
 
 It prints JSON whose asset ID is nested at `.asset._id`, not at the top level. Save the output in a temporary directory and use that actual `_id` as the image reference. Do not guess asset IDs or URLs. Use a neutral filename rather than exposing the original camera filename. Reuse a verified asset from an earlier successful upload when resuming instead of uploading again.
@@ -99,7 +99,7 @@ For an authorized update, fetch the latest draft (or published document if no dr
 CLI/API writes bypass Studio form validation. Before writing, validate the candidate against the local schema:
 
 ```sh
-npx sanity documents validate --file /tmp/<unique-directory>/candidate.ndjson --yes --format json --project-id 0vbjaawm --dataset production
+npx --no sanity documents validate --file /tmp/<unique-directory>/candidate.ndjson --yes --format json --project-id 0vbjaawm --dataset production
 ```
 
 An empty `[]` means no errors. Confirm the validator is actually resolving the schema rather than passing everything, for example by checking that a deliberately bad brew recipe is rejected. Inspect validation output, not just the exit status. Resolve errors from known facts, ask if information is missing, and check the content contract too. Never claim a complete draft or publish content with unresolved required-field errors.
@@ -108,14 +108,14 @@ Do not pass `--level error`. A `requiredForRecommendations` rule on an object fi
 
 ### 4. Save and read back
 
-`npx sanity documents create` parses one JSON5 document per invocation and rejects multi-line NDJSON, so write one file per coffee and loop. Use explicit project/dataset flags and no `--replace`. Retain each ID across retries and query before retrying an uncertain write.
+`npx --no sanity documents create` parses one JSON5 document per invocation and rejects multi-line NDJSON, so write one file per coffee and loop. Use explicit project/dataset flags and no `--replace`. Retain each ID across retries and query before retrying an uncertain write.
 
-For existing drafts, use `npx sanity api` with a JSON mutation body and a revision-guarded patch (`ifRevisionID` using the fetched `_rev`). Use `set` for supplied fields and `unset` only when explicitly needed. For a published coffee without a draft, create a draft copy with the same base ID, excluding system revision/timestamp fields. A conflict means refetch and reconcile, not blindly replace.
+For existing drafts, use `npx --no sanity api` with a JSON mutation body and a revision-guarded patch (`ifRevisionID` using the fetched `_rev`). Use `set` for supplied fields and `unset` only when explicitly needed. For a published coffee without a draft, create a draft copy with the same base ID, excluding system revision/timestamp fields. A conflict means refetch and reconcile, not blindly replace.
 
 Authenticated mutations can be sent without exposing credentials:
 
 ```sh
-npx sanity api 'data/mutate/{dataset}' --project-hosted --api-version v2021-06-07 --project-id 0vbjaawm --dataset production --method POST --input /tmp/<unique-directory>/mutation.json --header 'Content-Type: application/json'
+npx --no sanity api 'data/mutate/{dataset}' --project-hosted --api-version v2021-06-07 --project-id 0vbjaawm --dataset production --method POST --input /tmp/<unique-directory>/mutation.json --header 'Content-Type: application/json'
 ```
 
 Read back the exact draft using an authenticated raw query. Verify persisted title, `recommendationStatus`, boughtFrom, bag size, roaster, origin, roast level, process, grade, tasting notes, every brew recipe, notes, image reference, alt text, optional values, and draft ID. Check the status against what was intended before step 5 branches on it: an absent value reads as a recommendation, so a partial write would route a non-recommendation into the ranking path while the read-back looks fine. Validate the read-back document as well. Do not report success solely because the write command exited successfully.
@@ -149,7 +149,7 @@ Tell Sergio where it landed (between which two entries) and that he can drag it 
 
 An explicit request to publish authorizes publishing after verification; do not ask redundantly. "Upload" or "add to Studio" alone means draft.
 
-Use the CLI's authenticated API command and the currently documented Sanity document publishing action. Inspect `npx sanity openapi --help` and the relevant Actions API specification before constructing the request; do not guess the payload. Prefer the supported publish action over manually creating a published document and deleting its draft. If the supported action cannot be established, leave the verified draft and report the blocker.
+Use the CLI's authenticated API command and the currently documented Sanity document publishing action. Inspect `npx --no sanity openapi --help` and the relevant Actions API specification before constructing the request; do not guess the payload. Prefer the supported publish action over manually creating a published document and deleting its draft. If the supported action cannot be established, leave the verified draft and report the blocker.
 
 Read back the published base ID and verify its content and draft state. The public site is statically built from published documents only: a draft never appears on the site, and publication and deployment are separate steps. Use `curl` or another terminal HTTP client to check the public `/coffee/<slug>` page and confirm the actual new content, not just an HTTP 200. No browser. If not verified, say "Published in Studio; public-site update not verified." Do not create hooks, change hosting, or trigger unrelated deployments without authorization.
 

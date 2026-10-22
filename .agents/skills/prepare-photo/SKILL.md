@@ -5,7 +5,7 @@ description: Make a local photo safe and correct to upload to Sergio's public Sa
 
 # Prepare photo
 
-Turn one local image into an upright, metadata-free sRGB JPEG ready for `npx sanity assets upload`. Never modify the original file.
+Turn one local image into an upright, metadata-free sRGB JPEG ready for `npx --no sanity assets upload`. Never modify the original file.
 
 ## Why each step exists
 
@@ -13,6 +13,8 @@ Turn one local image into an upright, metadata-free sRGB JPEG ready for `npx san
 - Phone photos carry a GPS location, and the uploaded asset lands on a public CDN, so every metadata segment goes.
 - iPhone photos are Display P3. Stripping the embedded color profile without converting first leaves colors washed out, so convert to sRGB before stripping.
 - `sips` keeps EXIF and does not apply the orientation tag, so it is not enough on its own here.
+
+Requires macOS with ImageMagick and the system sRGB profile shown below.
 
 ## Steps
 
@@ -41,7 +43,7 @@ If `magick` is missing or fails, stop and report it rather than falling back to 
 
 ## Invocation
 
-- Pi: `/skill:prepare-photo`
+- Pi coding agent (on macOS): `/skill:prepare-photo`
 - Claude Code: `/prepare-photo`
 
 Example input: "Prepare ~/Downloads/IMG_4321.HEIC for upload."
