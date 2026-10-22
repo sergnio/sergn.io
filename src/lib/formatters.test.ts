@@ -16,6 +16,7 @@ describe('content formatters', () => {
 
   it('counts an unrecorded visit count as one visit', () => {
     expect(formatVisits(undefined)).toBe('1 visit')
+    expect(formatVisits(null)).toBe('1 visit')
     expect(formatVisits(1)).toBe('1 visit')
     expect(formatVisits(4)).toBe('4 visits')
   })

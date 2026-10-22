@@ -44,8 +44,9 @@ export function formatDate(date?: string) {
 }
 
 /** A review with no recorded count stands for a single visit. */
-export function formatVisits(visitCount = 1) {
-  return visitCount === 1 ? '1 visit' : `${visitCount} visits`
+export function formatVisits(visitCount?: number | null) {
+  const visits = visitCount ?? 1
+  return visits === 1 ? '1 visit' : `${visits} visits`
 }
 
 export function formatAbv(abv?: number, note?: string) {
