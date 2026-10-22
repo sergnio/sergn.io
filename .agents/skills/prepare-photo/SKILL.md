@@ -18,7 +18,7 @@ Requires macOS with ImageMagick and the system sRGB profile shown below.
 
 ## Steps
 
-1. Create a unique temporary directory with `mktemp -d /tmp/prepare-photo-XXXX`, outside the repository.
+1. Create a unique temporary directory outside the repository: `DIR=$(mktemp -d /tmp/prepare-photo-XXXX)`.
 2. Run ImageMagick (`magick`, installed with HEIC support) on the original:
 
    ```sh
