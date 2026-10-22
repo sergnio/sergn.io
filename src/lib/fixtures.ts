@@ -201,7 +201,7 @@ export const fixtureWings: WingReview[] = [
     _type: 'wingReview',
     _createdAt: '2025-02-12T12:00:00.000Z',
     _updatedAt: '2025-02-12T12:00:00.000Z',
-    title: 'Neighborhood Buffalo Wings',
+    title: 'Neighborhood Buffalo',
     slug: 'neighborhood-buffalo-wings',
     publishedAt: '2025-02-12T12:00:00.000Z',
     orderRank: '0|100000:',
