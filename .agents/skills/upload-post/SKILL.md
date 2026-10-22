@@ -13,8 +13,8 @@ Turn writing into a complete `post` through the authenticated Sanity CLI, with e
 - Before authoring, read `AGENTS.md`, the hosting/content guidance in `README.md`, `studio/sanity.cli.ts`, `studio/schemaTypes/post.ts`, `studio/schemaTypes/postBody.ts`, `studio/schemaTypes/shared.ts`, and `src/lib/content-contract.ts`. These are authoritative if configuration or fields change.
 - Read `~/.agents/VOICE.md` before touching prose in Sergio's voice.
 - Confirm project and dataset from `studio/sanity.cli.ts`. Use explicit `--project-id` and `--dataset` flags on dataset commands. Current values are `0vbjaawm` and `production`.
-- Use `npx sanity --help` and per-command `--help` for the installed CLI syntax. Use its existing login, not a Studio browser session. Check authentication with `npx sanity api users/me`.
-- If authentication is absent or expired, stop and ask the user to authenticate independently with `cd studio && npx sanity login`, then resume when ready. Do not launch login or any browser yourself. Never request credentials in chat, read/extract stored tokens, or put credentials in commands, temporary files, the repository, or `.env.local`.
+- Use `npx --no sanity --help` and per-command `--help` for the installed CLI syntax. Use its existing login, not a Studio browser session. Check authentication with `npx --no sanity api users/me`.
+- If authentication is absent or expired, stop and ask the user to authenticate independently with `cd studio && npx --no sanity login`, then resume when ready. Do not launch login or any browser yourself. Never request credentials in chat, read/extract stored tokens, or put credentials in commands, temporary files, the repository, or `.env.local`.
 
 ## The body is his, the metadata is yours to propose
 
@@ -63,7 +63,7 @@ Run every image, cover or inline, through the `prepare-photo` skill before uploa
 Query matching posts by title and slug before uploading assets or creating documents. Use an authenticated query with API version `2021-06-07` for raw draft and published visibility:
 
 ```sh
-npx sanity documents query '*[_type == "post" && (title match "*yin*" || slug.current == "the-slug")]{_id, title, "slug": slug.current}' --api-version 2021-06-07 --project-id 0vbjaawm --dataset production
+npx --no sanity documents query '*[_type == "post" && (title match "*yin*" || slug.current == "the-slug")]{_id, title, "slug": slug.current}' --api-version 2021-06-07 --project-id 0vbjaawm --dataset production
 ```
 
 Substitute the actual search terms, constructing queries safely instead of interpolating unescaped user text. If a likely duplicate exists, ask whether to finish that one or create a separate post. Never overwrite an existing post without authorization. Query slug conflicts too, excluding both IDs of the document being edited.
@@ -73,10 +73,12 @@ Substitute the actual search terms, constructing queries safely instead of inter
 The command takes `--file`, not a positional path:
 
 ```sh
-npx sanity assets upload --file /tmp/<unique-directory>/cover.jpg --type image --filename post-<slug>.jpg --content-type image/jpeg --project-id 0vbjaawm --dataset production
+npx --no sanity assets upload --file /tmp/<unique-directory>/cover.jpg --type image --filename post-<slug>.jpg --content-type image/jpeg --project-id 0vbjaawm --dataset production
 ```
 
 It prints JSON whose asset ID is nested at `.asset._id`, not at the top level. Save the output in a temporary directory and use that actual `_id` as the image reference. Do not guess asset IDs or URLs. Use a neutral filename rather than exposing the original camera filename. Reuse a verified asset from an earlier successful upload when resuming instead of uploading again.
+
+For each approved inline image, run its local file through `prepare-photo`, then repeat this upload command with the prepared output and a distinct neutral filename. Insert an `imageWithAlt` object at the agreed position in `body`, using a unique `_key` and the same nested `image.asset` reference shape as `coverImage` below. Use the returned `.asset._id` and approved factual alt text for that image.
 
 ### 3. Prepare and validate the draft
 
@@ -93,21 +95,21 @@ For an authorized update, fetch the latest draft (or published document if no dr
 CLI/API writes bypass Studio form validation. Before writing, validate the candidate against the local schema:
 
 ```sh
-npx sanity documents validate --file /tmp/<unique-directory>/candidate.ndjson --yes --format json --project-id 0vbjaawm --dataset production
+npx --no sanity documents validate --file /tmp/<unique-directory>/candidate.ndjson --yes --format json --project-id 0vbjaawm --dataset production
 ```
 
 An empty `[]` means no errors, and a non-empty result exits non-zero, so read the markers rather than the exit status. Each marker names its `path`, which is how a missing `coverImage.alt` is told apart from a missing body. Resolve errors from known facts, ask if information is missing, and check the content contract too. Never claim a complete draft or publish content with unresolved required-field errors.
 
 ### 4. Save and read back
 
-`npx sanity documents create` takes the file as a positional argument, parses one JSON5 document per invocation, and rejects multi-line NDJSON, so write one file per post. Use explicit project/dataset flags and no `--replace`. Retain the ID across retries and query before retrying an uncertain write.
+`npx --no sanity documents create` takes the file as a positional argument, parses one JSON5 document per invocation, and rejects multi-line NDJSON, so write one file per post. Use explicit project/dataset flags and no `--replace`. Retain the ID across retries and query before retrying an uncertain write.
 
-For existing drafts, use `npx sanity api` with a JSON mutation body and a revision-guarded patch (`ifRevisionID` using the fetched `_rev`). Use `set` for supplied fields and `unset` only when explicitly needed. For a published post without a draft, create a draft copy with the same base ID, excluding system revision/timestamp fields. A conflict means refetch and reconcile, not blindly replace.
+For existing drafts, use `npx --no sanity api` with a JSON mutation body and a revision-guarded patch (`ifRevisionID` using the fetched `_rev`). Use `set` for supplied fields and `unset` only when explicitly needed. For a published post without a draft, create a draft copy with the same base ID, excluding system revision/timestamp fields. A conflict means refetch and reconcile, not blindly replace.
 
 Authenticated mutations can be sent without exposing credentials:
 
 ```sh
-npx sanity api 'data/mutate/{dataset}' --project-hosted --api-version v2021-06-07 --project-id 0vbjaawm --dataset production --method POST --input /tmp/<unique-directory>/mutation.json --header 'Content-Type: application/json'
+npx --no sanity api 'data/mutate/{dataset}' --project-hosted --api-version v2021-06-07 --project-id 0vbjaawm --dataset production --method POST --input /tmp/<unique-directory>/mutation.json --header 'Content-Type: application/json'
 ```
 
 Read back the exact draft using an authenticated raw query, projecting `body[].children[].text` so the prose itself is verified, not just the field count. Check title, slug, excerpt, publication date, tags, image reference, alt text, and draft ID. Validate the read-back document as well. Do not report success solely because the write command exited successfully.
@@ -116,7 +118,7 @@ Read back the exact draft using an authenticated raw query, projecting `body[].c
 
 An explicit request to publish authorizes publishing after verification; do not ask redundantly. "Upload", "save", or "make it a draft post" alone means draft.
 
-Use the CLI's authenticated API command and the currently documented Sanity document publishing action. Inspect `npx sanity openapi --help` and the relevant Actions API specification before constructing the request; do not guess the payload. Prefer the supported publish action over manually creating a published document and deleting its draft. If the supported action cannot be established, leave the verified draft and report the blocker.
+Use the CLI's authenticated API command and the currently documented Sanity document publishing action. Inspect `npx --no sanity openapi --help` and the relevant Actions API specification before constructing the request; do not guess the payload. Prefer the supported publish action over manually creating a published document and deleting its draft. If the supported action cannot be established, leave the verified draft and report the blocker.
 
 Read back the published base ID and verify its content and draft state. The public site is statically prerendered from published documents only: a draft never appears on the site, and publication and deployment are separate steps. Use `curl` or another terminal HTTP client to check the public `/blog/<slug>` page and confirm the actual new content, not just an HTTP 200. No browser. If not verified, say "Published in Studio; public-site update not verified." Do not create hooks, change hosting, or trigger unrelated deployments without authorization.
 
