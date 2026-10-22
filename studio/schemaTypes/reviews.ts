@@ -101,7 +101,7 @@ export const wingReview = defineType({
     defineField({
       name: 'visitCount',
       title: 'Visit count',
-      description: 'How many times we have eaten here. Leave empty for one.',
+      description: 'How many times we have eaten here.',
       type: 'number',
       group: 'essentials',
       initialValue: 1,
@@ -325,7 +325,7 @@ export const reubenReview = defineType({
     defineField({
       name: 'visitCount',
       title: 'Visit count',
-      description: 'How many times we have eaten here. Leave empty for one.',
+      description: 'How many times we have eaten here.',
       type: 'number',
       group: 'essentials',
       initialValue: 1,
