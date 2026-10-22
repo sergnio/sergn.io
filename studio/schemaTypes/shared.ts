@@ -32,7 +32,7 @@ export function requiredForNonRecommendations(message: string) {
     isNotRecommended(context) && isBlank(value) ? message : true
 }
 
-export function slugField() {
+function slugField() {
   return defineField({
     name: 'slug',
     title: 'URL slug',
@@ -55,7 +55,7 @@ export function slugField() {
         const duplicateCount = await context
           .getClient({ apiVersion: '2025-05-01' })
           .fetch<number>(
-            'count(*[_type == $type && slug.current == $slug && !(_id in [$draftId, $publishedId])])',
+            'count(*[_type == $type && (slug.current == $slug || $slug in previousSlugs) && !(_id in [$draftId, $publishedId])])',
             {
               type,
               slug,
@@ -66,9 +66,49 @@ export function slugField() {
 
         return duplicateCount === 0
           ? true
-          : 'This slug is already used by another document of this type.'
+          : 'This slug is already used, now or before, by another document of this type.'
       }),
   })
+}
+
+function previousSlugsField() {
+  return defineField({
+    name: 'previousSlugs',
+    title: 'Previous URL slugs',
+    description:
+      'Old URLs that redirect here. Publish adds one whenever the slug changes.',
+    type: 'array',
+    of: [{ type: 'string' }],
+    options: { layout: 'tags' },
+    hidden: ({ value }) => !(value as string[] | undefined)?.length,
+    validation: (Rule) => Rule.unique(),
+  })
+}
+
+export function slugFields(
+  placement: { group: string } | { fieldset: string },
+) {
+  return [
+    defineField({ ...slugField(), ...placement }),
+    defineField({ ...previousSlugsField(), ...placement }),
+  ]
+}
+
+/** The previous slugs a document should carry once `nextSlug` is published. */
+export function withPreviousSlug(
+  previousSlugs: string[] | undefined,
+  publishedSlug: string | undefined,
+  nextSlug: string | undefined,
+) {
+  const kept = (previousSlugs ?? []).filter((slug) => slug !== nextSlug)
+  if (
+    !publishedSlug ||
+    publishedSlug === nextSlug ||
+    kept.includes(publishedSlug)
+  ) {
+    return kept
+  }
+  return [...kept, publishedSlug]
 }
 
 export function recommendationStatusField() {

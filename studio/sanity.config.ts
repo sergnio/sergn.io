@@ -4,6 +4,7 @@ import type { Template } from 'sanity'
 import { structureTool } from 'sanity/structure'
 import { deskStructure } from './deskStructure'
 import { schemaTypes } from './schemaTypes'
+import { rememberPreviousSlug } from './rememberPreviousSlug'
 import { documentTemplates } from './templates'
 
 // Public, non-secret identifiers; see sanity.cli.ts.
@@ -17,6 +18,12 @@ export default defineConfig({
   dataset,
   plugins: [structureTool({ structure: deskStructure }), visionTool()],
   schema: { types: schemaTypes },
+  document: {
+    actions: (actions) =>
+      actions.map((action) =>
+        action.action === 'publish' ? rememberPreviousSlug(action) : action,
+      ),
+  },
   templates: (previousTemplates: Template[]) => [
     ...previousTemplates.filter(
       (template: Template) =>

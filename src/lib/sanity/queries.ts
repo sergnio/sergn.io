@@ -147,7 +147,7 @@ const projections: Record<CollectionName, string> = {
   }`,
 }
 
-const sanityTypes: Record<CollectionName, string> = {
+export const sanityTypes: Record<CollectionName, string> = {
   coffee: 'coffee',
   wings: 'wingReview',
   'na-beers': 'naBeer',
