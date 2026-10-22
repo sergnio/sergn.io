@@ -54,7 +54,7 @@ Take his edits, show the corrected sheet again, and keep going until he approves
 - `tags`: optional, unique, at most 8, and bound to the closed `postTags` list in `studio/schemaTypes/shared.ts`. A value outside that list blocks Publish in the Studio, so propose only list values and tell him when the post has no good fit rather than inventing one.
 - `seo.title` and `seo.description`: optional overrides, warned past 60 and 160 characters. Leave unset unless he wants them.
 
-Strip EXIF before uploading a photo he took. Phone photos carry a GPS IFD and the asset lands on a public CDN. `sips` preserves EXIF, so drop the APP1/APP2 segments explicitly and verify they are gone.
+Run every image, cover or inline, through the `prepare-photo` skill before uploading, and upload only its output. It turns the photo upright, strips GPS and other metadata, and converts it to sRGB JPEG.
 
 ## CLI workflow
 

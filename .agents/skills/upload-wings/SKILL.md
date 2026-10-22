@@ -29,8 +29,7 @@ Accept conversational input with an attached image or local image path. No templ
 - `isCrowned` marks the single best entry in the category. Only an `S+` can wear it, and only one per category, so never set it unless Sergio says so outright. The Studio rejects a second crown, and the page prints the crown in place of the letter.
 - Optional: heat, positive integer piece count, sides, price, city, address, venue URL, photo caption/credit, and publication date. Leave unknown optional fields unset. Store a supplied USD price as integer cents; clarify ambiguous currency.
 - Inspect the image locally before writing factual alt text (5-180 characters). Describe visible subjects, not an imagined flavor or filename. Preserve supplied credit; never invent attribution.
-- Strip EXIF before uploading a photo. Phone photos can carry a GPS IFD, and the asset lands on a public CDN. `sips` preserves EXIF, so it is not sufficient on its own; drop the APP1/APP2 segments explicitly and verify they are gone.
-- Convert unsupported images locally without changing the original. On macOS, for example: `sips -s format png /path/photo.HEIC --out /tmp/wing-review-photo.png`. Verify the file type and inspect the converted image. Use a unique temporary directory to avoid collisions.
+- Run every photo through the `prepare-photo` skill before uploading, and upload only its output. It turns the photo upright, strips GPS and other metadata, converts it to sRGB JPEG, and never touches the original.
 - If an attachment has no accessible local file, ask for a usable file/path. For several photos, ask which is the hero unless specified; add additional images to review notes only if requested.
 
 ## CLI workflow
@@ -47,7 +46,7 @@ Substitute the actual search terms, constructing queries safely instead of inter
 
 ### 2. Upload the photo
 
-Use `npx sanity assets upload --help`, then upload the local file with explicit project/dataset flags. Save the returned asset JSON in a temporary directory and use its actual `_id` as the image reference. Do not guess asset IDs or URLs. Use a neutral filename such as `wing-review.png` rather than exposing the original camera filename. Reuse a verified asset from an earlier successful upload when resuming instead of uploading again.
+Use `npx sanity assets upload --help`, then upload the local file with explicit project/dataset flags. Save the returned asset JSON in a temporary directory and use its actual `_id` as the image reference. Do not guess asset IDs or URLs. Use a neutral filename such as `wing-review.jpg` rather than exposing the original camera filename. Reuse a verified asset from an earlier successful upload when resuming instead of uploading again.
 
 A non-recommendation with no photo skips this step. Do not ask for one twice or hold the upload waiting on it; the detail page renders without a hero image.
 

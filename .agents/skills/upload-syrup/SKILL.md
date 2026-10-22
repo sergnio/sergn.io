@@ -41,8 +41,7 @@ Accept conversational input with an attached image or local image path. No templ
 - Optional: mapleGrade, origin, boughtFrom, volumeLiters, price, publishedAt, photo caption/credit. Store a supplied USD price as integer cents; clarify ambiguous currency. Leave unknown optional fields unset rather than guessing.
 - Price per liter is computed at render time from `price` and `volumeLiters`. Setting only one of the pair silently hides that row, so set both or neither.
 - Inspect the image locally before writing factual alt text (5-180 characters). Describe the visible bottle and setting, not the flavor or the filename. An empty bottle is worth saying; it is visible and it tells the reader something.
-- Strip EXIF before uploading. Phone photos of bottles taken at home or at a farm carry a GPS IFD, and the asset lands on a public CDN. `sips` preserves EXIF, so it is not sufficient on its own; drop the APP1/APP2 segments explicitly and verify they are gone.
-- Convert unsupported images locally without changing the original. On macOS, for example: `sips -s format jpeg -Z 2000 /path/photo.HEIC --out /tmp/syrup-photo.jpg`. Verify the file type and inspect the converted image. Use a unique temporary directory to avoid collisions.
+- Run every photo through the `prepare-photo` skill before uploading, and upload only its output. It turns the photo upright, strips GPS and other metadata, converts it to sRGB JPEG, and never touches the original.
 - If an attachment has no accessible local file, ask for a usable file/path. For several photos, ask which is the hero unless specified.
 
 ## CLI workflow
