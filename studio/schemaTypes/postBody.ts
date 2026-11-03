@@ -154,20 +154,20 @@ export type PostBodyBlock = {
 
 const deepestOfferedHeading = 4
 
-// The post title is the page's h1, so a body heading may sit at most one level below the deepest before it.
+// The post title is the page's h1, so a body heading may sit at most one level below the heading before it.
 export function validateHeadingLevels(
   blocks: (PostBodyBlock | null)[] | undefined,
 ) {
-  let deepest = 1
+  let previous = 1
   for (const block of blocks ?? []) {
     const level = Number(block?.style?.match(/^h([2-6])$/)?.[1])
     if (!level) continue
-    if (level > deepest + 1) {
+    if (level > previous + 1) {
       const text = block?.children?.map((child) => child.text).join('') ?? ''
-      const suggested = Math.min(deepest + 1, deepestOfferedHeading)
-      return `"${text}" is a Heading ${level} with no Heading ${deepest + 1} above it. Use Heading ${suggested} instead.`
+      const suggested = Math.min(previous + 1, deepestOfferedHeading)
+      return `"${text}" is a Heading ${level} with no Heading ${previous + 1} above it. Use Heading ${suggested} instead.`
     }
-    deepest = Math.max(deepest, level)
+    previous = level
   }
   return true
 }

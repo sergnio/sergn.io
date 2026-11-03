@@ -246,14 +246,14 @@ for (const pagePath of await prerenderedPages()) {
   if (levels[0] !== 1) {
     throw new Error(`Prerendered ${page} does not open its outline with <h1>.`)
   }
-  let deepest = 1
+  let previous = 1
   for (const level of levels) {
-    if (level > deepest + 1) {
+    if (level > previous + 1) {
       throw new Error(
-        `Prerendered ${page} skips from <h${deepest}> to <h${level}>; heading levels must not jump.`,
+        `Prerendered ${page} skips from <h${previous}> to <h${level}>; heading levels must not jump.`,
       )
     }
-    deepest = Math.max(deepest, level)
+    previous = level
   }
 
   for (const [tag] of body.matchAll(/<time\b[^>]*>/g)) {
