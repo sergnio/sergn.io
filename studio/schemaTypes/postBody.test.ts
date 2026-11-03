@@ -29,6 +29,23 @@ describe('post heading levels', () => {
     )
   })
 
+  it('suggests at most Heading 4, the deepest style the editor offers', () => {
+    expect(
+      validateHeadingLevels([
+        heading('h2', 'One'),
+        heading('h3', 'One A'),
+        heading('h4', 'One A i'),
+        heading('h6', 'Imported'),
+      ]),
+    ).toBe(
+      '"Imported" is a Heading 6 with no Heading 5 above it. Use Heading 4 instead.',
+    )
+  })
+
+  it('skips empty entries in the body', () => {
+    expect(validateHeadingLevels([null, heading('h2', 'Intro')])).toBe(true)
+  })
+
   it('accepts headings that nest one level at a time and climb back out', () => {
     expect(
       validateHeadingLevels([
