@@ -1,4 +1,6 @@
 import { defineField, defineType } from 'sanity'
+import { validateHeadingLevels } from './postBody'
+import type { PostBodyBlock } from './postBody'
 import { postTags, slugFields } from './shared'
 
 export const post = defineType({
@@ -23,7 +25,10 @@ export const post = defineType({
       name: 'body',
       title: 'Body',
       type: 'postBody',
-      validation: (Rule) => Rule.required().min(1),
+      validation: (Rule) =>
+        Rule.required()
+          .min(1)
+          .custom<PostBodyBlock[]>((blocks) => validateHeadingLevels(blocks)),
     }),
     ...slugFields({ fieldset: 'settings' }),
     defineField({
