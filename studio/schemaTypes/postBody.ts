@@ -149,7 +149,7 @@ export const codeBlock = defineType({
 export type PostBodyBlock = {
   _type: string
   style?: string
-  children?: { text?: string }[]
+  children?: ({ text?: string } | null)[]
 }
 
 const deepestOfferedHeading = 4
@@ -163,7 +163,7 @@ export function validateHeadingLevels(
     const level = Number(block?.style?.match(/^h([2-6])$/)?.[1])
     if (!level) continue
     if (level > previous + 1) {
-      const text = block?.children?.map((child) => child.text).join('') ?? ''
+      const text = block?.children?.map((child) => child?.text).join('') ?? ''
       const suggested = Math.min(previous + 1, deepestOfferedHeading)
       return `"${text}" is a Heading ${level} with no Heading ${previous + 1} above it. Use Heading ${suggested} instead.`
     }

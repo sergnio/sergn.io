@@ -59,6 +59,16 @@ describe('post heading levels', () => {
     expect(validateHeadingLevels([null, heading('h2', 'Intro')])).toBe(true)
   })
 
+  it('names a heading whose text has empty entries', () => {
+    expect(
+      validateHeadingLevels([
+        { _type: 'block', style: 'h3', children: [null, { text: 'Deep' }] },
+      ]),
+    ).toBe(
+      '"Deep" is a Heading 3 with no Heading 2 above it. Use Heading 2 instead.',
+    )
+  })
+
   it('accepts headings that nest one level at a time and climb back out', () => {
     expect(
       validateHeadingLevels([
