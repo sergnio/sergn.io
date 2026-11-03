@@ -29,6 +29,19 @@ describe('post heading levels', () => {
     )
   })
 
+  it('rejects a Heading 4 that skips a level in a later section', () => {
+    expect(
+      validateHeadingLevels([
+        heading('h2', 'One'),
+        heading('h3', 'One A'),
+        heading('h2', 'Two'),
+        heading('h4', 'Two detail'),
+      ]),
+    ).toBe(
+      '"Two detail" is a Heading 4 with no Heading 3 above it. Use Heading 3 instead.',
+    )
+  })
+
   it('suggests at most Heading 4, the deepest style the editor offers', () => {
     expect(
       validateHeadingLevels([
