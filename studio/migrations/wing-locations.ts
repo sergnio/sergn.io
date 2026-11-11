@@ -12,18 +12,20 @@
  * rerun: anything already done is skipped.
  */
 import { getCliClient } from 'sanity/cli'
+import { planCleanup } from './wing-locations-cleanup'
+import type { LocationTarget } from './wing-locations-cleanup'
 
 type OldWing = {
   _id: string
   _rev: string
-  title?: string
-  venue?: string
+  title?: string | null
+  venue?: string | null
   visitCount?: number | null
   location?: {
-    _ref?: string
-    city?: string
-    address?: string
-    url?: string
+    _ref?: string | null
+    city?: string | null
+    address?: string | null
+    url?: string | null
   } | null
 }
 
@@ -167,21 +169,22 @@ async function unsetWingVenue() {
   const wings = await client.fetch<OldWing[]>(
     '*[_type == "wingReview" && !(_id in path("versions.**"))] | order(_id) {_id, _rev, title, venue, visitCount, location}',
   )
-  const problems = wings
-    .filter((wing) => !wing.location?._ref)
-    .map(
-      (wing) => `${wing._id} (${wing.title}) is not linked to a location yet`,
-    )
-  const stale = wings.filter(
-    (wing) =>
-      wing.location?._ref &&
-      (wing.venue !== undefined || wing.visitCount !== undefined),
+  const targets = await client.fetch<LocationTarget[]>(
+    '*[_id in $ids]{_id, _type, visitCount}',
+    {
+      ids: wings.flatMap((wing) =>
+        wing.location?._ref ? [wing.location._ref] : [],
+      ),
+    },
+  )
+  const { unsets, problems } = planCleanup(wings, targets)
+
+  console.log(
+    `${unsets.length} linked wings still carry venue or visitCount.\n`,
   )
 
-  console.log(`${stale.length} linked wings still carry venue or visitCount.\n`)
-
   const transaction = client.transaction()
-  for (const wing of stale) {
+  for (const wing of unsets) {
     console.log(
       `Unset venue ${JSON.stringify(wing.venue)} and visitCount ${JSON.stringify(wing.visitCount)} on ${wing._id} (${wing.title})`,
     )
@@ -190,7 +193,7 @@ async function unsetWingVenue() {
     )
   }
 
-  return { transaction, problems, changes: stale.length }
+  return { transaction, problems, changes: unsets.length }
 }
 
 const { transaction, problems, changes } = cleanup
