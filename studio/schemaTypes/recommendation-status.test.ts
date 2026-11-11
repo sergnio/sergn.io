@@ -36,6 +36,7 @@ async function errorsFor(document: Record<string, unknown>) {
       getClient: () => client,
       i18n: getFallbackLocaleSource(),
     },
+    getDocumentExists: async () => true,
   })
 
   return markers
@@ -50,6 +51,13 @@ const reviewTypes = [
   'reubenReview',
   'syrupReview',
 ] as const
+
+/** Every wing names its location, whatever its status. */
+const requiredOfEvery: Partial<
+  Record<(typeof reviewTypes)[number], Record<string, unknown>>
+> = {
+  wingReview: { location: { _type: 'reference', _ref: 'location-test' } },
+}
 
 const notes = [
   {
@@ -68,6 +76,7 @@ describe('publishing a non-recommendation', () => {
     async (_type) => {
       expect(
         await errorsFor({
+          ...requiredOfEvery[_type],
           _type,
           title: 'Not worth it',
           slug: { _type: 'slug', current: 'not-worth-it' },
@@ -83,6 +92,7 @@ describe('publishing a non-recommendation', () => {
     async (_type) => {
       expect(
         await errorsFor({
+          ...requiredOfEvery[_type],
           _type,
           title: 'Not worth it',
           slug: { _type: 'slug', current: 'not-worth-it' },
@@ -97,12 +107,12 @@ describe('publishing a non-recommendation', () => {
     async (_type) => {
       expect(
         await errorsFor({
+          ...requiredOfEvery[_type],
           _type,
           title: 'Not worth it',
           slug: { _type: 'slug', current: 'not-worth-it' },
           notes,
           recommendationStatus: 'notRecommended',
-          venue: 'The place',
           restaurant: 'The place',
           brewery: 'The brewery',
           producer: 'The producer',
@@ -119,6 +129,7 @@ describe('publishing a recommendation', () => {
   it.each(reviewTypes)('still holds a %s to the full record', async (_type) => {
     expect(
       await errorsFor({
+        ...requiredOfEvery[_type],
         _type,
         title: 'Worth it',
         slug: { _type: 'slug', current: 'worth-it' },
@@ -130,7 +141,7 @@ describe('publishing a recommendation', () => {
 
   const categoryField: Record<(typeof reviewTypes)[number], string> = {
     coffee: 'boughtFrom',
-    wingReview: 'venue',
+    wingReview: 'order',
     naBeer: 'brewery',
     reubenReview: 'restaurant',
     syrupReview: 'producer',
@@ -141,6 +152,7 @@ describe('publishing a recommendation', () => {
     async (_type) => {
       expect(
         await errorsFor({
+          ...requiredOfEvery[_type],
           _type,
           title: 'Worth it',
           slug: { _type: 'slug', current: 'worth-it' },
@@ -149,4 +161,27 @@ describe('publishing a recommendation', () => {
       ).toContain(categoryField[_type])
     },
   )
+})
+
+describe('publishing wings and their locations', () => {
+  it.each(['recommended', 'notRecommended'])(
+    'blocks a %s wing that names no location',
+    async (recommendationStatus) => {
+      expect(
+        await errorsFor({
+          _type: 'wingReview',
+          title: 'Somewhere',
+          slug: { _type: 'slug', current: 'somewhere' },
+          notes,
+          recommendationStatus,
+        }),
+      ).toContain('location')
+    },
+  )
+
+  it('asks a location for its name, slug, city and address', async () => {
+    expect(await errorsFor({ _type: 'location' })).toEqual(
+      expect.arrayContaining(['name', 'slug', 'city', 'address']),
+    )
+  })
 })

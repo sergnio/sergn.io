@@ -34,6 +34,10 @@ const notRenderedInBody: Array<{
   { path: /^_(id|type|createdAt|updatedAt)$/, why: 'Sanity system fields' },
   { path: /^slug$/, why: 'the page is already at its own URL' },
   {
+    path: /^location\._(ref|id)$/,
+    why: 'which location document a wing points at, not content',
+  },
+  {
     path: /^orderRank$/,
     why: 'sort key for the collection index, not content',
   },
@@ -202,6 +206,13 @@ describe('review facts', () => {
     expect(markup).toContain('<dt>Visits</dt><dd>1 visit</dd>')
   })
 
+  it('counts visits to the location a wing was eaten at', () => {
+    const markup = markupFor(requireDocument('wings', 'corner-bar-honey-hot'))
+
+    expect(markup).toContain('<dt>Venue</dt><dd>The Corner Bar</dd>')
+    expect(markup).toContain('<dt>Visits</dt><dd>2 visits</dd>')
+  })
+
   it('shows the recorded visit count', () => {
     const markup = markupFor(requireDocument('reubens', 'the-rye-house-reuben'))
 
@@ -324,7 +335,18 @@ describe('a non-recommendation', () => {
 
   const sparse: ContentDocument[] = [
     { ...base, _type: 'coffee', title: 'Sparse coffee' },
-    { ...base, _type: 'wingReview', title: 'Sparse wings' },
+    {
+      ...base,
+      _type: 'wingReview',
+      title: 'Sparse wings',
+      location: {
+        _ref: 'location-sparse',
+        _id: 'location-sparse',
+        name: 'Sparse tavern',
+        city: 'Columbus',
+        address: '1 Sparse Street',
+      },
+    },
     { ...base, _type: 'naBeer', title: 'Sparse beer' },
     { ...base, _type: 'reubenReview', title: 'Sparse reuben' },
     { ...base, _type: 'syrupReview', title: 'Sparse syrup' },

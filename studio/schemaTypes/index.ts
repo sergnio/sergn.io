@@ -1,4 +1,5 @@
 import { coffeeSchemaTypes } from './coffee'
+import { location } from './location'
 import { post } from './post'
 import { callout, codeBlock, divider, postBody } from './postBody'
 import { naBeer, reubenReview, syrupReview, wingReview } from './reviews'
@@ -15,6 +16,7 @@ export const schemaTypes = [
   divider,
   postBody,
   ...coffeeSchemaTypes,
+  location,
   wingReview,
   naBeer,
   reubenReview,

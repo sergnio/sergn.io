@@ -81,13 +81,15 @@ export const wingReview = defineType({
       validation: (Rule) => Rule.required(),
     }),
     ...slugFields({ group: 'essentials' }),
+    // Strong, so a location cannot be deleted while a wing still points at it.
     defineField({
-      name: 'venue',
-      title: 'Venue',
-      type: 'string',
+      name: 'location',
+      title: 'Location',
+      description: 'Pick the place, or create it here if it is new.',
+      type: 'reference',
+      to: [{ type: 'location' }],
       group: 'essentials',
-      validation: (Rule) =>
-        Rule.custom(requiredForRecommendations('Name the venue.')),
+      validation: (Rule) => Rule.required().error('Pick where these were.'),
     }),
     defineField({
       name: 'visitedAt',
@@ -97,15 +99,6 @@ export const wingReview = defineType({
       initialValue: () => new Date().toISOString().slice(0, 10),
       validation: (Rule) =>
         Rule.custom(requiredForRecommendations('Record the visit date.')),
-    }),
-    defineField({
-      name: 'visitCount',
-      title: 'Visit count',
-      description: 'How many times we have eaten here.',
-      type: 'number',
-      group: 'essentials',
-      initialValue: 1,
-      validation: (Rule) => Rule.integer().min(1),
     }),
     defineField({
       name: 'order',
@@ -148,18 +141,6 @@ export const wingReview = defineType({
       group: 'optional',
       fieldset: 'optionalDetails',
     }),
-    defineField({
-      name: 'location',
-      title: 'Location',
-      type: 'object',
-      group: 'optional',
-      fieldset: 'optionalDetails',
-      fields: [
-        defineField({ name: 'city', title: 'City', type: 'string' }),
-        defineField({ name: 'address', title: 'Address', type: 'string' }),
-        defineField({ name: 'url', title: 'Venue URL', type: 'url' }),
-      ],
-    }),
     // Wings owe their notes either way: recommended or not, the write-up is
     // the review.
     ...commonFields('wingReview').map((field) =>
@@ -171,14 +152,14 @@ export const wingReview = defineType({
   preview: {
     select: {
       title: 'title',
-      venue: 'venue',
+      locationName: 'location.name',
       grade: 'grade',
       isCrowned: 'isCrowned',
       media: 'heroImage.image',
     },
-    prepare: ({ title, venue, grade, isCrowned, media }) => ({
+    prepare: ({ title, locationName, grade, isCrowned, media }) => ({
       title,
-      subtitle: [venue, formatGradeBadge(grade, isCrowned)]
+      subtitle: [locationName, formatGradeBadge(grade, isCrowned)]
         .filter(Boolean)
         .join(' · '),
       media,

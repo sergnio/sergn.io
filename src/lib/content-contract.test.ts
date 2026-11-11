@@ -278,6 +278,57 @@ describe('content contract', () => {
     }
   })
 
+  describe('a wing location', () => {
+    const location = {
+      _ref: 'location-1',
+      _id: 'location-1',
+      name: 'A tavern',
+      city: 'Minneapolis',
+      address: '1 Main St',
+    }
+    const wing = {
+      _id: 'wing-1',
+      _type: 'wingReview',
+      title: 'A wing',
+      slug: 'a-wing',
+      notes: [{ _key: 'a', _type: 'block', children: [] }],
+      recommendationStatus: 'notRecommended',
+      location,
+    }
+
+    it('accepts a wing at a published location', () => {
+      expect(() => assertValidCollection('wings', [wing])).not.toThrow()
+    })
+
+    it.each([null, { _ref: null }])(
+      'rejects a wing with no location, even one not recommended',
+      (noLocation) => {
+        expect(() =>
+          assertValidCollection('wings', [{ ...wing, location: noLocation }]),
+        ).toThrow(/wings document "a-wing" \(wing-1\) has no location/)
+      },
+    )
+
+    it('rejects a wing pointing at a missing or unpublished location', () => {
+      expect(() =>
+        assertValidCollection('wings', [
+          { ...wing, location: { _ref: 'location-gone' } },
+        ]),
+      ).toThrow(/points at location "location-gone", which is missing/)
+    })
+
+    it.each(['name', 'city', 'address'])(
+      'rejects a location missing its %s',
+      (field) => {
+        expect(() =>
+          assertValidCollection('wings', [
+            { ...wing, location: { ...location, [field]: ' ' } },
+          ]),
+        ).toThrow(`missing required field "${field}"`)
+      },
+    )
+  })
+
   describe('grades and the crown', () => {
     it('accepts a document carrying no grade at all', () => {
       expect(() =>
@@ -331,6 +382,6 @@ describe('content contract', () => {
     expect(assertValidDocument('coffee', validCoffee)).toBe(validCoffee)
     expect(() =>
       assertValidDocument('wings', { ...validCoffee, _type: 'wingReview' }),
-    ).toThrow(/"venue"/)
+    ).toThrow(/"visitedAt"/)
   })
 })

@@ -72,7 +72,7 @@ function describeContent(document: ContentDocument) {
   }
 
   if (document._type === 'wingReview') {
-    return [document.venue, document.order?.styleOrFlavor]
+    return [document.location.name, document.order?.styleOrFlavor]
       .filter(Boolean)
       .join(' - ')
   }
@@ -302,7 +302,9 @@ function reviewedItem(document: RatedDocument) {
   }
 
   const name =
-    document._type === 'wingReview' ? document.venue : document.restaurant
+    document._type === 'wingReview'
+      ? document.location.name
+      : document.restaurant
   const city = document.location?.city
 
   return {

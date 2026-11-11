@@ -19,7 +19,10 @@ export function cardImage(document: ContentDocument) {
 export function cardSummary(document: ContentDocument) {
   if (document._type === 'coffee') return document.roaster ?? document.origin
   if (document._type === 'wingReview')
-    return restaurantSummary(document.venue, document.visitCount)
+    return restaurantSummary(
+      document.location.name,
+      document.location.visitCount,
+    )
   if (document._type === 'naBeer') return document.brewery
   if (document._type === 'reubenReview')
     return restaurantSummary(document.restaurant, document.visitCount)

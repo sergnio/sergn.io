@@ -85,9 +85,9 @@ function facts(document: ContentDocument): Fact[] {
 
   if (document._type === 'wingReview') {
     return [
-      { label: 'Venue', value: document.venue },
-      { label: 'Where', value: locationValue(document) },
-      { label: 'Visits', value: formatVisits(document.visitCount) },
+      { label: 'Venue', value: document.location.name },
+      { label: 'Where', value: placeValue(document.location) },
+      { label: 'Visits', value: formatVisits(document.location.visitCount) },
       { label: 'Order', value: document.order?.styleOrFlavor },
       { label: 'Heat', value: document.order?.heat },
       { label: 'Pieces', value: document.order?.pieceCount },
@@ -126,7 +126,7 @@ function facts(document: ContentDocument): Fact[] {
 
     return [
       { label: 'Restaurant', value: document.restaurant },
-      { label: 'Where', value: locationValue(document) },
+      { label: 'Where', value: placeValue(document.location) },
       { label: 'Visits', value: formatVisits(document.visitCount) },
       ...Object.entries(namedDetails).map(([label, value]) => ({
         label,
@@ -167,9 +167,11 @@ function facts(document: ContentDocument): Fact[] {
 }
 
 /** A place, linked to whatever the Studio recorded as its site. */
-function locationValue(document: ReubenReview | WingReview) {
-  const place = formatLocation(document.location)
-  const url = document.location?.url
+function placeValue(
+  location: ReubenReview['location'] | WingReview['location'],
+) {
+  const place = formatLocation(location)
+  const url = location?.url
 
   if (!place) return url ? <a href={url}>Website</a> : undefined
   return url ? <a href={url}>{place}</a> : place
