@@ -34,7 +34,26 @@ type Place = { city?: string; address?: string; url?: string }
  * so most wings never recorded them. Fill each gap here, keyed by the wing's
  * venue exactly as it reads today, before running with `--apply`.
  */
-const placeDetails: Record<string, Place> = {}
+const placeDetails: Record<string, Place> = {
+  'NE Moose Bar & Grill': { city: 'Minneapolis', address: '356 Monroe St NE' },
+  'Cedar Inn': { city: 'Minneapolis', address: '4155 Cedar Ave S' },
+  'King of the Wing': { city: 'Champlin', address: '11469 Marketplace Dr N' },
+  'The Nook': {
+    city: 'St. Paul',
+    address: '492 Hamline Ave S',
+    url: 'https://crnook.com',
+  },
+  "Sportsmen's Restaurant & Taverna": {
+    city: 'Hibbing',
+    address: '509 E Howard St',
+  },
+  'Monte Carlo': { city: 'Minneapolis', address: '219 3rd Ave N' },
+  Runyons: { city: 'Minneapolis', address: '107 N Washington Ave' },
+  Hilltop: { city: 'Edina', address: '5101 Arcadia Ave' },
+  "Steve O's": { city: 'Crystal', address: '4900 W Broadway Ave' },
+  Wingstop: { city: 'Hopkins', address: '525 Blake Rd N, Suite 102' },
+  'Northbound Brew Pub': { city: 'Minneapolis', address: '2716 E 38th St' },
+}
 
 const apply = process.argv.includes('--apply')
 const cleanup = process.argv.includes('--cleanup')
