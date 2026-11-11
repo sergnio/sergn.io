@@ -79,10 +79,11 @@ describe('a ranked collection page', () => {
       const markup = markupFor(collection, documents)
 
       for (const document of documents) {
-        const visits =
-          'visitCount' in document && document.visitCount
-            ? `${document.visitCount} visits`
-            : '1 visit'
+        const visitCount =
+          document._type === 'wingReview'
+            ? document.location.visitCount
+            : document.visitCount
+        const visits = visitCount ? `${visitCount} visits` : '1 visit'
         const entry = markup.slice(markup.indexOf(document.title))
         expect(entry.slice(0, entry.indexOf('</article>'))).toContain(visits)
       }

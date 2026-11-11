@@ -10,7 +10,7 @@ Turn rough notes and a photo into a complete `wingReview` through the authentica
 ## Context and access
 
 - Resolve the repository root as `../../..` relative to this skill directory (resolve symlinks first). Run Sanity commands from its `studio/` directory.
-- Before authoring, read `AGENTS.md`, the hosting/content guidance in `README.md`, `studio/sanity.cli.ts`, `studio/schemaTypes/reviews.ts`, `studio/schemaTypes/shared.ts`, and `src/lib/content-contract.ts`. These are authoritative if configuration or fields change.
+- Before authoring, read `AGENTS.md`, the hosting/content guidance in `README.md`, `studio/sanity.cli.ts`, `studio/schemaTypes/reviews.ts`, `studio/schemaTypes/location.ts`, `studio/schemaTypes/shared.ts`, and `src/lib/content-contract.ts`. These are authoritative if configuration or fields change.
 - Read `~/.agents/VOICE.md` before editing prose in Sergio's voice. Preserve his opinions and phrasing; lightly clean up notes, never invent tasting experiences.
 - Confirm project and dataset from `studio/sanity.cli.ts`. Use explicit `--project-id` and `--dataset` flags on dataset commands. Current values are `0vbjaawm` and `production`.
 - Use `npx --no sanity --help` and per-command `--help` for the installed CLI syntax. Use its existing login, not a Studio browser session. Check authentication with `npx --no sanity api users/me` and project access with `npx --no sanity users list`.
@@ -20,15 +20,16 @@ Turn rough notes and a photo into a complete `wingReview` through the authentica
 
 Accept conversational input with an attached image or local image path. No template is required. Extract everything already supplied, then ask one compact question covering only missing required information or genuine ambiguity.
 
-- Required of a recommendation: title, unique URL slug, venue, visit date, order's style/flavor, hero image with alt text, and review notes.
-- Required of a non-recommendation: title, unique URL slug, and the notes saying why it is not worth returning to. Every other field stays optional, so fill in what is known and leave the rest unset rather than inventing a fuller record.
+- Every wing, recommended or not, points at a `location`: one physical place (a single branch, never a whole chain) shared by every wing reviewed there. A location owes a name, a unique slug, a city, and an address; its website, map point, and visit count are optional.
+- Required of a recommendation: title, unique URL slug, location, visit date, order's style/flavor, hero image with alt text, and review notes.
+- Required of a non-recommendation: title, unique URL slug, location, and the notes saying why it is not worth returning to. Every other field stays optional, so fill in what is known and leave the rest unset rather than inventing a fuller record.
 - Recommendation status: settle it from Sergio's notes, and ask when they do not. Write `recommendationStatus` explicitly on every draft instead of leaning on the schema default; it decides which fields the contract demands, which Studio list the review appears in, and whether it is ranked at all.
-- Derive a concise title from venue and flavor, and never end it with "Wings": the whole page is wings, so "Runyons Buffalo", not "Runyons Buffalo Wings". Generate a lowercase, hyphen-separated slug from the title, at most 96 characters; ask only if ambiguous. Check uniqueness across both drafts and published wing reviews.
+- Derive a concise title from the location's name and flavor, and never end it with "Wings": the whole page is wings, so "Runyons Buffalo", not "Runyons Buffalo Wings". Generate a lowercase, hyphen-separated slug from the title, at most 96 characters; ask only if ambiguous. Check uniqueness across both drafts and published wing reviews.
 - Ask a recommendation for the visit date if absent. Do not default to today. Resolve relative dates against the user's local date and clarify ambiguous dates; use an approximate exact date only with user approval. Ask a non-recommendation once, accept that the date may not be remembered, and leave `visitedAt` unset rather than pressing for it.
-- Visit count: a positive integer `visitCount` for how many times we have eaten there. Ask once if the notes do not say. When it is one or unknown, leave it unset; the site reads a missing count as one visit.
+- Visit count lives on the location, because a visit is to the place, not to one flavor. When a review adds a visit to a known location, ask once whether to bump its `visitCount`. On a new location, ask once if the notes do not say; when it is one or unknown, leave it unset, since the site reads a missing count as one visit.
 - Grade: optional, one of `S+`, `S`, `S-`, `A+`, `A`, `A-`, `B+`, `B`, `B-`, `C`, `D`, `F`. Do not convert a score out of five or any other scale without clarification. Preserve category grades in notes and ask which grade, if any, is overall; do not invent an average.
 - `isCrowned` marks the single best entry in the category. Only an `S+` can wear it, and only one per category, so never set it unless Sergio says so outright. The Studio rejects a second crown, and the page prints the crown in place of the letter.
-- Optional: heat, positive integer piece count, sides, price, city, address, venue URL, photo caption/credit, and publication date. Leave unknown optional fields unset. Store a supplied USD price as integer cents; clarify ambiguous currency.
+- Optional on the wing: heat, positive integer piece count, sides, price, photo caption/credit, and publication date. Leave unknown optional fields unset. Store a supplied USD price as integer cents; clarify ambiguous currency.
 - Inspect the image locally before writing factual alt text (5-180 characters). Describe visible subjects, not an imagined flavor or filename. Preserve supplied credit; never invent attribution.
 - Run every photo through the `prepare-photo` skill before uploading, and upload only its output. It turns the photo upright, strips GPS and other metadata, converts it to sRGB JPEG, and never touches the original.
 - If an attachment has no accessible local file, ask for a usable file/path. For several photos, ask which is the hero unless specified; add additional images to review notes only if requested.
@@ -37,30 +38,43 @@ Accept conversational input with an attached image or local image path. No templ
 
 ### 1. Check for existing content
 
-Query matching wing reviews by venue/title/date before uploading assets or creating documents. Use an authenticated query with API version `2021-06-07` for raw draft and published visibility:
+Query matching wing reviews by location name, title, and date before uploading assets or creating documents. Use an authenticated query with API version `2021-06-07` for raw draft and published visibility:
 
 ```sh
-npx --no sanity documents query '*[_type == "wingReview" && (venue match "*Northbound*" || title match "*Northbound*")]' --api-version 2021-06-07 --project-id 0vbjaawm --dataset production
+npx --no sanity documents query '*[_type == "wingReview" && (location->name match "*Northbound*" || title match "*Northbound*")]{_id, title, visitedAt, "location": location->name}' --api-version 2021-06-07 --project-id 0vbjaawm --dataset production
 ```
 
 Substitute the actual search terms, constructing queries safely instead of interpolating unescaped user text. If a likely duplicate exists, ask whether to finish/update it or create a distinct visit. Never overwrite an existing review without authorization. Query slug conflicts too, excluding both IDs of the document being edited.
 
-### 2. Upload the photo
+### 2. Find or create the location
+
+Search existing locations by name and city before creating one, with the same authenticated raw query:
+
+```sh
+npx --no sanity documents query '*[_type == "location" && (name match "*Northbound*" || slug.current match "*northbound*")]{_id, name, "slug": slug.current, city, address, url, visitCount}' --api-version 2021-06-07 --project-id 0vbjaawm --dataset production
+```
+
+- One match at the same place: use its published `_id`. Confirm with Sergio only when two branches could both fit.
+- No match: ask for the city and street address if the notes do not give them; never guess an address. Create a new published location (`_type: "location"`, `_id` of `location-<slug>`, `name`, `slug: { _type: "slug", current: "..." }`, `city`, `address`, plus a supplied `url` or `visitCount`) with `npx --no sanity documents create`, after checking the slug is unused by any location. A wing cannot be published until the location it points at is published.
+- Never create a second location with the same name and city as an existing one; that is the same place, or a branch Sergio has to name.
+
+### 3. Upload the photo
 
 Use `npx --no sanity assets upload --help`, then upload the local file with explicit project/dataset flags. Save the returned asset JSON in a temporary directory and use its actual `_id` as the image reference. Do not guess asset IDs or URLs. Use a neutral filename such as `wing-review.jpg` rather than exposing the original camera filename. Reuse a verified asset from an earlier successful upload when resuming instead of uploading again.
 
 A non-recommendation with no photo skips this step. Do not ask for one twice or hold the upload waiting on it; the detail page renders without a hero image.
 
-### 3. Prepare and validate the draft
+### 4. Prepare and validate the draft
 
 Prepare JSON/NDJSON in a unique temporary directory outside the repository. For a new review, generate a UUID and set `_id` to `drafts.<uuid>`, never the bare UUID. Use the exact schema shape:
 
 - `_type: "wingReview"`.
 - `recommendationStatus: "recommended"` or `"notRecommended"`, always set explicitly.
 - `slug: { _type: "slug", current: "..." }`.
+- `location: { _type: "reference", _ref: "<location _id from step 2>" }`, on every wing.
 - `visitedAt: "YYYY-MM-DD"`, `order: { styleOrFlavor: "..." }` plus supplied optional order values, and `heroImage: { _type: "imageWithAlt", image: { _type: "image", asset: { _type: "reference", _ref: "<uploaded asset ID>" } }, alt: "..." }`. A recommendation owes all three. On a non-recommendation each is optional: include the ones the user actually supplied and omit the rest entirely. Never fabricate a date, a flavor, or a photo to fill the shape out.
 - `notes`: Portable Text blocks with unique `_key` values, `_type: "block"`, `style: "normal"`, `markDefs: []`, and `children` containing `_type: "span"`, `_key`, `text`, and `marks: []`.
-- Omit unknown optional objects entirely, rather than creating incomplete money/location objects.
+- Omit unknown optional objects entirely, rather than creating incomplete money or order objects.
 
 For an authorized update, fetch the latest draft (or published document if no draft exists), preserve unrelated fields, and apply only the requested changes. Do not change an existing published slug without permission. Never delete or unpublish a published document to save a draft.
 
@@ -72,7 +86,7 @@ npx --no sanity documents validate --file /tmp/<unique-directory>/candidate.ndjs
 
 Inspect validation output, not just the exit status. Resolve errors from known facts, ask if information is missing, and check the content contract too. Never claim a complete draft or publish content with unresolved required-field errors.
 
-### 4. Save and read back
+### 5. Save and read back
 
 For a new draft, use `npx --no sanity documents create <candidate.json>` with explicit project/dataset flags and no `--replace`. Retain its ID across retries and query before retrying an uncertain write.
 
@@ -84,13 +98,13 @@ Authenticated mutations can be sent without exposing credentials:
 npx --no sanity api 'data/mutate/{dataset}' --project-hosted --api-version v2021-06-07 --project-id 0vbjaawm --dataset production --method POST --input /tmp/<unique-directory>/mutation.json --header 'Content-Type: application/json'
 ```
 
-Read back the exact draft using an authenticated raw query. Verify persisted title, `recommendationStatus`, venue, date, flavor, grade, notes, image reference, alt text, optional values, and draft ID. Check the status against what was intended before step 5 branches on it: an absent value reads as a recommendation, so a partial write would route a non-recommendation into the ranking path while the read-back looks fine. Validate the read-back document as well. Do not report success solely because the write command exited successfully.
+Read back the exact draft using an authenticated raw query. Verify persisted title, `recommendationStatus`, location reference, date, flavor, grade, notes, image reference, alt text, optional values, and draft ID. Check the status against what was intended before step 6 branches on it: an absent value reads as a recommendation, so a partial write would route a non-recommendation into the ranking path while the read-back looks fine. Validate the read-back document as well. Do not report success solely because the write command exited successfully.
 
-### 5. Rank a recommendation before the upload is finished
+### 6. Rank a recommendation before the upload is finished
 
 A rank belongs to a recommendation only, so this step follows `recommendationStatus`.
 
-**Not recommended: skip this step.** `src/lib/content-contract.ts` exempts a non-recommendation from the rank rule, `studio/deskStructure.ts` keeps it out of the orderable list, and the site sorts it by date beneath the ranking. There is nothing to drag and nothing to wait for. Go straight to step 6.
+**Not recommended: skip this step.** `src/lib/content-contract.ts` exempts a non-recommendation from the rank rule, `studio/deskStructure.ts` keeps it out of the orderable list, and the site sorts it by date beneath the ranking. There is nothing to drag and nothing to wait for. Go straight to step 7.
 
 **Recommended: the upload is not finished until the review has a rank, and assigning it is part of the upload.** Place it by grade so Sergio only drags to correct the order, never to fill it in:
 
@@ -111,7 +125,7 @@ console.log((above && below ? above.between(below) : above ? above.genNext() : b
 
 Tell Sergio where it landed (between which two entries) and that he can drag it in **Wing reviews - Recommended** in the Studio if it is off. An unranked or duplicate-ranked recommendation is an incomplete upload: do not publish it, and do not report it as done.
 
-### 6. Publish only when explicitly requested
+### 7. Publish only when explicitly requested
 
 An explicit request to publish authorizes publishing after verification; do not ask redundantly. "Upload" or "add to Studio" alone means draft.
 

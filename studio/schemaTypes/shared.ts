@@ -32,12 +32,12 @@ export function requiredForNonRecommendations(message: string) {
     isNotRecommended(context) && isBlank(value) ? message : true
 }
 
-function slugField() {
+function slugField(source: string) {
   return defineField({
     name: 'slug',
     title: 'URL slug',
     type: 'slug',
-    options: { source: 'title', maxLength: 96 },
+    options: { source, maxLength: 96 },
     validation: (Rule) =>
       Rule.required().custom(async (value, context) => {
         const slug = value?.current
@@ -85,11 +85,16 @@ function previousSlugsField() {
   })
 }
 
-export function slugFields(
-  placement: { group: string } | { fieldset: string },
-) {
+export function slugFields({
+  source = 'title',
+  ...placement
+}: {
+  source?: string
+  group?: string
+  fieldset?: string
+}) {
   return [
-    defineField({ ...slugField(), ...placement }),
+    defineField({ ...slugField(source), ...placement }),
     defineField({ ...previousSlugsField(), ...placement }),
   ]
 }

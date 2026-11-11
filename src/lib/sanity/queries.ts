@@ -102,10 +102,8 @@ const projections: Record<CollectionName, string> = {
   }`,
   wings: `{
     ${reviewFields},
-    venue,
-    location,
+    location { _ref, ...@-> { _id, name, city, address, url, visitCount } },
     visitedAt,
-    visitCount,
     order,
     price
   }`,

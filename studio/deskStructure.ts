@@ -50,6 +50,9 @@ export const deskStructure: StructureResolver = async (S, context) => {
           ),
       ),
       S.listItem()
+        .title('Locations')
+        .child(S.documentTypeList('location').title('Locations')),
+      S.listItem()
         .title('Blog posts')
         .child(S.documentTypeList('post').title('Blog posts')),
     ])

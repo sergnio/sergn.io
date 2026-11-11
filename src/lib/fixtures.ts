@@ -1,6 +1,7 @@
 import type {
   Coffee,
   ContentDocument,
+  Location,
   NaBeer,
   Post,
   ReubenReview,
@@ -195,6 +196,15 @@ export const fixtureCoffee: Coffee[] = [
   },
 ]
 
+const fixtureLocation = (
+  slug: string,
+  place: Omit<Location, '_ref' | '_id'>,
+): Location => ({
+  _ref: `location-${slug}`,
+  _id: `location-${slug}`,
+  ...place,
+})
+
 export const fixtureWings: WingReview[] = [
   {
     _id: 'wings-neighborhood-buffalo',
@@ -205,12 +215,12 @@ export const fixtureWings: WingReview[] = [
     slug: 'neighborhood-buffalo',
     publishedAt: '2025-02-12T12:00:00.000Z',
     orderRank: '0|100000:',
-    venue: 'Neighborhood Tavern',
-    location: {
+    location: fixtureLocation('neighborhood-tavern', {
+      name: 'Neighborhood Tavern',
       city: 'Columbus',
       address: '18 Tavern Row',
       url: 'https://neighborhood-tavern.example.com',
-    },
+    }),
     visitedAt: '2025-02-11',
     order: {
       styleOrFlavor: 'Buffalo',
@@ -276,8 +286,11 @@ export const fixtureWings: WingReview[] = [
     slug: 'smokehouse-dry-rub-wings',
     publishedAt: '2025-02-20T12:00:00.000Z',
     orderRank: '0|200000:',
-    venue: 'Eastside Smokehouse',
-    location: { city: 'Columbus' },
+    location: fixtureLocation('eastside-smokehouse', {
+      name: 'Eastside Smokehouse',
+      city: 'Columbus',
+      address: '402 Oak Street',
+    }),
     visitedAt: '2025-02-19',
     order: { styleOrFlavor: 'Dry rub', heat: 'Mild', pieceCount: 8 },
     price: { amountCents: 1400, currency: 'USD' },
@@ -297,9 +310,13 @@ export const fixtureWings: WingReview[] = [
     slug: 'corner-bar-honey-hot',
     publishedAt: '2025-03-04T12:00:00.000Z',
     orderRank: '0|300000:',
-    venue: 'The Corner Bar',
+    location: fixtureLocation('the-corner-bar', {
+      name: 'The Corner Bar',
+      city: 'Columbus',
+      address: '7 Corner Street',
+      visitCount: 2,
+    }),
     visitedAt: '2025-03-03',
-    visitCount: 2,
     order: { styleOrFlavor: 'Honey hot', heat: 'Hot', pieceCount: 12 },
     grade: 'B+',
     notes: paragraph('Sweet up front, genuinely hot on the finish.'),
@@ -313,7 +330,11 @@ export const fixtureWings: WingReview[] = [
     slug: 'arena-concession-wings',
     publishedAt: '2025-03-18T12:00:00.000Z',
     orderRank: '0|400000:',
-    venue: 'Downtown Arena',
+    location: fixtureLocation('downtown-arena', {
+      name: 'Downtown Arena',
+      city: 'Columbus',
+      address: '1 Arena Plaza',
+    }),
     visitedAt: '2025-03-17',
     order: { styleOrFlavor: 'Buffalo', pieceCount: 6 },
     price: { amountCents: 1899, currency: 'USD' },
@@ -329,7 +350,11 @@ export const fixtureWings: WingReview[] = [
     title: 'Gas Station Case Wings',
     slug: 'gas-station-case-wings',
     publishedAt: '2025-04-02T12:00:00.000Z',
-    venue: 'Highway 33 Fuel Stop',
+    location: fixtureLocation('highway-33-fuel-stop', {
+      name: 'Highway 33 Fuel Stop',
+      city: 'Marysville',
+      address: '3300 Highway 33',
+    }),
     visitedAt: '2025-04-01',
     order: { styleOrFlavor: 'Whatever was left', pieceCount: 4 },
     grade: 'F',

@@ -12,7 +12,7 @@ import { classifyLinkHref } from './links'
  */
 const requiredByCollection: Record<CollectionName, string[]> = {
   coffee: ['boughtFrom', 'bagSize.amount', 'bagSize.unit', 'brewRecipes'],
-  wings: ['venue', 'visitedAt', 'order.styleOrFlavor', 'notes'],
+  wings: ['visitedAt', 'order.styleOrFlavor', 'notes'],
   'na-beers': ['brewery'],
   reubens: ['restaurant', 'visitedAt'],
   syrup: ['producer'],
@@ -147,6 +147,7 @@ function violationsFor(collection: CollectionName, document: unknown) {
   }
 
   return violations.concat(
+    collection === 'wings' ? locationViolations(document, subject) : [],
     gradeViolations(document, subject),
     rankViolations(collection, document, subject),
     collectImagesMissingAlt(document, '').map(
@@ -156,6 +157,32 @@ function violationsFor(collection: CollectionName, document: unknown) {
       (problem) => `${subject} has a rich text link ${problem}`,
     ),
   )
+}
+
+const requiredOfLocations = ['name', 'city', 'address']
+
+/** Every wing, recommended or not, is reviewed somewhere that exists. */
+function locationViolations(document: unknown, subject: string) {
+  const location = readPath(document, 'location')
+  const ref = readPath(location, '_ref')
+  if (isMissing(ref)) {
+    return [
+      `${subject} has no location - pick one in the Studio, or create it there`,
+    ]
+  }
+
+  if (isMissing(readPath(location, '_id'))) {
+    return [
+      `${subject} points at location ${JSON.stringify(ref)}, which is missing or unpublished - publish that location or pick another`,
+    ]
+  }
+
+  return requiredOfLocations
+    .filter((field) => isMissing(readPath(location, field)))
+    .map(
+      (field) =>
+        `${subject} is at location ${JSON.stringify(ref)}, which is missing required field "${field}"`,
+    )
 }
 
 /**

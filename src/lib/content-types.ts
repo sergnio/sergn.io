@@ -222,13 +222,26 @@ export type Coffee = BaseDocument &
     brewRecipes?: BrewRecipe[]
   }
 
+/**
+ * One physical place, shared by every wing reviewed there. Only `_ref`
+ * survives a dangling reference, so a missing `_id` is how the content
+ * contract tells a missing location from a wing that never picked one.
+ */
+export type Location = {
+  _ref: string
+  _id: string
+  name: string
+  city: string
+  address: string
+  url?: string
+  visitCount?: number | null
+}
+
 export type WingReview = BaseDocument &
   RankedDocument & {
     _type: 'wingReview'
-    venue?: string
-    location?: { city?: string; address?: string; url?: string }
+    location: Location
     visitedAt?: string
-    visitCount?: number | null
     order?: {
       styleOrFlavor?: string
       heat?: string
