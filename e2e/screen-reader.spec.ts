@@ -75,7 +75,7 @@ test.describe('what screen readers announce', () => {
           - list:
             - listitem:
               - article:
-                - text: "/Grade: B$/"
+                - text: "Grade: B"
                 - heading "The Corner Bar" [level=3]
         - region "Grade C":
           - heading "Grade C" [level=2]

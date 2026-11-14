@@ -1383,16 +1383,9 @@ figcaption {
   border-color: var(--first-place);
 }
 
-.wing-top__placeholder {
-  display: grid;
+.wing-top .wing-ph {
   aspect-ratio: 4 / 3;
-  place-items: center;
-  color: white;
-  background: var(--no-photo-fill);
-  font-family: var(--mono);
-  font-size: 0.8rem;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
+  border-width: 0 0 1px;
 }
 
 .wing-top__body {
