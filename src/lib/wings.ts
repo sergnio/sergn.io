@@ -56,3 +56,42 @@ export function wingName(wing: WingReview) {
   if (!wing.title.startsWith(place)) return flavor
   return wing.title.slice(place.length).trim() || flavor
 }
+
+export type WingStanding = {
+  wing: WingReview
+  rank?: number
+}
+
+export type WingPageData = WingStanding & {
+  listLength: number
+  siblings: WingStanding[]
+}
+
+/**
+ * One wing with its spot on the main list, out of how many, and every other
+ * published wing at its place. Drafts never reach the published collection.
+ */
+export function wingPageData(
+  wings: WingReview[],
+  slug: string,
+): WingPageData | undefined {
+  const wing = wings.find((entry) => entry.slug === slug)
+  if (!wing) return undefined
+
+  const entries = mainList(wings)
+  const standing = (entry: WingReview): WingStanding => ({
+    wing: entry,
+    rank: entries.find((listed) => listed.wing._id === entry._id)?.rank,
+  })
+
+  return {
+    ...standing(wing),
+    listLength: entries.length,
+    siblings: wings
+      .filter(
+        (entry) =>
+          entry._id !== wing._id && entry.location._id === wing.location._id,
+      )
+      .map(standing),
+  }
+}

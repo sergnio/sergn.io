@@ -3,12 +3,13 @@ import type { Page } from '@playwright/test'
 import { expect, test } from './tracker-stub'
 
 // One representative page per template: home, a collection index, the wings
-// ranking, a detail page with a hero image, a rich-text-heavy blog post, and
-// the static pages.
+// ranking, a wing page with others at its place, a detail page with a hero
+// image, a rich-text-heavy blog post, and the static pages.
 const pages = [
   '/',
   '/coffee',
   '/wings',
+  '/wings/corner-bar-buffalo',
   '/coffee/colombia-perky',
   '/blog/a-table-for-two',
   '/not-found',

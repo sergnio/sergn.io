@@ -24,20 +24,21 @@ import {
 import { ImageFigure } from './content-image'
 import { RichText } from './rich-text'
 
+/** Wings have their own page, `wing-detail.tsx`. */
+type DetailDocument = Exclude<ContentDocument, WingReview>
+
 type ContentDetailProps = {
-  document: ContentDocument
+  document: DetailDocument
 }
 
-function heroImage(document: ContentDocument) {
+function heroImage(document: DetailDocument) {
   return document._type === 'post' ? document.coverImage : document.heroImage
 }
 
-function detailLabel(document: ContentDocument) {
+function detailLabel(document: DetailDocument) {
   switch (document._type) {
     case 'coffee':
       return 'Coffee notes'
-    case 'wingReview':
-      return 'Wing review'
     case 'naBeer':
       return 'N/A beer review'
     case 'reubenReview':
@@ -49,8 +50,8 @@ function detailLabel(document: ContentDocument) {
   }
 }
 
-function publishedDate(document: ContentDocument) {
-  if (document._type === 'wingReview' || document._type === 'reubenReview') {
+function publishedDate(document: DetailDocument) {
+  if (document._type === 'reubenReview') {
     return document.visitedAt
   }
   return document.publishedAt
@@ -63,7 +64,7 @@ type Fact = { label: string; value: ReactNode }
  * listed here, so a field someone fills in never silently disappears from the
  * page; rows with no value drop out rather than rendering an empty term.
  */
-function facts(document: ContentDocument): Fact[] {
+function facts(document: DetailDocument): Fact[] {
   if (document._type === 'coffee') {
     return [
       { label: 'Roaster', value: document.roaster },
@@ -75,23 +76,6 @@ function facts(document: ContentDocument): Fact[] {
       { label: 'Tasting notes', value: formatList(document.tastingNotes) },
       { label: 'Roasted', value: formatDate(document.roastDate) },
       { label: 'Purchased', value: formatDate(document.purchasedAt) },
-      { label: 'Price', value: formatMoney(document.price) },
-      {
-        label: 'Grade',
-        value: formatGrade(document.grade, document.isCrowned),
-      },
-    ]
-  }
-
-  if (document._type === 'wingReview') {
-    return [
-      { label: 'Venue', value: document.location.name },
-      { label: 'Where', value: placeValue(document.location) },
-      { label: 'Visits', value: formatVisits(document.location.visitCount) },
-      { label: 'Order', value: document.order?.styleOrFlavor },
-      { label: 'Heat', value: document.order?.heat },
-      { label: 'Pieces', value: document.order?.pieceCount },
-      { label: 'Sides', value: formatList(document.order?.sides) },
       { label: 'Price', value: formatMoney(document.price) },
       {
         label: 'Grade',
@@ -167,9 +151,7 @@ function facts(document: ContentDocument): Fact[] {
 }
 
 /** A place, linked to whatever the Studio recorded as its site. */
-function placeValue(
-  location: ReubenReview['location'] | WingReview['location'],
-) {
+function placeValue(location: ReubenReview['location']) {
   const place = formatLocation(location)
   const url = location?.url
 
@@ -254,7 +236,7 @@ function PostDetails({ post }: { post: Post }) {
   )
 }
 
-function productUrl(document: ContentDocument) {
+function productUrl(document: DetailDocument) {
   return document._type === 'coffee' ? document.purchaseUrl : undefined
 }
 
