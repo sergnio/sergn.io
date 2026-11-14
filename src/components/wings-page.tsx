@@ -32,7 +32,8 @@ export function WingsPage({ wings }: { wings: WingReview[] }) {
         <h1>Wings</h1>
         <div className="wings-intro__row">
           <p className="wings-intro__summary">
-            Flavor, crunch, juiciness, and size matter.
+            On a quest with Mike to find the best wings. Flavor, crunch,
+            juiciness and size matter.
           </p>
         </div>
       </header>

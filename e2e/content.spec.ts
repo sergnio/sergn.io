@@ -102,6 +102,31 @@ test.describe('collection browsing flow', () => {
     )
   })
 
+  test('wings quest line sits under the heading and above the first tier', async ({
+    page,
+  }) => {
+    for (const width of [390, 1280]) {
+      await page.setViewportSize({ width, height: 900 })
+      await page.goto('/wings')
+
+      const heading = page.getByRole('heading', { level: 1, name: 'Wings' })
+      const quest = page.getByText(
+        'On a quest with Mike to find the best wings.',
+      )
+      const firstTier = page.getByRole('region', { name: 'Grade A' })
+      const headingBox = (await heading.boundingBox())!
+      const questBox = (await quest.boundingBox())!
+      const tierBox = (await firstTier.boundingBox())!
+
+      const at = `at ${width}px`
+      expect(questBox.y, at).toBeGreaterThanOrEqual(
+        headingBox.y + headingBox.height,
+      )
+      expect(questBox.y + questBox.height, at).toBeLessThan(tierBox.y)
+      expect(questBox.x, at).toBe(headingBox.x)
+    }
+  })
+
   test('coffee index card shows the roaster and published date', async ({
     page,
   }) => {
