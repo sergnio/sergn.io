@@ -68,6 +68,15 @@ describe('the wings page', () => {
     )
   })
 
+  it('sets every grade modifier in its own slot, even when there is none', () => {
+    const grades = [
+      ...markup.matchAll(
+        /Grade: <\/span>(\w)<span class="wing-grade__mod">([+-]?)<\/span>/g,
+      ),
+    ].map(([, letter, modifier]) => letter + modifier)
+    expect(grades).toEqual(['A+', 'A', 'B', 'C'])
+  })
+
   it('prints no footnote when every wing is buffalo', () => {
     const buffalo = wings.filter(
       (wing) => wing.mainListRole !== 'bestNonBuffalo',
