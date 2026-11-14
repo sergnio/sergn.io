@@ -124,11 +124,8 @@ test.describe('screen-reader semantics', () => {
   test('grades and dates are readable out of context', async ({ page }) => {
     await page.goto('/wings')
 
-    const card = page
-      .getByRole('list', { name: 'Wings' })
-      .getByRole('listitem')
-      .first()
-    await expect(card.locator('.content-card__grade')).toHaveText(
+    const card = page.locator('.wing-top').first()
+    await expect(card.locator('.wing-top__grade')).toHaveText(
       /^Grade: (?:[SAB][+-]?|[CDF]|👑)$/,
     )
     await expect(card.locator('time')).toHaveAttribute(

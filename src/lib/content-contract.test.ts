@@ -293,6 +293,7 @@ describe('content contract', () => {
       slug: 'a-wing',
       notes: [{ _key: 'a', _type: 'block', children: [] }],
       recommendationStatus: 'notRecommended',
+      mainListRole: 'none',
       location,
     }
 
@@ -327,6 +328,81 @@ describe('content contract', () => {
         ).toThrow(`missing required field "${field}"`)
       },
     )
+  })
+
+  describe('a wing main list role', () => {
+    const wing = {
+      ...getFixtureCollection('wings')[0],
+      _id: 'wing-1',
+      slug: 'a-wing',
+    }
+    const ranked = (grade: string, position: number) => ({
+      ...wing,
+      _id: `wing-${position}`,
+      slug: `wing-${position}`,
+      grade,
+      orderRank: `0|${position}:`,
+    })
+
+    it.each([undefined, null, ' '])(
+      'rejects a wing with no role, even one not recommended',
+      (mainListRole) => {
+        for (const recommendationStatus of ['recommended', 'notRecommended']) {
+          expect(() =>
+            assertValidCollection('wings', [
+              { ...wing, recommendationStatus, mainListRole },
+            ]),
+          ).toThrow(/wings document "a-wing" \(wing-1\) has no main list role/)
+        }
+      },
+    )
+
+    it('rejects a role off the list', () => {
+      expect(() =>
+        assertValidCollection('wings', [{ ...wing, mainListRole: 'maybe' }]),
+      ).toThrow(/unknown main list role: "maybe"/)
+    })
+
+    it.each(['buffalo', 'bestNonBuffalo', 'none'])(
+      'accepts the %s role',
+      (mainListRole) => {
+        expect(() =>
+          assertValidCollection('wings', [{ ...wing, mainListRole }]),
+        ).not.toThrow()
+      },
+    )
+
+    it('rejects an ungraded wing on the main list, not one off it', () => {
+      expect(() =>
+        assertValidCollection('wings', [{ ...wing, grade: undefined }]),
+      ).toThrow(/on the main wings list with no grade/)
+      expect(() =>
+        assertValidCollection('wings', [
+          { ...wing, grade: undefined, mainListRole: 'none' },
+        ]),
+      ).not.toThrow()
+    })
+
+    it('rejects a grade letter that comes back below a lower one', () => {
+      expect(() =>
+        assertValidCollection('wings', [
+          ranked('S', 1),
+          ranked('A', 2),
+          ranked('S-', 3),
+        ]),
+      ).toThrow(/ranks a S wing below a lower grade/)
+    })
+
+    it('ignores the grade order of wings off the main list', () => {
+      expect(() =>
+        assertValidCollection('wings', [
+          ranked('S', 1),
+          { ...ranked('A', 2), mainListRole: 'none' },
+          ranked('S-', 3),
+          ranked('A+', 4),
+        ]),
+      ).not.toThrow()
+    })
   })
 
   describe('grades and the crown', () => {

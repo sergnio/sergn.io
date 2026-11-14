@@ -3,6 +3,7 @@ import { tanstackConfig } from '@tanstack/eslint-config'
 export default [
   {
     ignores: [
+      '.lavish/**',
       'dist/**',
       'routeTree.gen.ts',
       'eslint.config.js',

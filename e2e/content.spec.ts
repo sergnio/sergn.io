@@ -80,7 +80,7 @@ test.describe('collection browsing flow', () => {
     await page.goto('/wings')
 
     await page
-      .getByRole('link', { name: 'Neighborhood Buffalo' })
+      .getByRole('link', { name: 'Neighborhood Tavern' })
       .first()
       .click()
 
@@ -132,18 +132,20 @@ test.describe('collection browsing flow', () => {
     await expect(card.getByText('Ethiopia', { exact: true })).toBeVisible()
   })
 
-  test('wings index card shows the venue, grade, and visited date', async ({
+  test('wings index card shows the place, wing, grade, and visited date', async ({
     page,
   }) => {
     await page.goto('/wings')
 
     const card = page
-      .locator('.content-card')
-      .filter({ hasText: 'Neighborhood Buffalo' })
+      .locator('.wing-top')
+      .filter({ hasText: 'Neighborhood Tavern' })
 
-    await expect(card.getByText('Neighborhood Tavern')).toBeVisible()
-    await expect(card.locator('.content-card__grade')).toHaveText('Grade: A+')
-    await expect(card.locator('time')).toHaveText('Feb 11, 2025')
+    await expect(card.locator('.wing-top__wing')).toHaveText('Buffalo')
+    await expect(card.locator('.wing-top__grade')).toHaveText('Grade: A+')
+    await expect(card.locator('.wing-top__meta')).toHaveText(
+      '1 visit · Feb 11, 2025',
+    )
   })
 
   test('na-beers index links into a detail page with the notes', async ({
@@ -631,26 +633,31 @@ test.describe('ranked collections', () => {
   const rankedOrder = [
     'Neighborhood Buffalo',
     'Smokehouse Dry Rub Wings',
-    'Corner Bar Honey Hot',
+    'The Corner Bar Buffalo',
     'Arena Concession Wings',
   ]
+  const rankedPlaces = [
+    'Neighborhood Tavern',
+    'Eastside Smokehouse',
+    'The Corner Bar',
+    'Downtown Arena',
+  ]
+  const wingEntries = '.wing-top, .wing-line'
 
   test('wings reads best to worst, top to bottom, on mobile and desktop', async ({
     page,
   }) => {
-    // The podium sits three across once there is room for it, so on desktop
-    // the top three share a line. Everything else about the order holds at
-    // both sizes: reading order is rank order, and no entry ever renders
-    // above one that outranks it.
+    // #1 and #2 share a tier on the fixtures, so they sit side by side once
+    // there is room. No entry renders above one that outranks it.
     for (const viewport of [
-      { width: 390, height: 844, podiumAcross: false },
-      { width: 1280, height: 900, podiumAcross: true },
+      { width: 390, height: 844, sharedLines: [] as number[] },
+      { width: 1280, height: 900, sharedLines: [1] },
     ]) {
       await page.setViewportSize(viewport)
       await page.goto('/wings')
 
-      const entries = page.locator('.ranked-list > li')
-      await expect(entries).toHaveCount(rankedOrder.length)
+      const entries = page.locator(wingEntries)
+      await expect(entries).toHaveCount(rankedPlaces.length)
 
       const tops = await entries.evaluateAll((items) =>
         items.map((item) => item.getBoundingClientRect().top),
@@ -660,11 +667,10 @@ test.describe('ranked collections', () => {
         .evaluateAll((items) => items.map((item) => item.textContent.trim()))
 
       const at = `at ${viewport.width}px`
-      expect(headings, at).toEqual(rankedOrder)
+      expect(headings, at).toEqual(rankedPlaces)
 
       for (let index = 1; index < tops.length; index++) {
-        const sharesThePodiumLine = viewport.podiumAcross && index < 3
-        if (sharesThePodiumLine) {
+        if (viewport.sharedLines.includes(index)) {
           expect(tops[index], at).toBe(tops[index - 1])
         } else {
           expect(tops[index], at).toBeGreaterThan(tops[index - 1])
@@ -678,13 +684,14 @@ test.describe('ranked collections', () => {
   }) => {
     await page.goto('/wings')
 
-    const badges = await page
-      .locator('.content-card__rank, .ranked-row__rank')
+    await expect(page.locator('.wing-top--first .wing-crown')).toBeVisible()
+    const ranks = await page
+      .locator('.wing-top__rank, .wing-line__rank')
       .allTextContents()
 
-    expect(badges).toEqual(['#1', '#2', '#3', '#4'])
-    await expect(page.locator('.ranked-list__podium')).toHaveCount(3)
-    await expect(page.locator('.ranked-list__row')).toHaveCount(1)
+    expect(ranks).toEqual(['', '2', '3', '4'])
+    await expect(page.locator('.wing-top')).toHaveCount(3)
+    await expect(page.locator('.wing-line')).toHaveCount(1)
   })
 
   test('the ranking a crawler reads matches the one on the page', async ({
@@ -720,11 +727,12 @@ test.describe('ranked collections', () => {
     await page.setViewportSize({ width: 1280, height: 2000 })
     await page.goto('/wings')
 
-    const entries = page.locator('.ranked-list > li')
+    const entries = page.locator(wingEntries)
     const misses = await entries.evaluateAll((items) =>
       items.flatMap((item) => {
         const box = item.getBoundingClientRect()
         const href = item.querySelector('h3 a')?.getAttribute('href')
+        const asterisk = item.querySelector('.wing-asterisk')
         const fractions = [0.05, 0.25, 0.5, 0.75, 0.95]
 
         return fractions.flatMap((x) =>
@@ -735,6 +743,7 @@ test.describe('ranked collections', () => {
             }))
             .filter((point) => {
               const hit = document.elementFromPoint(point.x, point.y)
+              if (asterisk && hit === asterisk) return false
               return hit?.closest('a')?.getAttribute('href') !== href
             })
             .map(
@@ -746,12 +755,58 @@ test.describe('ranked collections', () => {
     )
     expect(misses).toEqual([])
 
-    // The row past the podium is the one that used to need its title: click
-    // its date, the furthest thing on it from the link text.
-    const row = page.locator('.ranked-list__row').first()
-    const date = (await row.locator('time').boundingBox())!
-    await page.mouse.click(date.x + date.width / 2, date.y + date.height / 2)
+    // A row's grade is the furthest thing on it from the link text.
+    const row = page.locator('.wing-line').first()
+    const grade = (await row.locator('.wing-line__grade').boundingBox())!
+    await page.mouse.click(
+      grade.x + grade.width / 2,
+      grade.y + grade.height / 2,
+    )
     await expect(page).toHaveURL(/\/wings\/arena-concession-wings\/?$/)
+  })
+
+  test('the asterisk leads to the footnote that explains it', async ({
+    page,
+  }) => {
+    await page.goto('/wings')
+
+    await page.getByRole('link', { name: 'Not buffalo, see footnote' }).click()
+    await expect(page).toHaveURL(/#footnote-non-buffalo$/)
+    await expect(page.locator('#footnote-non-buffalo')).toContainText(
+      'Eastside Smokehouse had no buffalo on the menu',
+    )
+  })
+
+  test('the tier letter stays pinned while its wings scroll by', async ({
+    page,
+  }) => {
+    for (const viewport of [
+      { width: 390, height: 500 },
+      { width: 1280, height: 500 },
+    ]) {
+      await page.setViewportSize(viewport)
+      await page.goto('/wings')
+
+      // Scroll restoration can reset the scroll once hydration lands, so
+      // scroll again on every poll until the reading settles.
+      const pinnedAt = viewport.width >= 1280 ? 24 : 0
+      await expect
+        .poll(
+          () =>
+            page
+              .locator('.wing-tier')
+              .first()
+              .evaluate((tier) => {
+                const tierTop =
+                  tier.getBoundingClientRect().top + window.scrollY
+                window.scrollTo({ top: tierTop + 60, behavior: 'instant' })
+                const head = tier.querySelector('.wing-tier__head')!
+                return Math.round(head.getBoundingClientRect().top)
+              }),
+          { message: `at ${viewport.width}px` },
+        )
+        .toBe(pinnedAt)
+    }
   })
 
   test('the blog is not a ranking, so it ships no ItemList and no ranks', async ({

@@ -1,5 +1,10 @@
 import type { CollectionName } from './content-types'
-import { grades, isGrade, isRankedCollection } from './content-types'
+import {
+  grades,
+  isGrade,
+  isRankedCollection,
+  mainListRoles,
+} from './content-types'
 import { classifyLinkHref } from './links'
 
 /**
@@ -147,7 +152,12 @@ function violationsFor(collection: CollectionName, document: unknown) {
   }
 
   return violations.concat(
-    collection === 'wings' ? locationViolations(document, subject) : [],
+    collection === 'wings'
+      ? [
+          ...locationViolations(document, subject),
+          ...mainListRoleViolations(document, subject),
+        ]
+      : [],
     gradeViolations(document, subject),
     rankViolations(collection, document, subject),
     collectImagesMissingAlt(document, '').map(
@@ -183,6 +193,65 @@ function locationViolations(document: unknown, subject: string) {
       (field) =>
         `${subject} is at location ${JSON.stringify(ref)}, which is missing required field "${field}"`,
     )
+}
+
+/**
+ * The wings page lists a wing by its role, so a wing without one would drop
+ * off the list silently. A main-list wing also sits under its grade letter.
+ */
+function mainListRoleViolations(document: unknown, subject: string) {
+  const role = readPath(document, 'mainListRole')
+  if (isMissing(role)) {
+    return [
+      `${subject} has no main list role - pick Buffalo, Best non-buffalo, or Neither in the Studio`,
+    ]
+  }
+  if (!(mainListRoles as readonly unknown[]).includes(role)) {
+    return [
+      `${subject} has an unknown main list role: ${JSON.stringify(role)} (expected one of ${mainListRoles.join(', ')})`,
+    ]
+  }
+  if (isOnMainList(document) && isMissing(readPath(document, 'grade'))) {
+    return [
+      `${subject} is on the main wings list with no grade, so it has no tier to sit in - grade it in the Studio`,
+    ]
+  }
+  return []
+}
+
+function isOnMainList(document: unknown) {
+  const role = readPath(document, 'mainListRole')
+  return (
+    readPath(document, 'recommendationStatus') !== 'notRecommended' &&
+    (role === 'buffalo' || role === 'bestNonBuffalo')
+  )
+}
+
+/**
+ * The constitution's letter grade follows the ranking, and the wings page
+ * groups the list under one heading per letter, so a letter that comes back
+ * after a lower one would split its tier in two.
+ */
+function wingTierOrderViolations(
+  collection: CollectionName,
+  documents: unknown[],
+) {
+  if (collection !== 'wings') return []
+
+  const letters = documents
+    .filter(isOnMainList)
+    .map((document) => readPath(document, 'grade'))
+    .filter(isGrade)
+    .map((grade) => grade.charAt(0))
+  const outOfOrder = letters.find(
+    (letter, index) =>
+      letter !== letters[index - 1] && letters.indexOf(letter) < index,
+  )
+  if (!outOfOrder) return []
+
+  return [
+    `wings ranks a ${outOfOrder} wing below a lower grade on the main list, so the ${outOfOrder} tier would split in two - drag it back among the other ${outOfOrder} wings in the Studio`,
+  ]
 }
 
 /**
@@ -324,6 +393,7 @@ export function assertValidCollection<T>(
     ...duplicateSlugViolations(collection, documents),
     ...duplicateRankViolations(collection, documents),
     ...duplicateCrownViolations(collection, documents),
+    ...wingTierOrderViolations(collection, documents),
   ]
 
   if (violations.length > 0) fail(violations)

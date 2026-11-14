@@ -38,6 +38,11 @@ const notRenderedInBody: Array<{
     why: 'which location document a wing points at, not content',
   },
   {
+    path: /^mainListRole$/,
+    collections: ['wings'] as Array<CollectionName>,
+    why: 'picks the list a wing shows on, not content',
+  },
+  {
     path: /^orderRank$/,
     why: 'sort key for the collection index, not content',
   },
@@ -339,6 +344,7 @@ describe('a non-recommendation', () => {
       ...base,
       _type: 'wingReview',
       title: 'Sparse wings',
+      mainListRole: 'none',
       location: {
         _ref: 'location-sparse',
         _id: 'location-sparse',

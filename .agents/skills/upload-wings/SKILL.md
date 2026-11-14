@@ -72,6 +72,7 @@ Prepare JSON/NDJSON in a unique temporary directory outside the repository. For 
 - `_type: "wingReview"`.
 - `recommendationStatus: "recommended"` or `"notRecommended"`, always set explicitly.
 - `slug: { _type: "slug", current: "..." }`.
+- `mainListRole: "buffalo"`, `"bestNonBuffalo"`, or `"none"`, per the constitution's main list rules; ask when the notes do not settle it, since the build fails without it.
 - `location: { _type: "reference", _ref: "<location _id from step 2>" }`, on every wing.
 - `visitedAt: "YYYY-MM-DD"`, `order: { styleOrFlavor: "..." }` plus supplied optional order values, and `heroImage: { _type: "imageWithAlt", image: { _type: "image", asset: { _type: "reference", _ref: "<uploaded asset ID>" } }, alt: "..." }`. A recommendation owes all three. On a non-recommendation each is optional: include the ones the user actually supplied and omit the rest entirely. Never fabricate a date, a flavor, or a photo to fill the shape out.
 - `notes`: Portable Text blocks with unique `_key` values, `_type: "block"`, `style: "normal"`, `markDefs: []`, and `children` containing `_type: "span"`, `_key`, `text`, and `marks: []`.
