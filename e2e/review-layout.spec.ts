@@ -11,7 +11,6 @@ async function bounds(locator: Locator) {
 
 const reviews = [
   '/coffee/colombia-perky',
-  '/wings/neighborhood-buffalo',
   '/na-beers/bright-lager',
   '/reubens/the-rye-house-reuben',
   '/syrup/sweet-ontario',
@@ -73,24 +72,37 @@ test('a review without a hero keeps a single reading column above the facts', as
   expect(facts.top).toBeGreaterThan(notes.bottom)
 })
 
-test('long review notes and embedded images stay beside the hero and above the facts', async ({
+test('a wing page puts its photo beside the text on desktop and above the name on mobile', async ({
   page,
 }) => {
+  for (const width of [390, 1280]) {
+    await page.setViewportSize({ width, height: 900 })
+    await page.goto('/wings/neighborhood-buffalo')
+    await page.evaluate(() => document.fonts.ready)
+
+    const crumbs = await bounds(page.locator('.wing-crumbs'))
+    const title = await bounds(page.locator('h1'))
+    const photo = await bounds(page.locator('.wing-hero__photo'))
+
+    if (width >= 896) {
+      expect(photo.top).toBe(title.top)
+      expect(photo.left).toBeGreaterThan(title.right)
+    } else {
+      expect(photo.top).toBeGreaterThan(crumbs.bottom)
+      expect(title.top).toBeGreaterThan(photo.bottom)
+    }
+  }
+})
+
+test('a wing page shows the whole photo, never cropped', async ({ page }) => {
   await page.setViewportSize({ width: 1280, height: 900 })
   await page.goto('/wings/neighborhood-buffalo')
-  await page.evaluate(() => document.fonts.ready)
 
-  const hero = await bounds(page.locator('.detail-hero__image'))
-  const notes = await bounds(page.locator('.detail-hero__notes'))
-  const facts = await bounds(page.locator('.facts'))
-  expect(notes.bottom).toBeGreaterThan(hero.bottom)
-  expect(facts.top).toBeGreaterThan(notes.bottom)
-
-  const figures = page.locator('.detail-hero__notes figure')
-  expect(await figures.count()).toBeGreaterThan(0)
-  for (const figure of await figures.all()) {
-    const image = await bounds(figure)
-    expect(image.left).toBe(notes.left)
-    expect(image.right).toBeLessThan(hero.left)
-  }
+  const image = page.locator('.wing-hero__photo img')
+  await expect(image).toHaveJSProperty('complete', true)
+  const ratios = await image.evaluate((element: HTMLImageElement) => ({
+    shown: element.clientWidth / element.clientHeight,
+    natural: element.naturalWidth / element.naturalHeight,
+  }))
+  expect(ratios.shown).toBeCloseTo(ratios.natural, 1)
 })

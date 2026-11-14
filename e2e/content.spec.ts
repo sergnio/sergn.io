@@ -86,21 +86,13 @@ test.describe('collection browsing flow', () => {
 
     await expect(page).toHaveURL(/\/wings\/neighborhood-buffalo\/?$/)
     await expect(
-      page.getByRole('heading', {
-        level: 1,
-        name: 'Neighborhood Buffalo',
-      }),
+      page.getByRole('heading', { level: 1, name: 'Buffalo' }),
     ).toBeVisible()
-    await expect(page.getByText('Neighborhood Tavern')).toBeVisible()
-    await expect(
-      page.getByRole('definition').filter({ hasText: 'Medium' }),
-    ).toBeVisible()
-    await expect(
-      page.getByRole('definition').filter({ hasText: '10' }),
-    ).toBeVisible()
-    await expect(
-      page.getByRole('definition').filter({ hasText: /^A\+$/ }),
-    ).toBeVisible()
+    await expect(page.locator('.wing-hero__at')).toHaveText(
+      'at Neighborhood Tavern, 18 Tavern Row, Columbus',
+    )
+    await expect(page.getByRole('img', { name: 'Grade A+' })).toBeVisible()
+    await expect(page.locator('.wing-facts__stats')).toContainText('#1 of 4')
     await expect(page.locator('meta[name="description"]')).toHaveAttribute(
       'content',
       'Neighborhood Tavern - Buffalo',

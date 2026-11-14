@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import type { WingReview } from './content-types'
 import { getFixtureCollection } from './fixtures'
-import { mainList, wingName, wingTiers } from './wings'
+import { mainList, wingName, wingPageData, wingTiers } from './wings'
 
 const wings = getFixtureCollection('wings')
 
@@ -65,5 +65,31 @@ describe('a wing name', () => {
     expect(
       at("Sportsmen's Hot", "Sportsmen's Restaurant & Taverna", 'Hot'),
     ).toBe('Hot')
+  })
+})
+
+describe('a wing page', () => {
+  it('ranks a wing on the main list out of the whole list', () => {
+    const page = wingPageData(wings, 'corner-bar-buffalo')
+    expect([page?.rank, page?.listLength]).toEqual([3, 4])
+  })
+
+  it('gives a wing off the main list no rank', () => {
+    expect(wingPageData(wings, 'corner-bar-honey-hot')?.rank).toBeUndefined()
+  })
+
+  it('lists the other wings at the place with their ranks, never itself', () => {
+    const siblings = wingPageData(wings, 'corner-bar-honey-hot')?.siblings
+    expect(siblings?.map(({ wing, rank }) => [wing.slug, rank])).toEqual([
+      ['corner-bar-buffalo', 3],
+    ])
+  })
+
+  it('lists no siblings for the only wing at its place', () => {
+    expect(wingPageData(wings, 'neighborhood-buffalo')?.siblings).toEqual([])
+  })
+
+  it('finds nothing for an unknown slug', () => {
+    expect(wingPageData(wings, 'nope')).toBeUndefined()
   })
 })

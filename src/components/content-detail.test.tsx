@@ -1,19 +1,37 @@
 import { renderToStaticMarkup } from 'react-dom/server'
 import { describe, expect, it } from 'vitest'
-import type { CollectionName, ContentDocument } from '#/lib/content-types'
+import type {
+  CollectionName,
+  ContentDocument,
+  WingReview,
+} from '#/lib/content-types'
 import { collectionNames } from '#/lib/content-types'
 import { getFixtureCollection, getFixtureDocument } from '#/lib/fixtures'
 import { formatDate } from '#/lib/formatters'
 import { ContentDetail } from './content-detail'
 
-const markupFor = (document: ContentDocument) =>
+type DetailDocument = Exclude<ContentDocument, WingReview>
+
+/** Wings render on their own page; see wing-detail.test.tsx. */
+const detailCollections = collectionNames.filter(
+  (collection) => collection !== 'wings',
+)
+
+const markupFor = (document: DetailDocument) =>
   renderToStaticMarkup(<ContentDetail document={document} />)
 
 const requireDocument = (collection: CollectionName, slug: string) => {
   const document = getFixtureDocument(collection, slug)
-  if (!document) throw new Error(`No ${collection} fixture for ${slug}`)
+  if (!document || document._type === 'wingReview') {
+    throw new Error(`No ${collection} fixture for ${slug}`)
+  }
   return document
 }
+
+const detailFixtures = (collection: CollectionName) =>
+  getFixtureCollection(collection).filter(
+    (document): document is DetailDocument => document._type !== 'wingReview',
+  )
 
 /**
  * Field paths a detail page deliberately does not print. Everything else a
@@ -33,15 +51,6 @@ const notRenderedInBody: Array<{
   },
   { path: /^_(id|type|createdAt|updatedAt)$/, why: 'Sanity system fields' },
   { path: /^slug$/, why: 'the page is already at its own URL' },
-  {
-    path: /^location\._(ref|id)$/,
-    why: 'which location document a wing points at, not content',
-  },
-  {
-    path: /^mainListRole$/,
-    collections: ['wings'] as Array<CollectionName>,
-    why: 'picks the list a wing shows on, not content',
-  },
   {
     path: /^orderRank$/,
     why: 'sort key for the collection index, not content',
@@ -66,7 +75,7 @@ const notRenderedInBody: Array<{
   },
   {
     path: /^publishedAt$/,
-    collections: ['wings', 'reubens'] as Array<CollectionName>,
+    collections: ['reubens'] as Array<CollectionName>,
     why: 'a visit shows the date it happened, not the date it was written up',
   },
 ]
@@ -123,35 +132,40 @@ function leafPaths(
 }
 
 describe('detail page field coverage', () => {
-  it.each(collectionNames)('renders every authored %s field', (collection) => {
-    const dropped = getFixtureCollection(collection).flatMap((document) => {
-      const markup = markupFor(document)
+  it.each(detailCollections)(
+    'renders every authored %s field',
+    (collection) => {
+      const dropped = detailFixtures(collection).flatMap((document) => {
+        const markup = markupFor(document)
 
-      return leafPaths(document)
-        .filter(([path]) =>
-          notRenderedInBody.every(
-            (exclusion) =>
-              !exclusion.path.test(path) ||
-              !(exclusion.collections ?? [collection]).includes(collection) ||
-              !(exclusion.when ?? (() => true))(document),
-          ),
-        )
-        .filter(
-          ([, value]) =>
-            !candidates(value).some((candidate) => markup.includes(candidate)),
-        )
-        .map(([path, value]) => `${document.slug}: ${path} = ${value}`)
-    })
+        return leafPaths(document)
+          .filter(([path]) =>
+            notRenderedInBody.every(
+              (exclusion) =>
+                !exclusion.path.test(path) ||
+                !(exclusion.collections ?? [collection]).includes(collection) ||
+                !(exclusion.when ?? (() => true))(document),
+            ),
+          )
+          .filter(
+            ([, value]) =>
+              !candidates(value).some((candidate) =>
+                markup.includes(candidate),
+              ),
+          )
+          .map(([path, value]) => `${document.slug}: ${path} = ${value}`)
+      })
 
-    expect(dropped).toEqual([])
-  })
+      expect(dropped).toEqual([])
+    },
+  )
 })
 
 describe('review layout', () => {
-  it.each(collectionNames.filter((collection) => collection !== 'blog'))(
+  it.each(detailCollections.filter((collection) => collection !== 'blog'))(
     'places %s notes after the hero image and before the facts',
     (collection) => {
-      const document = getFixtureCollection(collection)[0]
+      const document = detailFixtures(collection)[0]
       const markup = markupFor(document)
       const image = markup.indexOf('class="detail-hero__image"')
       const notes = markup.indexOf('class="detail-hero__notes"')
@@ -195,29 +209,6 @@ describe('review layout', () => {
 })
 
 describe('review facts', () => {
-  it('links a venue to its site and lists the sides ordered', () => {
-    const markup = markupFor(requireDocument('wings', 'neighborhood-buffalo'))
-
-    expect(markup).toContain(
-      '<a href="https://neighborhood-tavern.example.com">18 Tavern Row, Columbus</a>',
-    )
-    expect(markup).toContain('Celery, Blue cheese')
-    expect(markup).toContain('$16.50')
-  })
-
-  it('shows one visit when no visit count was recorded', () => {
-    const markup = markupFor(requireDocument('wings', 'neighborhood-buffalo'))
-
-    expect(markup).toContain('<dt>Visits</dt><dd>1 visit</dd>')
-  })
-
-  it('counts visits to the location a wing was eaten at', () => {
-    const markup = markupFor(requireDocument('wings', 'corner-bar-honey-hot'))
-
-    expect(markup).toContain('<dt>Venue</dt><dd>The Corner Bar</dd>')
-    expect(markup).toContain('<dt>Visits</dt><dd>2 visits</dd>')
-  })
-
   it('shows the recorded visit count', () => {
     const markup = markupFor(requireDocument('reubens', 'the-rye-house-reuben'))
 
@@ -338,21 +329,8 @@ describe('a non-recommendation', () => {
     recommendationStatus: 'notRecommended',
   } as const
 
-  const sparse: ContentDocument[] = [
+  const sparse: DetailDocument[] = [
     { ...base, _type: 'coffee', title: 'Sparse coffee' },
-    {
-      ...base,
-      _type: 'wingReview',
-      title: 'Sparse wings',
-      mainListRole: 'none',
-      location: {
-        _ref: 'location-sparse',
-        _id: 'location-sparse',
-        name: 'Sparse tavern',
-        city: 'Columbus',
-        address: '1 Sparse Street',
-      },
-    },
     { ...base, _type: 'naBeer', title: 'Sparse beer' },
     { ...base, _type: 'reubenReview', title: 'Sparse reuben' },
     { ...base, _type: 'syrupReview', title: 'Sparse syrup' },
