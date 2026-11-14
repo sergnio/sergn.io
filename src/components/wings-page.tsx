@@ -11,6 +11,7 @@ import {
   wingTiers,
 } from '#/lib/wings'
 import { ContentImage } from './content-image'
+import { WingCrown } from './wing-crown'
 
 const footnoteId = 'footnote-non-buffalo'
 
@@ -146,7 +147,7 @@ function WingTop({
         )}
         <div className="wing-top__body">
           <span aria-hidden="true" className="wing-top__rank">
-            {rank === 1 ? <Crown /> : rank}
+            {rank === 1 ? <WingCrown /> : rank}
           </span>
           <WingGrade className="wing-top__grade" wing={wing} />
           <h3>
@@ -271,41 +272,5 @@ function WingGrade({
         <span className="wing-grade__mod">{wing.grade?.slice(1)}</span>
       </span>
     </span>
-  )
-}
-
-function Crown() {
-  return (
-    <svg
-      aria-hidden="true"
-      className="wing-crown"
-      focusable="false"
-      viewBox="0 0 36 30"
-    >
-      <defs>
-        <linearGradient id="crown-gold" x1="0" x2="0" y1="0" y2="1">
-          <stop offset="0" stopColor="#ffd966" />
-          <stop offset=".55" stopColor="#f2b93b" />
-          <stop offset="1" stopColor="#d4921c" />
-        </linearGradient>
-      </defs>
-      <g stroke="#8a5d0b" strokeLinejoin="round" strokeWidth="1.4">
-        <path
-          d="M4 10.5 11 17 18 5.5 25 17l7-6.5-2.6 13.5H6.6z"
-          fill="url(#crown-gold)"
-        />
-        <rect
-          fill="url(#crown-gold)"
-          height="4.4"
-          rx="1.2"
-          width="24"
-          x="6"
-          y="24"
-        />
-        <circle cx="4" cy="8.6" fill="#ffd966" r="2.5" />
-        <circle cx="18" cy="3.2" fill="#ffd966" r="2.5" />
-        <circle cx="32" cy="8.6" fill="#ffd966" r="2.5" />
-      </g>
-    </svg>
   )
 }

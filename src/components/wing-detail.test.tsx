@@ -45,9 +45,9 @@ describe('the wing page', () => {
     )
   })
 
-  it('says where it is on one line', () => {
+  it('says where it is on one line, the address linked to a map', () => {
     expect(markup).toContain(
-      'at <span class="wing-hero__place">The Corner Bar</span>, 7 Corner Street, Columbus',
+      'at <span class="wing-hero__place">The Corner Bar</span>, <a class="wing-hero__address" href="https://www.openstreetmap.org/search?query=7%20Corner%20Street%2C%20Columbus">7 Corner Street, Columbus<span class="visually-hidden"> (opens a map)</span></a>',
     )
   })
 
@@ -55,6 +55,10 @@ describe('the wing page', () => {
     expect(markup).toContain('aria-label="Grade B" class="wing-stamp"')
     expect(markup).toContain('<span>2 visits</span><span>#3 of 4</span>')
     expect(markup).toContain('Last visit <time dateTime="2025-03-03">')
+  })
+
+  it('wears no crown below #1', () => {
+    expect(markup).not.toContain('wing-crown')
   })
 
   it('prints the notes as written', () => {
@@ -101,6 +105,10 @@ describe('the wing page', () => {
 describe('the only wing at its place', () => {
   const markup = markupFor('neighborhood-buffalo')
 
+  it('wears the crown as the #1 wing', () => {
+    expect(markup).toContain('data-testid="wing-crown"')
+  })
+
   it('has no Also tried section', () => {
     expect(markup).not.toContain('Also tried')
   })
@@ -130,6 +138,32 @@ describe('the best non-buffalo wing', () => {
 
   it('has no footnote on a buffalo wing', () => {
     expect(markupFor('corner-bar-buffalo')).not.toContain('id="wing-footnote"')
+  })
+})
+
+describe('a crowned S+', () => {
+  it('stamps the letter grade, never the emoji', () => {
+    const [best, ...rest] = wings
+    const crowned = { ...best, grade: 'S+', isCrowned: true } as WingReview
+    const markup = markupFor(best.slug, [crowned, ...rest])
+
+    expect(markup).toContain('aria-label="Grade S+" class="wing-stamp"')
+    expect(markup).toContain('<b>S+</b>')
+    expect(markup).not.toContain('👑')
+  })
+})
+
+describe('a place with no street address', () => {
+  it('names its city without a map link', () => {
+    const [first, ...rest] = wings
+    const noAddress = {
+      ...first,
+      location: { ...first.location, address: '' },
+    } as WingReview
+    const markup = markupFor(first.slug, [noAddress, ...rest])
+
+    expect(markup).toContain('</span>, Columbus</p>')
+    expect(markup).not.toContain('openstreetmap')
   })
 })
 

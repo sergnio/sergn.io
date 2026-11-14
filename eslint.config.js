@@ -5,6 +5,8 @@ export default [
     ignores: [
       '.lavish/**',
       'dist/**',
+      'playwright-report/**',
+      'test-results/**',
       'routeTree.gen.ts',
       'eslint.config.js',
       'prettier.config.js',
