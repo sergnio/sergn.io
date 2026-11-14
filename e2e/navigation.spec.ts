@@ -27,6 +27,29 @@ test.describe('primary navigation', () => {
     )
   })
 
+  test('wings come first in the home index and the header nav', async ({
+    page,
+  }) => {
+    await page.goto('/')
+
+    await expect(
+      page.getByRole('navigation', { name: 'Sections' }).getByRole('link'),
+    ).toHaveText([
+      'Wings',
+      'Coffee',
+      'N/A beers',
+      'Reubens',
+      'Maple syrup',
+      'Blog',
+    ])
+    await expect(
+      page
+        .getByRole('navigation', { name: 'Primary navigation' })
+        .getByRole('link')
+        .first(),
+    ).toHaveText('Wings')
+  })
+
   test('a collection index lists every document in it', async ({ page }) => {
     await page.goto('/coffee')
 
