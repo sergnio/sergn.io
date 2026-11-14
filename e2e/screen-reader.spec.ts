@@ -17,7 +17,19 @@ async function announcedPositions(list: Locator) {
   )
 }
 
+const onePixelGif = Buffer.from(
+  'R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7',
+  'base64',
+)
+
 test.describe('what screen readers announce', () => {
+  test.beforeEach(async ({ page }) => {
+    // Fixture images point at Unsplash; serve them locally so loads stay offline.
+    await page.route('https://images.unsplash.com/**', (route) =>
+      route.fulfill({ contentType: 'image/gif', body: onePixelGif }),
+    )
+  })
+
   test.describe('/wings', () => {
     test.beforeEach(async ({ page }) => {
       await page.goto('/wings')
