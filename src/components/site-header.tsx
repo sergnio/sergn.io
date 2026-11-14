@@ -2,8 +2,8 @@ import { Link, useLocation } from '@tanstack/react-router'
 import { useEffect, useId, useState } from 'react'
 
 const navigation = [
-  { to: '/coffee', label: 'Coffee' },
   { to: '/wings', label: 'Wings' },
+  { to: '/coffee', label: 'Coffee' },
   { to: '/na-beers', label: 'N/A Beers' },
   { to: '/reubens', label: 'Reubens' },
   { to: '/syrup', label: 'Maple Syrup' },

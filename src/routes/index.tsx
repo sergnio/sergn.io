@@ -11,8 +11,8 @@ export const Route = createFileRoute('/')({
 })
 
 const pages = [
-  { href: '/coffee', title: 'Coffee' },
   { href: '/wings', title: 'Wings' },
+  { href: '/coffee', title: 'Coffee' },
   { href: '/na-beers', title: 'N/A beers' },
   { href: '/reubens', title: 'Reubens' },
   { href: '/syrup', title: 'Maple syrup' },
