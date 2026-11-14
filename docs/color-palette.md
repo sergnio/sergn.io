@@ -1,10 +1,11 @@
 # Color palette reference
 
-Four ramps - Mauve, Blue, Red, Neutral - each with ten steps from `50` (lightest)
+Three ramps - Mauve, Red, Neutral - each with ten steps from `50` (lightest)
 to `900` (darkest). This is the reference sheet for the palette; the semantic
 tokens at the top of `src/styles.css` are defined from these steps, and only the
 steps the site uses are declared there. Use these values when a design calls for
-a palette step by name (e.g. "Blue 900" -> `hsl(206 40% 17%)`).
+a palette step by name (e.g. "Mauve 900" -> `hsl(320 10% 17%)`). Links stay ink with an underline, so
+there is no blue ramp. `docs/brand.md` says which step each role uses.
 
 Values are given in HSL, which makes the ramps easy to read - within a ramp the hue
 and saturation stay roughly fixed and only the lightness moves. The hex column is the
@@ -25,21 +26,6 @@ land a point or two off.
 | 700  | `hsl(321 14% 32%)` | `#5D4655` |
 | 800  | `hsl(320 15% 24%)` | `#463440` |
 | 900  | `hsl(320 10% 17%)` | `#30272D` |
-
-## Blue
-
-| Step | HSL                | Hex       |
-| ---- | ------------------ | --------- |
-| 50   | `hsl(204 33% 97%)` | `#F5F8FA` |
-| 100  | `hsl(205 33% 93%)` | `#E7EEF3` |
-| 200  | `hsl(207 33% 86%)` | `#CFDCE7` |
-| 300  | `hsl(208 56% 76%)` | `#9FC4E4` |
-| 400  | `hsl(208 57% 64%)` | `#6FA7D7` |
-| 500  | `hsl(208 56% 50%)` | `#3885C7` |
-| 600  | `hsl(208 57% 40%)` | `#2C6AA0` |
-| 700  | `hsl(208 56% 32%)` | `#245580` |
-| 800  | `hsl(208 56% 24%)` | `#1B4060` |
-| 900  | `hsl(206 40% 17%)` | `#1A2D3C` |
 
 ## Red
 
@@ -71,6 +57,15 @@ land a point or two off.
 | 800  | `hsl(60 3% 19%)`  | `#333330` |
 | 900  | `hsl(0 3% 15%)`   | `#262424` |
 
+## Gold
+
+One step, kept only for the #1 wing's border. It passes 3:1 against both the
+card and the paper.
+
+| Step | HSL               | Hex       |
+| ---- | ----------------- | --------- |
+| 700  | `hsl(43 79% 28%)` | `#80600F` |
+
 ## As CSS custom properties
 
 ```css
@@ -85,17 +80,6 @@ land a point or two off.
   --mauve-700: hsl(321 14% 32%);
   --mauve-800: hsl(320 15% 24%);
   --mauve-900: hsl(320 10% 17%);
-
-  --blue-50: hsl(204 33% 97%);
-  --blue-100: hsl(205 33% 93%);
-  --blue-200: hsl(207 33% 86%);
-  --blue-300: hsl(208 56% 76%);
-  --blue-400: hsl(208 57% 64%);
-  --blue-500: hsl(208 56% 50%);
-  --blue-600: hsl(208 57% 40%);
-  --blue-700: hsl(208 56% 32%);
-  --blue-800: hsl(208 56% 24%);
-  --blue-900: hsl(206 40% 17%);
 
   --red-50: hsl(0 20% 97%);
   --red-100: hsl(0 20% 93%);
@@ -118,5 +102,7 @@ land a point or two off.
   --neutral-700: hsl(0 1% 27%);
   --neutral-800: hsl(60 3% 19%);
   --neutral-900: hsl(0 3% 15%);
+
+  --gold-700: hsl(43 79% 28%);
 }
 ```

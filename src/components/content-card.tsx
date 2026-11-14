@@ -78,7 +78,15 @@ export function ContentCard({
             {document.title}
           </Link>
         </Heading>
-        {cardSummary(document) ? <p>{cardSummary(document)}</p> : null}
+        {cardSummary(document) ? (
+          <p
+            className={
+              document._type === 'post' ? undefined : 'content-card__maker'
+            }
+          >
+            {cardSummary(document)}
+          </p>
+        ) : null}
         <div className="content-card__meta">
           {grade ? (
             <span className="content-card__grade">
