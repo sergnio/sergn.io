@@ -142,7 +142,12 @@ test.describe('collection browsing flow', () => {
       .filter({ hasText: 'Neighborhood Tavern' })
 
     await expect(card.locator('.wing-top__wing')).toHaveText('Buffalo')
-    await expect(card.locator('.wing-top__grade')).toHaveText('Grade: A+')
+    await expect(card.locator('.wing-top__grade .visually-hidden')).toHaveText(
+      'Grade: A+',
+    )
+    await expect(card.locator('.wing-top__grade [aria-hidden]')).toHaveText(
+      'A+',
+    )
     await expect(card.locator('.wing-top__meta')).toHaveText(
       '1 visit · Feb 11, 2025',
     )

@@ -383,14 +383,39 @@ describe('content contract', () => {
       ).not.toThrow()
     })
 
-    it('rejects a grade letter that comes back below a lower one', () => {
+    it('rejects a higher tier ranked below a lower one', () => {
+      expect(() =>
+        assertValidCollection('wings', [ranked('B', 1), ranked('S', 2)]),
+      ).toThrow(/ranks a S wing below a B wing/)
+      expect(() =>
+        assertValidCollection('wings', [
+          ranked('A', 1),
+          ranked('S', 2),
+          ranked('B', 3),
+        ]),
+      ).toThrow(/ranks a S wing below a A wing/)
+    })
+
+    it('rejects a tier split by a lower one', () => {
       expect(() =>
         assertValidCollection('wings', [
           ranked('S', 1),
           ranked('A', 2),
           ranked('S-', 3),
         ]),
-      ).toThrow(/ranks a S wing below a lower grade/)
+      ).toThrow(/ranks a S wing below a A wing/)
+    })
+
+    it('leaves the order within a tier to the Studio', () => {
+      expect(() =>
+        assertValidCollection('wings', [
+          ranked('S-', 1),
+          ranked('S+', 2),
+          ranked('A', 3),
+          ranked('A+', 4),
+          ranked('C', 5),
+        ]),
+      ).not.toThrow()
     })
 
     it('ignores the grade order of wings off the main list', () => {

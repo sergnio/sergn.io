@@ -2,11 +2,13 @@ import AxeBuilder from '@axe-core/playwright'
 import type { Page } from '@playwright/test'
 import { expect, test } from './tracker-stub'
 
-// One representative page per template: home, a collection index, a detail
-// page with a hero image, a rich-text-heavy blog post, and the static pages.
+// One representative page per template: home, a collection index, the wings
+// ranking, a detail page with a hero image, a rich-text-heavy blog post, and
+// the static pages.
 const pages = [
   '/',
   '/coffee',
+  '/wings',
   '/coffee/colombia-perky',
   '/blog/a-table-for-two',
   '/not-found',
@@ -125,7 +127,7 @@ test.describe('screen-reader semantics', () => {
     await page.goto('/wings')
 
     const card = page.locator('.wing-top').first()
-    await expect(card.locator('.wing-top__grade')).toHaveText(
+    await expect(card.locator('.wing-top__grade .visually-hidden')).toHaveText(
       /^Grade: (?:[SAB][+-]?|[CDF]|👑)$/,
     )
     await expect(card.locator('time')).toHaveAttribute(
