@@ -74,7 +74,7 @@ We follow the [Testing Trophy](https://kentcdodds.com/blog/the-testing-trophy-an
 ## VII. Layout tests measure, they do not inspect
 
 - Whole-page visual concerns (reflow, text resize, overall layout) MUST be covered by Playwright visual snapshots (`toHaveScreenshot`) of the fixture build at 320, 390, and 1280 px wide. Tests MUST NOT enumerate the DOM or sweep computed styles for them.
-- Minimum target size is left to axe (`target-size`, run by the `wcag22aa` tag in `e2e/a11y.spec.ts`).
+- Minimum target size is left to axe (`target-size`, run by the `wcag22aa` tag in `e2e/a11y.spec.ts`). That check MUST fail on target-size results axe marks [incomplete](https://www.deque.com/axe/core-documentation/api-documentation/) (needs review), not just violations, unless the test lists each one by page and accessible name with the reason a person accepted it.
 - When one requirement is visual (order on screen, side by side, pinned at the top), tests MUST locate the elements by role or text, then measure with `boundingBox()`.
 - Tests MUST read a computed style only when that style is the requirement itself, such as a transparent bar at rest, and still locate the element semantically.
 
