@@ -262,13 +262,21 @@ font that actually changes lands at a new URL; that is what makes the
 `src/routes/__root.tsx` links `src/fonts.css` from the document head rather than
 `@import`-ing it from `src/styles.css` - an `@import` hides it from the preload
 scanner, so the woff2 files cannot start until `styles.css` has been fetched and
-parsed - and preloads the two latin faces every page paints first (Newsreader and DM
-Mono; Onest only appears below the fold, so it is not preloaded).
+parsed - and preloads the Newsreader and DM Mono latin faces every page
+paints first. Onest is preloaded only on the ranked lists and the 404 page,
+where it paints above the fold; elsewhere it arrives with `font-display: swap`,
+so a cold first visit can briefly show the fallback sans.
+
+All three families are under the SIL Open Font License 1.1. Each family's
+license text, with its copyright line, is committed beside the files as
+`public/fonts/LICENSE-<family>.txt` and served at `/fonts/LICENSE-<family>.txt`.
+The generator keeps those files and refuses to run without one per family.
 
 The build fails if any prerendered page mentions `fonts.googleapis.com` or
 `fonts.gstatic.com`, if more or fewer than one emitted CSS asset declares
 `@font-face`, if a declared font source is off-origin or missing from the
-output, if a shipped woff2 is referenced by no `@font-face`, if the latin faces
+output, if a shipped woff2 is referenced by no `@font-face` or has no OFL license
+beside it, if the latin faces
 exceed a 180 KB budget, or if any page fails to link the font stylesheet,
 preloads no font, preloads a URL no `@font-face` declares, or preloads without
 `crossorigin` (which makes the browser download the file twice). E2e tests prove

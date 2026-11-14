@@ -7,6 +7,7 @@ export const Route = createFileRoute('/na-beers/')({
   loader: () => getCollection({ data: { collection: 'na-beers' } }),
   head: ({ loaderData }) => ({
     ...pageHead({
+      preloadSans: true,
       description: 'N/A beer reviews for the beers worth drinking again.',
       path: '/na-beers',
       title: collectionTitles['na-beers'],

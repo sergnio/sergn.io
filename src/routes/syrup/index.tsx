@@ -7,6 +7,7 @@ export const Route = createFileRoute('/syrup/')({
   loader: () => getCollection({ data: { collection: 'syrup' } }),
   head: ({ loaderData }) => ({
     ...pageHead({
+      preloadSans: true,
       description:
         'Pure maple syrup reviews, rated and compared by price per liter.',
       path: '/syrup',

@@ -12,6 +12,7 @@ import type {
   WingReview,
 } from './content-types'
 import { isGrade, isRankedCollection } from './content-types'
+import { sansFontPreload } from './font-preloads'
 import { imageUrl } from './sanity/image'
 import { isOnMainList } from './wings'
 
@@ -94,6 +95,8 @@ type SocialMetaOptions = {
   image?: string
   ogType?: 'article' | 'website'
   path: string
+  /** Set on pages that paint Onest above the fold. */
+  preloadSans?: boolean
   title: string
 }
 
@@ -107,6 +110,7 @@ export function pageHead({
   image,
   ogType = 'website',
   path,
+  preloadSans = false,
   title,
 }: SocialMetaOptions) {
   const url = canonicalUrl(path)
@@ -130,7 +134,10 @@ export function pageHead({
       { name: 'twitter:image', content: preview.url },
       { name: 'twitter:image:alt', content: preview.alt },
     ],
-    links: [{ rel: 'canonical', href: url }],
+    links: [
+      { rel: 'canonical', href: url },
+      ...(preloadSans ? [sansFontPreload] : []),
+    ],
   }
 }
 
