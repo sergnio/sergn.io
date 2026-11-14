@@ -1,4 +1,5 @@
 import { Link } from '@tanstack/react-router'
+import { useEffect, useRef } from 'react'
 import type { WingReview } from '#/lib/content-types'
 import { formatDate, formatVisits } from '#/lib/formatters'
 import type { MainListEntry } from '#/lib/wings'
@@ -15,6 +16,7 @@ const footnoteId = 'footnote-non-buffalo'
 
 export function WingsPage({ wings }: { wings: WingReview[] }) {
   const entries = mainList(wings)
+  const tiersRef = useStuckTierHeads()
   const nonBuffalo = entries.filter(
     ({ wing }) => wing.mainListRole === 'bestNonBuffalo',
   )
@@ -39,7 +41,7 @@ export function WingsPage({ wings }: { wings: WingReview[] }) {
           Nothing published here yet. Check back soon.
         </p>
       ) : (
-        <div className="wing-tiers">
+        <div className="wing-tiers" ref={tiersRef}>
           {wingTiers(entries).map((tier) => {
             const tops = tier.entries.filter(({ rank }) => rank <= podiumSize)
             const lines = tier.entries.filter(({ rank }) => rank > podiumSize)
@@ -183,6 +185,35 @@ function WingLine({
       <WingGrade className="wing-line__grade" wing={wing} />
     </li>
   )
+}
+
+/** Marks a tier head pinned to the top, so it frosts only over the rows. */
+function useStuckTierHeads() {
+  const tiersRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (records) => {
+        for (const {
+          target,
+          intersectionRatio,
+          boundingClientRect,
+        } of records) {
+          target.toggleAttribute(
+            'data-stuck',
+            intersectionRatio < 1 && boundingClientRect.top < 1,
+          )
+        }
+      },
+      { rootMargin: '-1px 0px 0px 0px', threshold: 1 },
+    )
+    tiersRef.current
+      ?.querySelectorAll('.wing-tier__head')
+      .forEach((head) => observer.observe(head))
+    return () => observer.disconnect()
+  }, [])
+
+  return tiersRef
 }
 
 /** Screen readers count items per <ol> and ignore start, so state the rank. */

@@ -1266,8 +1266,17 @@ figcaption {
   gap: 0.75rem;
   margin: 0 -0.5rem 1rem;
   padding: 0.55rem 0.5rem 0.5rem;
-  background: var(--paper);
   border-bottom: 1px solid var(--line);
+  transition: background-color 0.2s;
+}
+
+/* Clear at rest so the page gradient shows through; frosted once rows slide under. */
+@media (width < 56rem) {
+  .wing-tier__head[data-stuck] {
+    background: color-mix(in srgb, var(--paper) 90%, transparent);
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
+  }
 }
 
 .wing-tier__letter {

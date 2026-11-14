@@ -814,6 +814,30 @@ test.describe('ranked collections', () => {
     }
   })
 
+  test('the mobile tier bar shows the page through at rest and frosts once pinned', async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 390, height: 500 })
+    await page.goto('/wings')
+    const head = page.locator('.wing-tier__head').first()
+    const background = () =>
+      head.evaluate((element) => getComputedStyle(element).backgroundColor)
+
+    await expect.poll(background).toBe('rgba(0, 0, 0, 0)')
+
+    await expect
+      .poll(() =>
+        head.evaluate((element) => {
+          const tier = element.closest('.wing-tier')!
+          const tierTop = tier.getBoundingClientRect().top + window.scrollY
+          window.scrollTo({ top: tierTop + 60, behavior: 'instant' })
+          return element.hasAttribute('data-stuck')
+        }),
+      )
+      .toBe(true)
+    await expect.poll(background).not.toBe('rgba(0, 0, 0, 0)')
+  })
+
   test('the blog is not a ranking, so it ships no ItemList and no ranks', async ({
     page,
   }) => {
