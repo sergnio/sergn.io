@@ -1,6 +1,10 @@
 # Testing constitution
 
-The rules every test in this repo follows. MUST and MUST NOT are binding; a PR that breaks one says why in its description.
+> The more your tests resemble the way your software is used, the more confidence they can give you.
+>
+> [Testing Library, Guiding Principles](https://testing-library.com/docs/guiding-principles)
+
+That is the guiding principle here, and every rule below serves it. MUST and MUST NOT are binding; a PR that breaks one says why in its description.
 
 ## I. Tests change only when behavior changes
 
@@ -31,14 +35,17 @@ Use the first query that works, in this order:
 - Tests MUST NOT mock this repo's own modules or the router. Render inside a real router and mock only true boundaries: the network, the clock, and third-party scripts.
 - Tests MUST NOT assert the text of a query or other source code. Run it, as `src/lib/sanity/queries.test.ts` does with `groq-js`, and assert the result.
 - Component tests MUST render with React Testing Library and query the result with its screen queries, not regex over `renderToStaticMarkup` output.
+- Tests work with DOM nodes, never component instances. They MUST NOT read or set a component's props, state, refs, or hook internals.
+- Tests MUST interact the way a person does: click, type, and press keys through `@testing-library/user-event` or Playwright. They MUST NOT call event handlers directly or use `fireEvent`.
 
 ## IV. Test at the right level
 
 - **Unit (Vitest, `src/lib`)**: pure logic such as ranking, formatting, slugs, the content contract, and GROQ queries. Fast and exhaustive.
-- **Component (Vitest + React Testing Library)**: what a component renders for a given document, including empty and missing fields.
+- **Component (Vitest + React Testing Library)**: what a component renders for a given document, including empty and missing fields. The simulated browser cannot do layout, so anything about position or size belongs in e2e.
 - **End to end (Playwright, `e2e/`)**: anything that needs a real browser or the real build: routing, navigation, hydration, layout at a viewport, sticky and scroll behavior, `<head>` output, redirects, and security headers.
 - Each behavior MUST be covered once at the lowest level that can prove it. Do not repeat a unit check in e2e.
 - Every feature and bug fix MUST have a positive case and a negative case (the thing appears when it should, and stays away when it should not).
+- Shared helpers and custom render wrappers MUST stay small enough to read at a glance, like `e2e/tracker-stub.ts`. No framework inside the framework: no page objects, builders, or DSLs that hide what a test does.
 
 ## V. Real data through fixtures
 
