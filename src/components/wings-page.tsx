@@ -5,8 +5,6 @@ import type { MainListEntry } from '#/lib/wings'
 import { mainList, podiumSize, wingName, wingTiers } from '#/lib/wings'
 import { ContentImage } from './content-image'
 
-const constitutionUrl =
-  'https://github.com/sergnio/sergn.io/blob/main/docs/wings-constitution.md'
 const footnoteId = 'footnote-non-buffalo'
 
 export function WingsPage({ wings }: { wings: WingReview[] }) {
@@ -27,7 +25,6 @@ export function WingsPage({ wings }: { wings: WingReview[] }) {
           <p className="wings-intro__summary">
             Flavor, crunch, juiciness, and size matter.
           </p>
-          <span className="wings-slot">#90 · "All wings" toggle goes here</span>
         </div>
       </header>
 
@@ -102,7 +99,7 @@ export function WingsPage({ wings }: { wings: WingReview[] }) {
             <Link params={{ slug: wing.slug }} to="/wings/$slug">
               its own page
             </Link>
-            . <a href={constitutionUrl}>How wings are ranked</a>.
+            .
           </span>
         </p>
       ))}
