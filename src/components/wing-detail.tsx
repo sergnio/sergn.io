@@ -1,11 +1,13 @@
 import { Link } from '@tanstack/react-router'
 import type { WingReview } from '#/lib/content-types'
-import { formatDate, formatGrade, formatVisits } from '#/lib/formatters'
+import { isGrade } from '#/lib/content-types'
+import { formatDate, formatVisits } from '#/lib/formatters'
 import { imageUrl } from '#/lib/sanity/image'
 import type { WingPageData, WingStanding } from '#/lib/wings'
 import { wingName } from '#/lib/wings'
 import { ImageFigure } from './content-image'
 import { RichText } from './rich-text'
+import { WingCrown } from './wing-crown'
 
 const footnoteId = 'wing-footnote'
 
@@ -20,7 +22,9 @@ export function WingDetail({ wing, rank, listLength, siblings }: WingPageData) {
       <nav aria-label="Breadcrumb">
         <ol className="wing-crumbs">
           <li>
-            <Link to="/wings">Wings</Link>
+            <Link activeOptions={{ exact: true }} to="/wings">
+              Wings
+            </Link>
           </li>
           <li>{place.name}</li>
           <li aria-current="page">{name}</li>
@@ -41,7 +45,7 @@ export function WingDetail({ wing, rank, listLength, siblings }: WingPageData) {
           <h1>{name}</h1>
           <p className="wing-hero__at">
             at <span className="wing-hero__place">{place.name}</span>,{' '}
-            {place.address}, {place.city}
+            <PlaceAddress address={place.address} city={place.city} />
           </p>
           {wing.recommendationStatus === 'notRecommended' ? (
             <p className="detail-callout">Sergio does not recommend this.</p>
@@ -91,19 +95,16 @@ function WingFacts({
   listLength: number
   isAsterisked: boolean
 }) {
-  const grade = formatGrade(wing.grade, wing.isCrowned)
+  const grade = isGrade(wing.grade) ? wing.grade : undefined
   const visitCount = wing.location.visitCount
   const hasStats = Boolean(visitCount || rank)
   if (!grade && !hasStats && !wing.visitedAt) return null
 
   return (
     <div className="wing-facts">
+      {rank === 1 ? <WingCrown /> : null}
       {grade ? (
-        <div
-          aria-label={`Grade ${wing.grade}`}
-          className="wing-stamp"
-          role="img"
-        >
+        <div aria-label={`Grade ${grade}`} className="wing-stamp" role="img">
           <b>{grade}</b>
         </div>
       ) : null}
@@ -137,7 +138,7 @@ function WingFacts({
 }
 
 function WingSibling({ wing, rank }: WingStanding) {
-  const grade = formatGrade(wing.grade, wing.isCrowned)
+  const grade = isGrade(wing.grade) ? wing.grade : undefined
   const thumbnail = imageUrl(wing.heroImage, 200)
 
   return (
@@ -173,6 +174,21 @@ function WingSibling({ wing, rank }: WingStanding) {
         </span>
       ) : null}
     </li>
+  )
+}
+
+/** Links the street address to a map search; a place without one shows only its city. */
+function PlaceAddress({ address, city }: { address?: string; city: string }) {
+  if (!address) return <>{city}</>
+  const query = `${address}, ${city}`
+  return (
+    <a
+      className="wing-hero__address"
+      href={`https://www.openstreetmap.org/search?query=${encodeURIComponent(query)}`}
+    >
+      {query}
+      <span className="visually-hidden"> (opens a map)</span>
+    </a>
   )
 }
 

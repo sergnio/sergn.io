@@ -1362,7 +1362,7 @@ figcaption {
 
 .wing-crown {
   display: block;
-  width: 1.1em;
+  width: 2.86rem;
   height: auto;
 }
 
@@ -1565,11 +1565,17 @@ figcaption {
 /* Inline padding grows the hit area to 24px without moving the line. */
 .wing-crumbs a {
   padding-block: 0.3rem;
-  text-decoration: none;
+  color: var(--accent);
+  text-decoration-color: color-mix(in srgb, currentColor 45%, transparent);
 }
 
 .wing-crumbs a:hover {
-  text-decoration: underline;
+  text-decoration-color: currentColor;
+  text-decoration-thickness: 0.12em;
+}
+
+.wing-crumbs [aria-current='page'] {
+  color: var(--ink);
 }
 
 .wing-hero {
@@ -1608,6 +1614,15 @@ figcaption {
 
 .wing-facts:has(.wing-stamp) {
   grid-template-columns: auto minmax(0, 1fr);
+}
+
+.wing-facts:has(.wing-crown) {
+  grid-template-columns: auto auto minmax(0, 1fr);
+}
+
+.wing-facts .wing-crown {
+  grid-row: span 2;
+  margin-right: -0.5rem;
 }
 
 .wing-stamp {
