@@ -87,8 +87,9 @@ so they are never the only edge of a button or field.
 | Focus ring             | 8.27:1  | 8.02:1  | 6.71:1     |
 | Gold 700 (border only) | 5.13:1  | 4.98:1  | not used   |
 
-White on the no-photo fill is at least 6.31:1, measured at its lightest end,
-Mauve 600. `e2e/brand.spec.ts` guards the no-photo label and the gold border.
+White on the blog's no-photo fill is at least 6.31:1, measured at its lightest end,
+Mauve 600. The wings drumette's Mauve 700 caption is at least 6.18:1 on its pale fill.
+`e2e/brand.spec.ts` guards both no-photo labels and the gold border.
 
 ## Rules
 

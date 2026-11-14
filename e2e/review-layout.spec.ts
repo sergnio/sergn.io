@@ -128,3 +128,27 @@ test('a wing page shows the whole photo, never cropped', async ({ page }) => {
   }))
   expect(ratios.shown).toBeCloseTo(ratios.natural, 1)
 })
+
+test('a podium wing with no photo keeps the same 4:3 slot as one with a photo', async ({
+  page,
+}) => {
+  const headingOffset = async (place: string) => {
+    const card = page.getByRole('article').filter({
+      has: page.getByRole('link', { name: place }),
+    })
+    const article = await bounds(card)
+    const heading = await bounds(card.getByRole('heading'))
+    return { offset: heading.top - article.top, width: article.width }
+  }
+
+  for (const width of [320, 390, 1280]) {
+    await page.setViewportSize({ width, height: 900 })
+    await page.goto('/wings')
+    await page.evaluate(() => document.fonts.ready)
+
+    const withPhoto = await headingOffset('Eastside Smokehouse')
+    const withoutPhoto = await headingOffset('The Corner Bar')
+    expect(withoutPhoto.width).toBe(withPhoto.width)
+    expect(withoutPhoto.offset).toBeCloseTo(withPhoto.offset, 0)
+  }
+})

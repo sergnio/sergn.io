@@ -11,18 +11,25 @@ async function familyOf(locator: Locator) {
   return firstFamily.exec(fontFamily)?.groups?.family
 }
 
-/** WCAG relative luminance of every `rgb(r, g, b)` in a computed style value. */
+/** WCAG relative luminance of every `rgb()` or `color(srgb)` in a computed style value. */
 function luminances(cssValue: string) {
   return [
-    ...cssValue.matchAll(/rgba?\((\d+), (\d+), (\d+)(?:, ([\d.]+))?\)/g),
-  ].map(([, ...channels]) => {
-    const [r, g, b] = channels.slice(0, 3).map((channel) => {
-      const value = Number(channel) / 255
-      return value <= 0.04045 ? value / 12.92 : ((value + 0.055) / 1.055) ** 2.4
-    })
+    ...cssValue.matchAll(
+      /rgba?\((\d+), (\d+), (\d+)(?:, ([\d.]+))?\)|color\(srgb ([\d.]+) ([\d.]+) ([\d.]+)(?: \/ ([\d.]+))?\)/g,
+    ),
+  ].map((match) => {
+    const [, r8, g8, b8, alpha8, r, g, b, alpha] = match as (
+      string | undefined
+    )[]
+    const unit = r8
+      ? [r8, g8, b8].map((c) => Number(c) / 255)
+      : [r, g, b].map(Number)
+    const [lr, lg, lb] = unit.map((value) =>
+      value <= 0.04045 ? value / 12.92 : ((value + 0.055) / 1.055) ** 2.4,
+    )
     return {
-      luminance: 0.2126 * r + 0.7152 * g + 0.0722 * b,
-      alpha: channels[3],
+      luminance: 0.2126 * lr + 0.7152 * lg + 0.0722 * lb,
+      alpha: alpha8 ?? alpha,
     }
   })
 }
@@ -85,15 +92,41 @@ test.describe('Brand typefaces', () => {
 })
 
 test.describe('Brand contrast', () => {
-  test('the "no photo yet" label is solid white and clears 4.5:1 across the whole fill', async ({
+  test('a blog card with no cover sets its label in solid white, clearing 4.5:1 across the whole fill', async ({
     page,
   }) => {
-    await page.goto('/wings/')
-    const label = page.getByText('No photo yet')
+    await page.goto('/blog/')
+    const label = page
+      .getByRole('list', { name: 'Blog' })
+      .getByRole('listitem')
+      .filter({ hasText: 'A table for two' })
+      .getByText('From the blog')
+      .first() // the fill's label; the post's own eyebrow repeats the words below it
 
     const [text] = luminances(await style(label, 'color'))
     expect(text.alpha, 'the label must not be see-through').toBeUndefined()
     const fillEnds = luminances(await style(label, 'background-image'))
+    expect(fillEnds.length).toBeGreaterThanOrEqual(2)
+    for (const end of fillEnds) {
+      expect(contrast(text.luminance, end.luminance)).toBeGreaterThanOrEqual(
+        4.5,
+      )
+    }
+  })
+
+  test('the drumette\'s "no photo yet" caption clears 4.5:1 across its whole fill', async ({
+    page,
+  }) => {
+    await page.goto('/wings/')
+    const caption = page.getByText('No photo yet')
+
+    const [text] = luminances(await style(caption, 'color'))
+    expect(text.alpha, 'the caption must not be see-through').toBeUndefined()
+    const fillEnds = luminances(
+      await caption.evaluate(
+        (element) => getComputedStyle(element.parentElement!).backgroundImage,
+      ),
+    )
     expect(fillEnds.length).toBeGreaterThanOrEqual(2)
     for (const end of fillEnds) {
       expect(contrast(text.luminance, end.luminance)).toBeGreaterThanOrEqual(

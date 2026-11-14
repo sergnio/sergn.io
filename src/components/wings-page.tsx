@@ -11,6 +11,7 @@ import {
   wingTiers,
 } from '#/lib/wings'
 import { ContentImage } from './content-image'
+import { NoPhoto } from './no-photo'
 import { WingCrown } from './wing-crown'
 
 const footnoteId = 'footnote-non-buffalo'
@@ -144,7 +145,7 @@ function WingTop({
             sizes={`(min-width: 42rem) 33vw, ${rank === 1 ? 100 : 50}vw`}
           />
         ) : (
-          <div className="wing-top__placeholder">No photo yet</div>
+          <NoPhoto decorative />
         )}
         <div className="wing-top__body">
           <span aria-hidden="true" className="wing-top__rank">
