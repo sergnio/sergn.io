@@ -2,7 +2,13 @@ import { Link } from '@tanstack/react-router'
 import type { WingReview } from '#/lib/content-types'
 import { formatDate, formatVisits } from '#/lib/formatters'
 import type { MainListEntry } from '#/lib/wings'
-import { mainList, podiumSize, wingName, wingTiers } from '#/lib/wings'
+import {
+  mainList,
+  podiumSize,
+  tierLetter,
+  wingName,
+  wingTiers,
+} from '#/lib/wings'
 import { ContentImage } from './content-image'
 
 const footnoteId = 'footnote-non-buffalo'
@@ -208,7 +214,8 @@ function WingGrade({
   return (
     <span className={className}>
       <span className="visually-hidden">Grade: </span>
-      {wing.grade}
+      {tierLetter(wing)}
+      <span className="wing-grade__mod">{wing.grade?.slice(1)}</span>
     </span>
   )
 }

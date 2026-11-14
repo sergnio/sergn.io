@@ -1441,6 +1441,13 @@ figcaption {
   display: none;
 }
 
+/* A fixed slot for the + or -, so every grade letter lines up. */
+.wing-grade__mod {
+  display: inline-block;
+  width: 0.5em;
+  text-align: left;
+}
+
 .wing-line__grade {
   color: var(--highlight);
   font-size: 1.6rem;
