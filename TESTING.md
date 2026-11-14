@@ -73,10 +73,10 @@ We follow the [Testing Trophy](https://kentcdodds.com/blog/the-testing-trophy-an
 
 ## VII. Layout tests measure, they do not inspect
 
-- When the requirement is visual (order on screen, side by side, pinned at the top), tests MUST locate the elements by role or text, then measure with `boundingBox()`.
+- Whole-page visual concerns (reflow, text resize, overall layout) MUST be covered by Playwright visual snapshots (`toHaveScreenshot`) of the fixture build at 320, 390, and 1280 px wide. Tests MUST NOT enumerate the DOM or sweep computed styles for them.
+- Minimum target size is left to axe (`target-size`, run by the `wcag22aa` tag in `e2e/a11y.spec.ts`).
+- When one requirement is visual (order on screen, side by side, pinned at the top), tests MUST locate the elements by role or text, then measure with `boundingBox()`.
 - Tests MUST read a computed style only when that style is the requirement itself, such as a transparent bar at rest, and still locate the element semantically.
-- **Whole-page audits are the exception.** Checks that sweep every control or box on a page (target size, reflow, text resize) MAY enumerate the DOM and read computed styles, because the elements they must catch are often unnamed. They MUST NOT single out an element by class.
-- Tests SHOULD prefer a visual or ARIA snapshot over a stack of style reads once snapshots are adopted.
 
 ## VIII. Bugs start with a failing test
 
