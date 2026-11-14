@@ -91,6 +91,25 @@ export const wingReview = defineType({
       group: 'essentials',
       validation: (Rule) => Rule.required().error('Pick where these were.'),
     }),
+    // docs/wings-constitution.md decides which wings the main list shows.
+    defineField({
+      name: 'mainListRole',
+      title: 'Main list role',
+      description:
+        'Buffalo wings are on the main list. A place with no buffalo puts its single best wing on it, with an asterisk.',
+      type: 'string',
+      group: 'essentials',
+      options: {
+        layout: 'radio',
+        list: [
+          { title: 'Buffalo', value: 'buffalo' },
+          { title: 'Best non-buffalo', value: 'bestNonBuffalo' },
+          { title: 'Neither', value: 'none' },
+        ],
+      },
+      validation: (Rule) =>
+        Rule.required().error('Pick whether this wing is on the main list.'),
+    }),
     defineField({
       name: 'visitedAt',
       title: 'Visited at',

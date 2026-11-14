@@ -215,6 +215,7 @@ export const fixtureWings: WingReview[] = [
     slug: 'neighborhood-buffalo',
     publishedAt: '2025-02-12T12:00:00.000Z',
     orderRank: '0|100000:',
+    mainListRole: 'buffalo',
     location: fixtureLocation('neighborhood-tavern', {
       name: 'Neighborhood Tavern',
       city: 'Columbus',
@@ -286,6 +287,7 @@ export const fixtureWings: WingReview[] = [
     slug: 'smokehouse-dry-rub-wings',
     publishedAt: '2025-02-20T12:00:00.000Z',
     orderRank: '0|200000:',
+    mainListRole: 'bestNonBuffalo',
     location: fixtureLocation('eastside-smokehouse', {
       name: 'Eastside Smokehouse',
       city: 'Columbus',
@@ -310,6 +312,7 @@ export const fixtureWings: WingReview[] = [
     slug: 'corner-bar-honey-hot',
     publishedAt: '2025-03-04T12:00:00.000Z',
     orderRank: '0|300000:',
+    mainListRole: 'none',
     location: fixtureLocation('the-corner-bar', {
       name: 'The Corner Bar',
       city: 'Columbus',
@@ -322,6 +325,27 @@ export const fixtureWings: WingReview[] = [
     notes: paragraph('Sweet up front, genuinely hot on the finish.'),
   },
   {
+    _id: 'wings-corner-bar-buffalo',
+    _type: 'wingReview',
+    _createdAt: '2025-03-04T12:00:00.000Z',
+    _updatedAt: '2025-03-04T12:00:00.000Z',
+    title: 'The Corner Bar Buffalo',
+    slug: 'corner-bar-buffalo',
+    publishedAt: '2025-03-04T12:00:00.000Z',
+    orderRank: '0|350000:',
+    mainListRole: 'buffalo',
+    location: fixtureLocation('the-corner-bar', {
+      name: 'The Corner Bar',
+      city: 'Columbus',
+      address: '7 Corner Street',
+      visitCount: 2,
+    }),
+    visitedAt: '2025-03-03',
+    order: { styleOrFlavor: 'Buffalo', heat: 'Medium', pieceCount: 12 },
+    grade: 'B',
+    notes: paragraph('Plain and dependable, a step behind the honey hot.'),
+  },
+  {
     _id: 'wings-arena-concession',
     _type: 'wingReview',
     _createdAt: '2025-03-18T12:00:00.000Z',
@@ -330,6 +354,7 @@ export const fixtureWings: WingReview[] = [
     slug: 'arena-concession-wings',
     publishedAt: '2025-03-18T12:00:00.000Z',
     orderRank: '0|400000:',
+    mainListRole: 'buffalo',
     location: fixtureLocation('downtown-arena', {
       name: 'Downtown Arena',
       city: 'Columbus',
@@ -350,6 +375,7 @@ export const fixtureWings: WingReview[] = [
     title: 'Gas Station Case Wings',
     slug: 'gas-station-case-wings',
     publishedAt: '2025-04-02T12:00:00.000Z',
+    mainListRole: 'none',
     location: fixtureLocation('highway-33-fuel-stop', {
       name: 'Highway 33 Fuel Stop',
       city: 'Marysville',

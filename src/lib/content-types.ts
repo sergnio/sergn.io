@@ -98,6 +98,15 @@ export function isGrade(value: unknown): value is Grade {
  */
 export type RecommendationStatus = 'recommended' | 'notRecommended'
 
+/**
+ * Where a wing stands on the main wings list, per docs/wings-constitution.md:
+ * every buffalo wing is on it, a place with no buffalo puts its single best
+ * wing on it with an asterisk, and every other wing stays off it.
+ */
+export const mainListRoles = ['buffalo', 'bestNonBuffalo', 'none'] as const
+
+export type MainListRole = (typeof mainListRoles)[number]
+
 export type PortableTextBlock = {
   _key: string
   _type: 'block'
@@ -241,6 +250,7 @@ export type WingReview = BaseDocument &
   RankedDocument & {
     _type: 'wingReview'
     location: Location
+    mainListRole: MainListRole
     visitedAt?: string
     order?: {
       styleOrFlavor?: string

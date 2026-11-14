@@ -56,7 +56,10 @@ const reviewTypes = [
 const requiredOfEvery: Partial<
   Record<(typeof reviewTypes)[number], Record<string, unknown>>
 > = {
-  wingReview: { location: { _type: 'reference', _ref: 'location-test' } },
+  wingReview: {
+    location: { _type: 'reference', _ref: 'location-test' },
+    mainListRole: 'none',
+  },
 }
 
 const notes = [

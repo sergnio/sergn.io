@@ -146,8 +146,8 @@ test.describe('Performance', () => {
     })
 
     await page.goto('/wings')
-    const hasCardImage = (await page.locator('.content-card img').count()) > 0
-    test.skip(!hasCardImage, 'The dataset has no wings card with an image.')
+    const hasCardImage = (await page.locator('.wing-top img').count()) > 0
+    test.skip(!hasCardImage, 'The dataset has no top wing with an image.')
 
     await expect
       .poll(async () =>

@@ -13,6 +13,7 @@ import type {
 } from './content-types'
 import { isGrade, isRankedCollection } from './content-types'
 import { imageUrl } from './sanity/image'
+import { isOnMainList } from './wings'
 
 export const siteUrl = 'https://sergn.io'
 export const siteName = 'sergn.io'
@@ -247,8 +248,10 @@ export function collectionScripts(
 ) {
   // A ranking lists what Sergio stands behind, so the entries he does not
   // recommend stay out of the structured data the collection publishes.
-  const recommended = documents?.filter(
-    (document) => document.recommendationStatus !== 'notRecommended',
+  const recommended = documents?.filter((document) =>
+    document._type === 'wingReview'
+      ? isOnMainList(document)
+      : document.recommendationStatus !== 'notRecommended',
   )
 
   const jsonLd = [
