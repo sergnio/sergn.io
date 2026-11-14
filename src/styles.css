@@ -1197,6 +1197,7 @@ figcaption {
   color: var(--muted);
   font-size: clamp(1.1rem, 3vw, 1.3rem);
   line-height: 1.45;
+  text-wrap: balance;
 }
 
 .wing-asterisk {

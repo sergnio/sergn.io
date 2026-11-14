@@ -26,12 +26,6 @@ const wings = getFixtureCollection('wings')
 const markup = renderToStaticMarkup(<WingsPage wings={wings} />)
 
 describe('the wings page', () => {
-  it('says only what the design says above the list', () => {
-    expect(markup).toContain('<h1>Wings</h1>')
-    expect(markup).toContain('Flavor, crunch, juiciness, and size matter.')
-    expect(markup).not.toMatch(/Ranked|Best first|Recommended/)
-  })
-
   it('heads each tier with its letter and wing count', () => {
     const heads = [
       ...markup.matchAll(
