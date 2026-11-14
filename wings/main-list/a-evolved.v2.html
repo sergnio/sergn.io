@@ -1,0 +1,363 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Direction A - Evolved cards | #83 wing designs</title>
+<link rel="stylesheet" href="base.css">
+<style>
+  .page { padding-block: clamp(3rem, 7vw, 6rem); }
+  .intro h1 { margin-bottom: 1rem; font-size: clamp(2.75rem, 9vw, 6.5rem); line-height: 0.92; }
+  .intro__summary { max-width: 38rem; margin-bottom: 0; color: var(--muted); font-size: clamp(1.1rem, 3vw, 1.3rem); line-height: 1.45; }
+
+  .section-head { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 0.75rem 1rem; margin: clamp(2.5rem, 6vw, 4rem) 0 1.25rem; }
+  .section-head h2 { margin: 0; font-size: clamp(1.75rem, 4vw, 2.5rem); line-height: 1; }
+
+  .grade {
+    display: inline-grid; min-width: 2.6rem; height: 2.1rem; padding: 0 0.5rem; place-items: center;
+    color: var(--highlight); background: color-mix(in srgb, var(--highlight) 9%, var(--card));
+    border: 1px solid color-mix(in srgb, var(--highlight) 28%, transparent); border-radius: 0.25rem;
+    font-family: var(--mono); font-size: 0.95rem; font-weight: 500; letter-spacing: 0.02em; white-space: nowrap;
+  }
+  .grade--crown { gap: 0.3rem; grid-auto-flow: column; }
+  .grade--lg { min-width: 3.6rem; height: 3rem; font-size: 1.35rem; }
+
+  .asterisk { color: var(--highlight); font-family: var(--mono); font-size: 0.75em; font-weight: 500; text-decoration: none; vertical-align: super; line-height: 0; position: relative; z-index: 2; padding: 0 0.15em; }
+
+  .card { position: relative; overflow: hidden; height: 100%; background: var(--card); border: 1px solid var(--line); border-radius: 0.25rem; box-shadow: 0.2rem 0.25rem 0 var(--shadow); }
+  .card__img { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; background: var(--placeholder); }
+  .card__ph { display: grid; aspect-ratio: 4 / 3; place-items: center; color: rgb(255 255 255 / 82%); background: linear-gradient(135deg, var(--brand), var(--tint)); font-family: var(--mono); font-size: 0.8rem; letter-spacing: 0.06em; text-transform: uppercase; }
+  .card__body { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 0.25rem 0.9rem; align-items: start; padding: 1.1rem 1.15rem 1.2rem; }
+  .card__body .eyebrow { grid-column: 1; margin: 0 0 0.2rem; font-size: 0.66rem; }
+  .card__body h3 { grid-column: 1; margin: 0; font-size: 1.5rem; line-height: 1.05; }
+  .card__body .grade { grid-column: 2; grid-row: 1 / 3; align-self: center; }
+  .stretch { text-decoration: none; }
+  .stretch::after { position: absolute; z-index: 1; inset: 0; content: ''; }
+
+
+  .footnote { display: flex; gap: 0.6rem; max-width: 44rem; margin: 2rem 0 0; padding-top: 1rem; color: var(--muted); border-top: 1px solid var(--line); font-size: 1.02rem; line-height: 1.45; }
+  .footnote b { color: var(--highlight); font-family: var(--mono); font-weight: 500; }
+  .footnote:target { background: color-mix(in srgb, var(--highlight) 6%, transparent); }
+
+  /* Main list: tiers with pinned headers, photo podium, ledger lines */
+  .tiers { margin-top: 0.5rem; }
+  .tier { padding-bottom: 1.5rem; }
+  .tier + .tier { margin-top: 1rem; }
+  .tier__head { position: sticky; z-index: 3; top: 0; display: flex; align-items: baseline; gap: 0.75rem; margin: 0 -0.5rem 1rem; padding: 0.55rem 0.5rem 0.5rem; background: var(--paper); border-bottom: 1px solid var(--line); }
+  .tier__letter { margin: 0; color: var(--highlight); font-size: 2.6rem; font-weight: 600; letter-spacing: -0.05em; line-height: 1; }
+  .tier__count { margin: 0; color: var(--muted); font-family: var(--mono); font-size: 0.68rem; letter-spacing: 0.06em; text-transform: uppercase; }
+
+  .tops { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.85rem; margin: 0 0 0.5rem; padding: 0; list-style: none; }
+  .top article { position: relative; height: 100%; overflow: hidden; background: var(--card); border: 1px solid var(--line); border-radius: 0.25rem; box-shadow: 0.2rem 0.25rem 0 var(--shadow); transition: transform 120ms ease; }
+  .top article:hover { transform: translateY(-2px); }
+  .top--first { grid-column: 1 / -1; }
+  .top--first article { border-color: color-mix(in srgb, var(--highlight) 45%, var(--line)); }
+  .top__img { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; background: var(--placeholder); }
+  .top__body { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: end; padding: 0.8rem 0.75rem 0.95rem; }
+  .top__rank { color: var(--accent); font-size: 2.6rem; font-variant-numeric: oldstyle-nums; line-height: 0.9; }
+  .top--first .top__rank { color: var(--highlight); }
+  .top__grade { color: var(--highlight); font-size: 1.7rem; font-weight: 600; letter-spacing: -0.02em; line-height: 1; white-space: nowrap; }
+  .top__grade > span[aria-hidden] { font-size: 0.65em; }
+  .top h4 { grid-column: 1 / -1; margin: 0.55rem 0 0.1rem; font-size: 1.35rem; line-height: 1.05; }
+  .top__wing { grid-column: 1 / -1; margin: 0; color: var(--muted); font-size: 1rem; }
+  .top__meta { grid-column: 1 / -1; margin: 0.5rem 0 0; letter-spacing: -0.03em; color: var(--muted); font-family: var(--mono); font-size: 0.62rem; }
+  .top--first h4 { font-size: 1.9rem; }
+
+  .lines { margin: 0; padding: 0; list-style: none; }
+  .line { position: relative; display: grid; grid-template-columns: 2.4rem minmax(0, 1fr) auto; align-items: center; gap: 0 0.75rem; padding: 0.8rem 0; border-bottom: 1px solid var(--line); }
+  .line:hover h4 { color: var(--accent); }
+  .line__rank { color: var(--accent); font-size: 1.6rem; font-variant-numeric: oldstyle-nums; line-height: 1; }
+  .line h4 { margin: 0; font-size: 1.4rem; line-height: 1.1; }
+  .line__wing { margin: 0.1rem 0 0; color: var(--muted); font-size: 0.98rem; }
+  .line__leader { display: none; }
+  .line__grade { color: var(--highlight); font-size: 1.6rem; font-weight: 600; letter-spacing: -0.02em; line-height: 1; white-space: nowrap; }
+
+  @media (min-width: 42rem) {
+    .tops { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.1rem; margin-bottom: 0.75rem; }
+    .top--first { grid-column: auto; }
+    .top h4, .top--first h4 { font-size: 1.6rem; }
+    .top__body { padding: 0.95rem 1.1rem 1.1rem; }
+    .line { grid-template-columns: 3.2rem minmax(0, auto) minmax(1.5rem, 1fr) auto; align-items: baseline; padding: 0.95rem 0; }
+    .line h4 { font-size: 1.6rem; }
+    .line__rank { font-size: 1.9rem; }
+    .line__leader { display: block; align-self: end; margin-bottom: 0.5rem; border-bottom: 2px dotted var(--placeholder); }
+    .line__grade { align-self: end; font-size: 1.9rem; }
+  }
+  @media (min-width: 56rem) {
+    .tier { display: grid; grid-template-columns: 7rem minmax(0, 1fr); column-gap: 1.5rem; padding-block: 1.5rem; border-top: 1px solid var(--line); }
+    .tier + .tier { margin-top: 0; }
+    .tier__head { top: 1.5rem; align-self: start; flex-direction: column; gap: 0.6rem; margin: 0; padding: 0; background: none; border: 0; }
+    .tier__letter { font-size: 6rem; line-height: 0.8; }
+  }
+
+  /* Wing page */
+  .crumbs { display: flex; flex-wrap: wrap; gap: 0.4rem; margin: 0 0 1.75rem; padding: 0; list-style: none; color: var(--muted); font-family: var(--mono); font-size: 0.72rem; }
+  .crumbs li + li::before { margin-right: 0.4rem; color: var(--placeholder); content: '/'; }
+  .crumbs a { text-decoration: none; }
+  .crumbs a:hover { text-decoration: underline; }
+  .hero { display: grid; gap: 1.75rem; }
+  .hero h1 { margin-bottom: 0.9rem; font-size: clamp(2.3rem, 5vw, 3.6rem); line-height: 1.02; }
+  .hero__at { margin: 0 0 1.1rem; color: var(--muted); font-size: 1.25rem; }
+  .hero__at a { color: var(--ink); }
+  .hero__grade { display: flex; flex-wrap: wrap; align-items: center; gap: 0.6rem 0.9rem; margin-bottom: 1.6rem; color: var(--muted); font-family: var(--mono); font-size: 0.72rem; }
+  .hero__img { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; border-radius: 0.25rem; }
+  .notes { font-size: clamp(1.15rem, 3vw, 1.3rem); line-height: 1.55; }
+  .notes p { margin-bottom: 1.1em; }
+
+  .place { display: grid; gap: 1.25rem; margin-top: clamp(2.5rem, 6vw, 4rem); padding-top: clamp(2rem, 5vw, 3rem); border-top: 1px solid var(--line); }
+  .place-card { align-self: start; padding: 1.3rem 1.35rem 1.4rem; background: var(--card); border: 1px solid var(--line); border-radius: 0.25rem; box-shadow: 0.2rem 0.25rem 0 var(--shadow); }
+  .place-card h2 { margin: 0 0 0.9rem; font-size: 2rem; line-height: 1; }
+  .facts { margin: 0 0 1.2rem; }
+  .facts div { display: grid; grid-template-columns: 5.2rem minmax(0, 1fr); gap: 0.75rem; padding: 0.6rem 0; border-top: 1px solid var(--line); }
+  .facts dt { padding-top: 0.2rem; color: var(--muted); font-family: var(--mono); font-size: 0.68rem; text-transform: uppercase; }
+  .facts__none { color: var(--muted); font-style: italic; }
+  .facts dd { margin: 0; font-size: 1.08rem; line-height: 1.3; }
+  .button { display: inline-flex; min-height: 2.75rem; align-items: center; padding: 0 1rem; color: #fff; background: var(--brand); border-radius: 0.2rem; font-family: var(--mono); font-size: 0.76rem; text-decoration: none; }
+  .button:hover { color: #fff; background: var(--accent); }
+
+  .siblings h2 { margin: 0 0 0.35rem; font-size: clamp(1.5rem, 3.5vw, 2rem); line-height: 1.05; }
+  .siblings > p { margin: 0 0 1rem; color: var(--muted); font-size: 1.05rem; }
+  .sib-list { display: grid; gap: 0.6rem; margin: 0; padding: 0; list-style: none; }
+  .sib { position: relative; display: grid; grid-template-columns: 3.75rem minmax(0, 1fr) auto; gap: 0.9rem; align-items: center; padding: 0.55rem 0.9rem 0.55rem 0.55rem; background: var(--card); border: 1px solid var(--line); border-radius: 0.25rem; }
+  .sib img, .sib .sib__ph { width: 3.75rem; height: 3.75rem; object-fit: cover; border-radius: 0.15rem; background: linear-gradient(135deg, var(--brand), var(--tint)); }
+  .sib h3 { margin: 0; font-size: 1.2rem; line-height: 1.1; }
+  .sib__tag { display: block; margin-top: 0.2rem; color: var(--muted); font-family: var(--mono); font-size: 0.64rem; }
+  .sib--current { background: transparent; border-style: dashed; }
+  .sib--current h3 { color: var(--muted); }
+
+  /* Location page */
+  .loc-hero { display: grid; gap: 1.25rem 3rem; align-items: end; }
+  .loc-hero h1 { margin-bottom: 0.5rem; font-size: clamp(2.75rem, 8vw, 5.5rem); line-height: 0.95; }
+  .loc-hero__addr { margin: 0; color: var(--muted); font-size: 1.25rem; }
+  .stats { display: flex; flex-wrap: wrap; gap: 0.5rem; margin: 0; padding: 0; list-style: none; }
+  .stats li { padding: 0.45rem 0.7rem; color: var(--wash-ink); background: var(--wash); border-radius: 0.2rem; font-family: var(--mono); font-size: 0.72rem; }
+  .stats a { text-decoration: none; }
+  .loc-grid { display: grid; gap: 1.25rem; margin: 0; padding: 0; list-style: none; }
+  .loc-grid .card__body .grade { grid-row: 1; align-self: start; }
+  .on-list, .off-list { grid-column: 1 / -1; justify-self: start; }
+  .on-list { display: inline-block; margin-top: 0.55rem; padding: 0.2rem 0.45rem; color: var(--card); background: var(--brand); border-radius: 0.15rem; font-family: var(--mono); font-size: 0.64rem; }
+  .off-list { display: inline-block; margin-top: 0.55rem; padding: 0.2rem 0.45rem; color: var(--muted); border: 1px solid var(--line); border-radius: 0.15rem; font-family: var(--mono); font-size: 0.64rem; }
+  .card__note { display: -webkit-box; overflow: hidden; -webkit-box-orient: vertical; -webkit-line-clamp: 4; grid-column: 1 / -1; margin: 0.5rem 0 0; color: var(--muted); font-size: 1rem; line-height: 1.35; }
+
+  @media (max-width: 41.99rem) {
+    .card__ph { aspect-ratio: 16 / 5; }
+  }
+  @media (min-width: 42rem) {
+    .loc-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+  @media (min-width: 56rem) {
+    .hero { grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.05fr); column-gap: clamp(2rem, 4vw, 3.5rem); align-items: start; }
+    .place { grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr); column-gap: 2.5rem; }
+    .loc-hero { grid-template-columns: minmax(0, 1fr) auto; }
+  }
+  @media (min-width: 64rem) {
+    .loc-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  }
+</style>
+</head>
+<body>
+
+<!-- ============ SCREEN 1: MAIN LIST ============ -->
+<p class="screen-label"><span class="shell"><span>A · Main list</span><code>/wings</code></span></p>
+<div class="screen" id="list">
+  <div data-header></div>
+  <main class="shell page">
+    <header class="intro">
+      <p class="eyebrow">Ranked</p>
+      <h1>Wings</h1>
+      <p class="intro__summary">Every buffalo wing I've tried, best first. Flavor decides, then crunch, juiciness, and size. Price only breaks ties.</p>
+    </header>
+
+    <div class="section-head">
+      <div><p class="eyebrow">Best first</p><h2>The buffalo list</h2></div>
+      <span class="slot">#90 · "All wings" toggle goes here</span>
+    </div>
+
+    <div class="tiers" aria-label="Wings, ranked best to worst">
+      <section class="tier" aria-labelledby="tier-s">
+        <header class="tier__head"><h3 class="tier__letter" id="tier-s"><span class="visually-hidden">Grade </span>S</h3><p class="tier__count">4 wings</p></header>
+        <div class="tier__body">
+          <ol class="tops" role="list">
+          <li class="top top--first"><article>
+            <img class="top__img" alt="" src="https://cdn.sanity.io/images/0vbjaawm/production/0f51b56eda0e1a2bfdfb9ddb8d0234fbcfb662bb-5712x4284.png?w=900&h=675&fit=crop&auto=format">
+            <div class="top__body">
+              <span class="top__rank" aria-hidden="true">1</span>
+              <span class="top__grade"><span class="visually-hidden">Grade: </span><span aria-hidden="true">👑 </span>S+</span>
+              <h4><a class="stretch" href="#wing">Northbound Brew Pub</a></h4>
+              <p class="top__wing">Buffalo</p>
+              <p class="top__meta">6 visits · Jun 1, 2025</p>
+            </div>
+          </article></li>
+          <li class="top"><article>
+            <img class="top__img" alt="" src="https://cdn.sanity.io/images/0vbjaawm/production/abcbe0a2ca40a0862f6a07536cfc85c1db997006-4284x5712.jpg?w=900&h=675&fit=crop&auto=format">
+            <div class="top__body">
+              <span class="top__rank" aria-hidden="true">2</span>
+              <span class="top__grade"><span class="visually-hidden">Grade: </span>S</span>
+              <h4><a class="stretch" href="#wing">Runyons</a></h4>
+              <p class="top__wing">Buffalo</p>
+              <p class="top__meta">1 visit · Jun 15, 2026</p>
+            </div>
+          </article></li>
+          <li class="top"><article>
+            <img class="top__img" alt="" src="https://cdn.sanity.io/images/0vbjaawm/production/97485890ea8f4659b4d04cf7db2971735da6b0b6-2400x1800.jpg?w=900&h=675&fit=crop&auto=format">
+            <div class="top__body">
+              <span class="top__rank" aria-hidden="true">3</span>
+              <span class="top__grade"><span class="visually-hidden">Grade: </span>S-</span>
+              <h4><a class="stretch" href="#wing">Steve O's</a></h4>
+              <p class="top__wing">Big Boy Buffalo</p>
+              <p class="top__meta">11 visits · Nov 10, 2026</p>
+            </div>
+          </article></li>
+          </ol>
+          <ol class="lines" start="4" role="list">
+          <li class="line"><span class="line__rank" aria-hidden="true">4</span><div class="line__name"><h4><a class="stretch" href="#wing">Steve O's</a></h4><p class="line__wing">Drums &amp; Flats Buffalo</p></div><span class="line__leader"></span><span class="line__grade"><span class="visually-hidden">Grade: </span>S-</span></li>
+          </ol>
+        </div>
+      </section>
+      <section class="tier" aria-labelledby="tier-a">
+        <header class="tier__head"><h3 class="tier__letter" id="tier-a"><span class="visually-hidden">Grade </span>A</h3><p class="tier__count">5 wings</p></header>
+        <div class="tier__body">
+          <ol class="lines" start="5" role="list">
+          <li class="line"><span class="line__rank" aria-hidden="true">5</span><div class="line__name"><h4><a class="stretch" href="#wing">Hilltop</a></h4><p class="line__wing">Buffalo</p></div><span class="line__leader"></span><span class="line__grade"><span class="visually-hidden">Grade: </span>A+</span></li>
+          <li class="line"><span class="line__rank" aria-hidden="true">6</span><div class="line__name"><h4><a class="stretch" href="#wing">NE Moose Bar &amp; Grill</a></h4><p class="line__wing">Buffalo</p></div><span class="line__leader"></span><span class="line__grade"><span class="visually-hidden">Grade: </span>A</span></li>
+          <li class="line"><span class="line__rank" aria-hidden="true">7</span><div class="line__name"><h4><a class="stretch" href="#wing">Runyons</a></h4><p class="line__wing">Spicy Buffalo</p></div><span class="line__leader"></span><span class="line__grade"><span class="visually-hidden">Grade: </span>A</span></li>
+          <li class="line"><span class="line__rank" aria-hidden="true">8</span><div class="line__name"><h4><a class="stretch" href="#wing">Monte Carlo</a></h4><p class="line__wing">House Asian Zing<a class="asterisk" href="#footnote-a" aria-label="Not buffalo, see footnote">*</a></p></div><span class="line__leader"></span><span class="line__grade"><span class="visually-hidden">Grade: </span>A</span></li>
+          <li class="line"><span class="line__rank" aria-hidden="true">9</span><div class="line__name"><h4><a class="stretch" href="#wing">Sportsmen's Restaurant &amp; Taverna</a></h4><p class="line__wing">Hot</p></div><span class="line__leader"></span><span class="line__grade"><span class="visually-hidden">Grade: </span>A-</span></li>
+          </ol>
+        </div>
+      </section>
+      <section class="tier" aria-labelledby="tier-b">
+        <header class="tier__head"><h3 class="tier__letter" id="tier-b"><span class="visually-hidden">Grade </span>B</h3><p class="tier__count">4 wings</p></header>
+        <div class="tier__body">
+          <ol class="lines" start="10" role="list">
+          <li class="line"><span class="line__rank" aria-hidden="true">10</span><div class="line__name"><h4><a class="stretch" href="#wing">Cedar Inn</a></h4><p class="line__wing">Buffalo</p></div><span class="line__leader"></span><span class="line__grade"><span class="visually-hidden">Grade: </span>B+</span></li>
+          <li class="line"><span class="line__rank" aria-hidden="true">11</span><div class="line__name"><h4><a class="stretch" href="#wing">The Nook</a></h4><p class="line__wing">Buffalo</p></div><span class="line__leader"></span><span class="line__grade"><span class="visually-hidden">Grade: </span>B+</span></li>
+          <li class="line"><span class="line__rank" aria-hidden="true">12</span><div class="line__name"><h4><a class="stretch" href="#wing">Wingstop</a></h4><p class="line__wing">Original Hot</p></div><span class="line__leader"></span><span class="line__grade"><span class="visually-hidden">Grade: </span>B</span></li>
+          <li class="line"><span class="line__rank" aria-hidden="true">13</span><div class="line__name"><h4><a class="stretch" href="#wing">King of the Wing</a></h4><p class="line__wing">Buffalo</p></div><span class="line__leader"></span><span class="line__grade"><span class="visually-hidden">Grade: </span>B-</span></li>
+          </ol>
+        </div>
+      </section>
+    </div>
+
+    <p class="footnote" id="footnote-a"><b aria-hidden="true">*</b><span>Monte Carlo had no buffalo on the menu, so its best wing holds the spot. Its other wings live on <a href="#location">its own page</a>. <a href="https://github.com/sergnio/sergn.io/blob/main/docs/wings-constitution.md">How wings are ranked</a>.</span></p>
+  </main>
+  <div data-footer></div>
+</div>
+
+<!-- ============ SCREEN 2: WING PAGE ============ -->
+<p class="screen-label"><span class="shell"><span>A · Wing page</span><code>/wings/steve-os/big-boy-buffalo</code></span></p>
+<div class="screen" id="wing">
+  <div data-header></div>
+  <main class="shell page">
+    <ol class="crumbs" aria-label="Breadcrumb"><li><a href="#list">Wings</a></li><li><a href="#location">Steve O's</a></li><li aria-current="page">Big Boy Buffalo</li></ol>
+    <article class="hero">
+      <div>
+        <p class="eyebrow">Wing review</p>
+        <h1>Big Boy Buffalo</h1>
+        <p class="hero__at">at <a href="#location">Steve O's</a>, Crystal</p>
+        <div class="hero__grade">
+          <span class="grade grade--lg"><span class="visually-hidden">Grade: </span>S-</span>
+          <span>#3 of 13 on the buffalo list</span>
+          <span>Nov 10, 2026</span>
+        </div>
+        <div class="notes">
+          <p>The Big Boy wings also quite good I mean yeah they're just solid wings like it's it's a lot more rare to get good. Tasty high-quality like big the whole wings even get the little wing tip as well. Steve fucks hard I gotta say.</p>
+          <p>And honestly, the most notable thing about this all was the the cook. The cook will always bring you the wings and you can tell. They're so proud that they yeah they just like are always excited to see how you react to the wings and every single cook I've had various different cooks here every single one is always so proud and just immensely appreciate that.</p>
+        </div>
+      </div>
+      <img class="hero__img" alt="Whole buffalo wings with tips on, grill marks, and green onion, on a white plate with celery sticks and a cup of ranch" src="https://cdn.sanity.io/images/0vbjaawm/production/97485890ea8f4659b4d04cf7db2971735da6b0b6-2400x1800.jpg?w=1400&auto=format">
+    </article>
+
+    <section class="place" aria-labelledby="place-title">
+      <aside class="place-card">
+        <p class="eyebrow">The spot</p>
+        <h2 id="place-title">Steve O's</h2>
+        <dl class="facts">
+          <div><dt>Where</dt><dd><a href="#">4900 W Broadway Ave, Crystal</a></dd></div>
+          <div><dt>Visits</dt><dd>11</dd></div>
+          <div><dt>Website</dt><dd class="facts__none">None on file</dd></div>
+        </dl>
+        <a class="button" href="#location">All 4 wings at Steve O's →</a>
+      </aside>
+      <div class="siblings">
+        <h2>Also tried at Steve O's</h2>
+        <p>Best first. Only the buffalo makes the main list.</p>
+        <ul class="sib-list">
+          <li class="sib sib--current"><img alt="" src="https://cdn.sanity.io/images/0vbjaawm/production/97485890ea8f4659b4d04cf7db2971735da6b0b6-2400x1800.jpg?w=200&h=200&fit=crop&auto=format"><div><h3>Big Boy Buffalo</h3><span class="sib__tag">You're reading this one</span></div><span class="grade">S-</span></li>
+          <li class="sib"><img alt="" src="https://cdn.sanity.io/images/0vbjaawm/production/1f004f47ffbc1eb3e0a5f13016f048d7a29e3d70-2400x1800.jpg?w=200&h=200&fit=crop&auto=format"><div><h3><a class="stretch" href="#wing">Drums &amp; Flats Buffalo</a></h3><span class="sib__tag">#4 on the buffalo list</span></div><span class="grade">S-</span></li>
+          <li class="sib"><div class="sib__ph"></div><div><h3><a class="stretch" href="#wing">Sweet and Spicy</a></h3><span class="sib__tag">Steve O's page only</span></div><span class="grade">A+</span></li>
+          <li class="sib"><div class="sib__ph"></div><div><h3><a class="stretch" href="#wing">Teriyaki</a></h3><span class="sib__tag">Steve O's page only</span></div><span class="grade">A</span></li>
+        </ul>
+      </div>
+    </section>
+  </main>
+  <div data-footer></div>
+</div>
+
+<!-- ============ SCREEN 3: LOCATION PAGE ============ -->
+<p class="screen-label"><span class="shell"><span>A · Location page</span><code>/wings/steve-os</code></span></p>
+<div class="screen" id="location">
+  <div data-header></div>
+  <main class="shell page">
+    <ol class="crumbs" aria-label="Breadcrumb"><li><a href="#list">Wings</a></li><li aria-current="page">Steve O's</li></ol>
+    <header class="loc-hero">
+      <div>
+        <p class="eyebrow">Wing spot · Crystal</p>
+        <h1>Steve O's</h1>
+        <p class="loc-hero__addr"><a href="#">4900 W Broadway Ave, Crystal</a></p>
+      </div>
+      <ul class="stats">
+        <li>11 visits</li>
+        <li>4 wings tried</li>
+        <li>2 on the buffalo list</li>
+      </ul>
+    </header>
+
+    <div class="section-head">
+      <div><p class="eyebrow">Best first</p><h2>Every wing here</h2></div>
+    </div>
+    <ol class="loc-grid" aria-label="Steve O's wings, best first">
+      <li><article class="card">
+        <img class="card__img" alt="" src="https://cdn.sanity.io/images/0vbjaawm/production/97485890ea8f4659b4d04cf7db2971735da6b0b6-2400x1800.jpg?w=800&auto=format">
+        <div class="card__body">
+          <h3><a class="stretch" href="#wing">Big Boy Buffalo</a></h3>
+          <span class="grade">S-</span>
+          <p class="card__note">The Big Boy wings also quite good I mean yeah they're just solid wings like it's it's a lot more rare to get good. Tasty high-quality like big the whole wings even get the little wing tip as well. Steve fucks hard I gotta say.</p>
+          <span class="on-list">#3 on the buffalo list</span>
+        </div>
+      </article></li>
+      <li><article class="card">
+        <img class="card__img" alt="" src="https://cdn.sanity.io/images/0vbjaawm/production/1f004f47ffbc1eb3e0a5f13016f048d7a29e3d70-2400x1800.jpg?w=800&auto=format">
+        <div class="card__body">
+          <h3><a class="stretch" href="#wing">Drums &amp; Flats Buffalo</a></h3>
+          <span class="grade">S-</span>
+          <p class="card__note">One impetus for my quest. Big wings, tasty, saucy, and the staff are so friendly.</p>
+          <span class="on-list">#4 on the buffalo list</span>
+        </div>
+      </article></li>
+      <li><article class="card">
+        <div class="card__ph">No photo yet</div>
+        <div class="card__body">
+          <h3><a class="stretch" href="#wing">Sweet and Spicy</a></h3>
+          <span class="grade">A+</span>
+          <p class="card__note">The sweet teriyaki was also pretty fucking good. I really liked the sweet and spicy. The sweet and spicy was good. It just had a little bit of heat nice sugary again also very saucy. I appreciate the sauciness and of course the grill marks.</p>
+          <span class="off-list">Not buffalo</span>
+        </div>
+      </article></li>
+      <li><article class="card">
+        <div class="card__ph">No photo yet</div>
+        <div class="card__body">
+          <h3><a class="stretch" href="#wing">Teriyaki</a></h3>
+          <span class="grade">A</span>
+          <p class="card__note">The teriyaki was also really nice. Honestly they're all good but the teriyaki was probably a little too salty, but this was the sauciest of them all and I gotta be a big fan of that.</p>
+          <span class="off-list">Not buffalo</span>
+        </div>
+      </article></li>
+    </ol>
+  </main>
+  <div data-footer></div>
+</div>
+
+<script src="mock.js"></script>
+</body>
+</html>

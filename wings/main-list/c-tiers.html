@@ -1,0 +1,259 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Direction C - Tier board | #83 wing designs</title>
+<link rel="stylesheet" href="base.css">
+<style>
+  .page { padding-block: clamp(3rem, 7vw, 6rem); }
+  .intro h1 { margin-bottom: 1rem; font-size: clamp(2.75rem, 9vw, 6.5rem); line-height: 0.92; }
+  .intro__row { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 1rem 2rem; }
+  .intro__summary { max-width: 36rem; margin: 0; color: var(--muted); font-size: clamp(1.1rem, 3vw, 1.3rem); line-height: 1.45; }
+
+  .tiers { margin: clamp(2.5rem, 6vw, 4rem) 0 0; padding: 0; list-style: none; }
+  .tier { display: grid; gap: 0.9rem 2rem; padding-block: 1.5rem; border-top: 1px solid var(--line); }
+  .tier__letter { margin: 0; color: var(--highlight); font-size: clamp(4rem, 12vw, 7.5rem); font-weight: 600; letter-spacing: -0.06em; line-height: 0.8; }
+  .tier__letter span { display: block; margin-top: 0.6rem; color: var(--muted); font-family: var(--mono); font-size: 0.66rem; font-weight: 400; letter-spacing: 0.06em; text-transform: uppercase; }
+  .tiles { display: grid; gap: 0.75rem; margin: 0; padding: 0; list-style: none; }
+
+  .tile { position: relative; display: grid; grid-template-columns: 5.5rem minmax(0, 1fr) auto; gap: 0 1rem; align-items: center; min-height: 5.5rem; overflow: hidden; background: var(--card); border: 1px solid var(--line); border-radius: 0.3rem; box-shadow: 0.2rem 0.25rem 0 var(--shadow); transition: transform 120ms ease; }
+  .tile:hover { transform: translateY(-2px); }
+  .tile__img { width: 5.5rem; height: 100%; min-height: 5.5rem; object-fit: cover; }
+  .tile__ph { width: 5.5rem; height: 100%; min-height: 5.5rem; background: repeating-linear-gradient(135deg, var(--wash) 0 6px, var(--card) 6px 12px); }
+  .tile__body { min-width: 0; padding-block: 0.7rem; }
+  .tile__rank { height: 1rem; margin: 0 0 0.15rem; line-height: 1rem; color: var(--accent); font-family: var(--mono); font-size: 0.66rem; }
+  .tile h3 { margin: 0; font-size: 1.3rem; line-height: 1.1; }
+  .tile h3 a { text-decoration: none; }
+  .tile h3 a::after { position: absolute; inset: 0; content: ''; }
+  .tile__at { margin: 0.15rem 0 0; overflow: hidden; color: var(--muted); font-size: 1rem; text-overflow: ellipsis; white-space: nowrap; }
+  .tile__grade { margin-right: 1rem; color: var(--highlight); font-family: var(--mono); font-size: 1.05rem; font-weight: 500; white-space: nowrap; }
+  .tile--hero { grid-template-columns: minmax(0, 1fr); align-items: stretch; }
+  .tile--hero .tile__img { width: 100%; height: auto; aspect-ratio: 16 / 9; }
+  .tile--hero .tile__body { padding: 0.9rem 1rem 1rem; }
+  .tile--hero h3 { font-size: 1.7rem; }
+  .tile--hero .tile__grade { position: absolute; top: 0.7rem; right: 0.7rem; margin: 0; padding: 0.3rem 0.55rem; color: var(--card); background: var(--highlight); border-radius: 0.2rem; }
+
+  .asterisk { position: relative; z-index: 1; color: var(--highlight); font-family: var(--mono); font-size: 0.7em; text-decoration: none; vertical-align: super; line-height: 0; padding: 0 0.1em; }
+  .footnote { display: flex; gap: 0.75rem; align-items: baseline; max-width: 42rem; margin: 0; padding: 1rem 1.1rem; color: var(--ink); background: var(--wash); border-left: 3px solid var(--highlight); border-radius: 0.2rem; font-size: 1rem; line-height: 1.45; }
+  .footnote b { color: var(--highlight); font-family: var(--mono); font-size: 1.1rem; font-weight: 500; }
+
+  .crown { display: block; width: 1.25em; height: auto; }
+  .tile__rank--crown { height: auto; color: var(--highlight); font-size: 1.4rem; line-height: 1; margin-bottom: 0.35rem; }
+  /* Wing page */
+  .bleed { position: relative; min-height: clamp(22rem, 62vh, 36rem); display: flex; align-items: end; color: #fff; background: #222 center / cover no-repeat; }
+  .bleed::before { position: absolute; inset: 0; content: ''; background: linear-gradient(to top, rgb(28 22 26 / 88%) 0%, rgb(28 22 26 / 35%) 45%, transparent 75%); }
+  .bleed__copy { position: relative; padding-block: 2rem clamp(1.75rem, 4vw, 3rem); }
+  .bleed .crumbs { color: rgb(255 255 255 / 75%); }
+  .bleed h1 { margin: 0 0 0.9rem; color: #fff; font-size: clamp(2.6rem, 7vw, 5.5rem); line-height: 0.95; }
+  .bleed__meta { display: flex; flex-wrap: wrap; align-items: center; gap: 0.6rem 1rem; margin: 0; font-family: var(--mono); font-size: 0.74rem; }
+  .bleed__meta a { color: #fff; }
+  .bleed__grade { padding: 0.4rem 0.7rem; color: var(--card); background: var(--highlight); border-radius: 0.2rem; font-size: 1.15rem; font-weight: 500; }
+  .crumbs { display: flex; flex-wrap: wrap; gap: 0.4rem; margin: 0 0 1rem; padding: 0; list-style: none; color: var(--muted); font-family: var(--mono); font-size: 0.72rem; }
+  .crumbs li + li::before { margin-right: 0.4rem; opacity: 0.6; content: '/'; }
+  .crumbs a { text-decoration: none; }
+
+  .wing-body { display: grid; gap: 2.5rem; padding-block: clamp(2.5rem, 6vw, 4rem); }
+  .notes { font-size: clamp(1.15rem, 3vw, 1.35rem); line-height: 1.6; }
+  .notes p { margin-bottom: 1.1em; }
+
+  .panel { align-self: start; padding: 1.4rem; color: var(--paper); background: var(--brand); border-radius: 0.3rem; }
+  .panel .eyebrow { color: var(--placeholder); }
+  .panel h2 { margin: 0 0 0.6rem; color: #fff; font-size: 2.1rem; line-height: 1; }
+  .panel h2 a { text-decoration: none; }
+  .panel__addr { margin: 0 0 1rem; font-size: 1.1rem; line-height: 1.35; }
+  .panel__stats { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.5rem; margin: 0 0 1rem; }
+  .panel__stats div { padding: 0.6rem 0.7rem; background: rgb(255 255 255 / 7%); border-radius: 0.2rem; }
+  .panel__stats dt { color: var(--placeholder); font-family: var(--mono); font-size: 0.62rem; text-transform: uppercase; }
+  .panel__stats dd { margin: 0.15rem 0 0; color: #fff; font-size: 1.35rem; }
+  .panel__stats .is-none dd { color: var(--placeholder); font-size: 1rem; font-style: italic; line-height: 1.6; }
+  .panel h3 { margin: 0 0 0.6rem; color: var(--placeholder); font-family: var(--mono); font-size: 0.68rem; font-weight: 500; letter-spacing: 0.07em; text-transform: uppercase; }
+  .sibs { display: grid; gap: 0.4rem; margin: 0; padding: 0; list-style: none; }
+  .sib { position: relative; display: grid; grid-template-columns: 2.75rem minmax(0, 1fr) auto; gap: 0.75rem; align-items: center; padding: 0.35rem 0.6rem 0.35rem 0.35rem; background: rgb(255 255 255 / 6%); border-radius: 0.2rem; }
+  .sib:hover { background: rgb(255 255 255 / 12%); }
+  .sib img, .sib i { width: 2.75rem; height: 2.75rem; object-fit: cover; border-radius: 0.15rem; background: repeating-linear-gradient(135deg, rgb(255 255 255 / 10%) 0 5px, transparent 5px 10px); }
+  .sib a { color: #fff; font-size: 1.1rem; text-decoration: none; }
+  .sib a::after { position: absolute; inset: 0; content: ''; }
+  .sib small { display: block; color: var(--placeholder); font-family: var(--mono); font-size: 0.6rem; }
+  .sib b { color: #f2b8b0; font-family: var(--mono); font-size: 0.9rem; font-weight: 500; }
+  .sib--current { outline: 1px solid rgb(255 255 255 / 30%); background: transparent; }
+  .sib--current span:first-of-type { color: var(--placeholder); font-size: 1.1rem; }
+
+  /* Location page */
+  .band { color: var(--paper); background: var(--brand); }
+  .band__inner { display: grid; gap: 1.5rem 3rem; padding-block: clamp(2.5rem, 6vw, 4.5rem); }
+  .band .crumbs { color: var(--placeholder); }
+  .band .eyebrow { color: var(--placeholder); }
+  .band h1 { margin: 0 0 0.5rem; color: #fff; font-size: clamp(3rem, 10vw, 6.5rem); line-height: 0.9; }
+  .band__addr { margin: 0; font-size: 1.25rem; }
+  .band__addr a { color: #fff; }
+  .band__stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.6rem; align-self: end; margin: 0; }
+  .band__stats div { padding: 0.8rem 0.9rem; border: 1px solid rgb(255 255 255 / 16%); border-radius: 0.25rem; }
+  .band__stats dt { color: var(--placeholder); font-family: var(--mono); font-size: 0.62rem; line-height: 1.3; text-transform: uppercase; }
+  .band__stats dd { margin: 0.1rem 0 0; color: #fff; font-size: 2.2rem; line-height: 1; }
+  .band__strip { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 2px; }
+  .band__strip img { width: 100%; aspect-ratio: 21 / 9; object-fit: cover; }
+  .tag { display: inline-block; margin-top: 0.35rem; padding: 0.12rem 0.4rem; color: var(--card); background: var(--brand); border-radius: 0.15rem; font-family: var(--mono); font-size: 0.6rem; }
+  .tag--quiet { color: var(--muted); background: transparent; border: 1px solid var(--line); }
+
+  @media (min-width: 42rem) {
+    .tier { grid-template-columns: 8rem minmax(0, 1fr); }
+    .tier__letter { position: sticky; top: 1.5rem; align-self: start; }
+    .tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .tiles--podium { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .tier--foot { grid-template-columns: 8rem minmax(0, 1fr); }
+  }
+  @media (min-width: 56rem) {
+    .wing-body { grid-template-columns: minmax(0, 1fr) 22rem; column-gap: clamp(2.5rem, 5vw, 4.5rem); }
+    .panel { position: sticky; top: 1.5rem; }
+    .band__inner { grid-template-columns: minmax(0, 1fr) minmax(0, 26rem); align-items: end; }
+  }
+  @media (max-width: 41.99rem) {
+    .tiles--podium .tile--hero:not(:first-child) { grid-template-columns: 5.5rem minmax(0, 1fr) auto; align-items: center; }
+    .tiles--podium .tile--hero:not(:first-child) .tile__img { width: 5.5rem; height: 100%; aspect-ratio: auto; }
+    .tiles--podium .tile--hero:not(:first-child) .tile__body { padding: 0.7rem 0; }
+    .tiles--podium .tile--hero:not(:first-child) h3 { font-size: 1.3rem; }
+    .tiles--podium .tile--hero:not(:first-child) .tile__grade { position: static; margin-right: 1rem; color: var(--highlight); background: none; padding: 0; }
+    .band__strip img { aspect-ratio: 4 / 3; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ============ SCREEN 1: MAIN LIST ============ -->
+<p class="screen-label"><span class="shell"><span>C · Main list</span><code>/wings</code></span></p>
+<div class="screen" id="list">
+  <div data-header></div>
+  <main class="shell page">
+    <header class="intro">
+      <h1>Wings</h1>
+      <div class="intro__row">
+        <p class="intro__summary">Flavor, crunch, juiciness, and size matter.</p>
+        <span class="slot">#90 · "All wings" toggle</span>
+      </div>
+    </header>
+
+    <ol class="tiers" aria-label="Wings, ranked best to worst">
+      <li class="tier">
+        <p class="tier__letter" aria-hidden="true">S<span>4 wings</span></p>
+        <ol class="tiles tiles--podium" role="list">
+          <li class="tile tile--hero"><img class="tile__img" alt="" src="https://cdn.sanity.io/images/0vbjaawm/production/0f51b56eda0e1a2bfdfb9ddb8d0234fbcfb662bb-5712x4284.png?w=800&h=450&fit=crop&auto=format"><div class="tile__body"><p class="tile__rank tile__rank--crown"><svg class="crown" viewBox="0 0 32 26" aria-hidden="true" focusable="false"><path fill="currentColor" d="M3 8.5 9.5 14 16 4l6.5 10L29 8.5 26.5 21h-21z"/><rect x="5.5" y="22.5" width="21" height="3" rx="1" fill="currentColor"/><circle cx="3" cy="7" r="2.2" fill="currentColor"/><circle cx="16" cy="2.6" r="2.2" fill="currentColor"/><circle cx="29" cy="7" r="2.2" fill="currentColor"/></svg></p><h3><a href="#wing">Northbound Brew Pub</a></h3><p class="tile__at">Buffalo</p></div><span class="tile__grade">S+</span></li>
+          <li class="tile tile--hero"><img class="tile__img" alt="" src="https://cdn.sanity.io/images/0vbjaawm/production/abcbe0a2ca40a0862f6a07536cfc85c1db997006-4284x5712.jpg?w=800&h=450&fit=crop&auto=format"><div class="tile__body"><p class="tile__rank">#2</p><h3><a href="#wing">Runyons</a></h3><p class="tile__at">Buffalo</p></div><span class="tile__grade">S</span></li>
+          <li class="tile tile--hero"><img class="tile__img" alt="" src="https://cdn.sanity.io/images/0vbjaawm/production/97485890ea8f4659b4d04cf7db2971735da6b0b6-2400x1800.jpg?w=800&h=450&fit=crop&auto=format"><div class="tile__body"><p class="tile__rank">#3</p><h3><a href="#wing">Steve O's</a></h3><p class="tile__at">Big Boy Buffalo</p></div><span class="tile__grade">S-</span></li>
+          <li class="tile"><img class="tile__img" alt="" src="https://cdn.sanity.io/images/0vbjaawm/production/1f004f47ffbc1eb3e0a5f13016f048d7a29e3d70-2400x1800.jpg?w=240&h=240&fit=crop&auto=format"><div class="tile__body"><p class="tile__rank">#4</p><h3><a href="#wing">Steve O's</a></h3><p class="tile__at">Drums &amp; Flats Buffalo</p></div><span class="tile__grade">S-</span></li>
+        </ol>
+      </li>
+      <li class="tier">
+        <p class="tier__letter" aria-hidden="true">A<span>5 wings</span></p>
+        <ol class="tiles" role="list">
+          <li class="tile"><i class="tile__ph"></i><div class="tile__body"><p class="tile__rank">#5</p><h3><a href="#wing">Hilltop</a></h3><p class="tile__at">Buffalo</p></div><span class="tile__grade">A+</span></li>
+          <li class="tile"><img class="tile__img" alt="" src="https://cdn.sanity.io/images/0vbjaawm/production/2351a6e2269038738a8f7c99b1e7ed92e1e2b8c0-4032x3024.jpg?w=240&h=240&fit=crop&auto=format"><div class="tile__body"><p class="tile__rank">#6</p><h3><a href="#wing">NE Moose Bar &amp; Grill</a></h3><p class="tile__at">Buffalo</p></div><span class="tile__grade">A</span></li>
+          <li class="tile"><i class="tile__ph"></i><div class="tile__body"><p class="tile__rank">#7</p><h3><a href="#wing">Runyons</a></h3><p class="tile__at">Spicy Buffalo</p></div><span class="tile__grade">A</span></li>
+          <li class="tile"><i class="tile__ph"></i><div class="tile__body"><p class="tile__rank">#8</p><h3><a href="#wing">Monte Carlo</a></h3><p class="tile__at">House Asian Zing<a class="asterisk" href="#footnote-c" aria-label="Not buffalo, see footnote">*</a></p></div><span class="tile__grade">A</span></li>
+          <li class="tile"><img class="tile__img" alt="" src="https://cdn.sanity.io/images/0vbjaawm/production/ef030d7d7779046558ceb0c626ce9fc395ed4b34-4032x3024.jpg?w=240&h=240&fit=crop&auto=format"><div class="tile__body"><p class="tile__rank">#9</p><h3><a href="#wing">Sportsmen's Restaurant &amp; Taverna</a></h3><p class="tile__at">Hot</p></div><span class="tile__grade">A-</span></li>
+        </ol>
+      </li>
+      <li class="tier">
+        <p class="tier__letter" aria-hidden="true">B<span>4 wings</span></p>
+        <ol class="tiles" role="list">
+          <li class="tile"><i class="tile__ph"></i><div class="tile__body"><p class="tile__rank">#10</p><h3><a href="#wing">Cedar Inn</a></h3><p class="tile__at">Buffalo</p></div><span class="tile__grade">B+</span></li>
+          <li class="tile"><i class="tile__ph"></i><div class="tile__body"><p class="tile__rank">#11</p><h3><a href="#wing">The Nook</a></h3><p class="tile__at">Buffalo</p></div><span class="tile__grade">B+</span></li>
+          <li class="tile"><img class="tile__img" alt="" src="https://cdn.sanity.io/images/0vbjaawm/production/21f54cfe229952b33d2bcc5913ac3ad5e9094f58-1500x1125.jpg?w=240&h=240&fit=crop&auto=format"><div class="tile__body"><p class="tile__rank">#12</p><h3><a href="#wing">Wingstop</a></h3><p class="tile__at">Original Hot</p></div><span class="tile__grade">B</span></li>
+          <li class="tile"><img class="tile__img" alt="" src="https://cdn.sanity.io/images/0vbjaawm/production/2ae41adeecc5507de5952aa0190e67f367530f10-2400x1800.jpg?w=240&h=240&fit=crop&auto=format"><div class="tile__body"><p class="tile__rank">#13</p><h3><a href="#wing">King of the Wing</a></h3><p class="tile__at">Buffalo</p></div><span class="tile__grade">B-</span></li>
+        </ol>
+      </li>
+    </ol>
+    <div class="tier tier--foot">
+      <span></span>
+      <p class="footnote" id="footnote-c"><b aria-hidden="true">*</b><span>Monte Carlo had no buffalo, so its best wing holds the spot. Its other wings are on <a href="#location">its page</a>. <a href="https://github.com/sergnio/sergn.io/blob/main/docs/wings-constitution.md">How wings are ranked</a>.</span></p>
+    </div>
+  </main>
+  <div data-footer></div>
+</div>
+
+<!-- ============ SCREEN 2: WING PAGE ============ -->
+<p class="screen-label"><span class="shell"><span>C · Wing page</span><code>/wings/steve-os/big-boy-buffalo</code></span></p>
+<div class="screen" id="wing">
+  <div data-header></div>
+  <main>
+    <header class="bleed" style="background-image: url('https://cdn.sanity.io/images/0vbjaawm/production/97485890ea8f4659b4d04cf7db2971735da6b0b6-2400x1800.jpg?w=2000&auto=format')" role="img" aria-label="Whole buffalo wings with tips on, grill marks, and green onion, on a white plate with celery sticks and a cup of ranch">
+      <div class="shell bleed__copy">
+        <ol class="crumbs" aria-label="Breadcrumb"><li><a href="#list">Wings</a></li><li><a href="#location">Steve O's</a></li><li aria-current="page">Big Boy Buffalo</li></ol>
+        <h1>Big Boy Buffalo</h1>
+        <p class="bleed__meta"><span class="bleed__grade"><span class="visually-hidden">Grade: </span>S-</span><span>#3 of 13</span><span>at <a href="#location">Steve O's</a></span><span>Nov 10, 2026</span></p>
+      </div>
+    </header>
+    <div class="shell wing-body">
+      <article>
+        <div class="notes">
+          <p>The Big Boy wings also quite good I mean yeah they're just solid wings like it's it's a lot more rare to get good. Tasty high-quality like big the whole wings even get the little wing tip as well. Steve fucks hard I gotta say.</p>
+          <p>And honestly, the most notable thing about this all was the the cook. The cook will always bring you the wings and you can tell. They're so proud that they yeah they just like are always excited to see how you react to the wings and every single cook I've had various different cooks here every single one is always so proud and just immensely appreciate that.</p>
+        </div>
+      </article>
+      <aside class="panel" aria-labelledby="panel-title">
+        <h2 id="panel-title"><a href="#location">Steve O's</a></h2>
+        <p class="panel__addr"><a href="#">4900 W Broadway Ave, Crystal</a></p>
+        <dl class="panel__stats">
+          <div><dt>Visits</dt><dd>11</dd></div>
+          <div class="is-none"><dt>Website</dt><dd>None on file</dd></div>
+        </dl>
+        <ul class="sibs">
+          <li class="sib sib--current"><img alt="" src="https://cdn.sanity.io/images/0vbjaawm/production/97485890ea8f4659b4d04cf7db2971735da6b0b6-2400x1800.jpg?w=120&h=120&fit=crop&auto=format"><span>Big Boy Buffalo<small>You're here · #3</small></span><b>S-</b></li>
+          <li class="sib"><img alt="" src="https://cdn.sanity.io/images/0vbjaawm/production/1f004f47ffbc1eb3e0a5f13016f048d7a29e3d70-2400x1800.jpg?w=120&h=120&fit=crop&auto=format"><span><a href="#wing">Drums &amp; Flats Buffalo</a><small>#4 on the list</small></span><b>S-</b></li>
+          <li class="sib"><i></i><span><a href="#wing">Sweet and Spicy</a><small>Not buffalo</small></span><b>A+</b></li>
+          <li class="sib"><i></i><span><a href="#wing">Teriyaki</a><small>Not buffalo</small></span><b>A</b></li>
+        </ul>
+      </aside>
+    </div>
+  </main>
+  <div data-footer></div>
+</div>
+
+<!-- ============ SCREEN 3: LOCATION PAGE ============ -->
+<p class="screen-label"><span class="shell"><span>C · Location page</span><code>/wings/steve-os</code></span></p>
+<div class="screen" id="location">
+  <div data-header></div>
+  <main>
+    <header class="band">
+      <div class="shell band__inner">
+        <div>
+          <ol class="crumbs" aria-label="Breadcrumb"><li><a href="#list">Wings</a></li><li aria-current="page">Steve O's</li></ol>
+          <h1>Steve O's</h1>
+          <p class="band__addr"><a href="#">4900 W Broadway Ave, Crystal</a></p>
+        </div>
+        <dl class="band__stats">
+          <div><dt>Visits</dt><dd>11</dd></div>
+          <div><dt>Wings tried</dt><dd>4</dd></div>
+          <div><dt>On the list</dt><dd>2</dd></div>
+        </dl>
+      </div>
+      <div class="band__strip" aria-hidden="true">
+        <img alt="" src="https://cdn.sanity.io/images/0vbjaawm/production/97485890ea8f4659b4d04cf7db2971735da6b0b6-2400x1800.jpg?w=1200&auto=format">
+        <img alt="" src="https://cdn.sanity.io/images/0vbjaawm/production/1f004f47ffbc1eb3e0a5f13016f048d7a29e3d70-2400x1800.jpg?w=1200&auto=format">
+      </div>
+    </header>
+    <div class="shell page">
+      <ol class="tiers" style="margin-top:0" aria-label="Steve O's wings, best first">
+        <li class="tier">
+          <p class="tier__letter" aria-hidden="true">S<span>2 wings</span></p>
+          <ol class="tiles" role="list">
+            <li class="tile"><img class="tile__img" alt="" src="https://cdn.sanity.io/images/0vbjaawm/production/97485890ea8f4659b4d04cf7db2971735da6b0b6-2400x1800.jpg?w=240&h=240&fit=crop&auto=format"><div class="tile__body"><h3><a href="#wing">Big Boy Buffalo</a></h3><span class="tag">#3 on the list</span></div><span class="tile__grade">S-</span></li>
+            <li class="tile"><img class="tile__img" alt="" src="https://cdn.sanity.io/images/0vbjaawm/production/1f004f47ffbc1eb3e0a5f13016f048d7a29e3d70-2400x1800.jpg?w=240&h=240&fit=crop&auto=format"><div class="tile__body"><h3><a href="#wing">Drums &amp; Flats Buffalo</a></h3><span class="tag">#4 on the list</span></div><span class="tile__grade">S-</span></li>
+          </ol>
+        </li>
+        <li class="tier">
+          <p class="tier__letter" aria-hidden="true">A<span>2 wings</span></p>
+          <ol class="tiles" role="list">
+            <li class="tile"><i class="tile__ph"></i><div class="tile__body"><h3><a href="#wing">Sweet and Spicy</a></h3><span class="tag tag--quiet">Not buffalo</span></div><span class="tile__grade">A+</span></li>
+            <li class="tile"><i class="tile__ph"></i><div class="tile__body"><h3><a href="#wing">Teriyaki</a></h3><span class="tag tag--quiet">Not buffalo</span></div><span class="tile__grade">A</span></li>
+          </ol>
+        </li>
+      </ol>
+    </div>
+  </main>
+  <div data-footer></div>
+</div>
+
+<script src="mock.js"></script>
+</body>
+</html>

@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>#83 wing and location designs - overview</title>
+<link rel="stylesheet" href="base.css">
+<style>
+  main { padding-block: clamp(2.5rem, 6vw, 4.5rem); }
+  h1 { margin-bottom: 0.75rem; font-size: clamp(2.4rem, 7vw, 4.5rem); line-height: 0.95; }
+  .lede { max-width: 44rem; color: var(--muted); font-size: 1.2rem; line-height: 1.5; }
+  code { font-family: var(--mono); font-size: 0.85em; }
+  h2 { margin: 3rem 0 1rem; font-size: 1.9rem; }
+  ul { padding-left: 1.2rem; font-size: 1.1rem; line-height: 1.55; }
+  .dirs { display: grid; gap: 1.25rem; margin: 0; padding: 0; list-style: none; }
+  .dir { padding: 1.25rem; background: var(--card); border: 1px solid var(--line); border-radius: 0.3rem; box-shadow: 0.2rem 0.25rem 0 var(--shadow); }
+  .dir h3 { margin: 0 0 0.4rem; font-size: 1.6rem; }
+  .dir p { margin: 0 0 0.8rem; font-size: 1.1rem; line-height: 1.45; }
+  .dir .dir__links { margin: 0; display: flex; flex-wrap: wrap; gap: 0.5rem; font-family: var(--mono); font-size: 0.72rem; }
+  .dir__links a { padding: 0.35rem 0.6rem; border: 1px solid var(--line); border-radius: 0.2rem; text-decoration: none; background: var(--paper); }
+  .pick { padding: 1.25rem; color: var(--paper); background: var(--brand); border-radius: 0.3rem; font-size: 1.15rem; line-height: 1.5; }
+  .pick b { color: #fff; }
+  @media (min-width: 56rem) { .dirs { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+</style>
+</head>
+<body>
+<main class="shell">
+  <p class="eyebrow"><a href="https://github.com/sergnio/sergn.io/issues/83">Issue #83</a> · design directions</p>
+  <h1>Wings and locations</h1>
+  <p class="lede">Three takes on the main wing list, a wing page and a location page. Steve O's is the example spot. Each file shows desktop and mobile; resize the window to see mobile.</p>
+
+  <h2>What's settled</h2>
+  <ul>
+    <li>URLs: <code>/wings/steve-os</code> and <code>/wings/steve-os/big-boy-buffalo</code>.</li>
+    <li>Wings get letter grades. Locations don't.</li>
+    <li>The main list holds every buffalo wing, plus one "best non-buffalo" wing for spots without buffalo, marked with an asterisk and a footnote.</li>
+    <li>Other wings show only on their location page.</li>
+    <li>The <a href="https://github.com/sergnio/sergn.io/issues/90">#90</a> "All wings" toggle gets a dashed placeholder slot only.</li>
+    <li>Rules follow the <a href="https://github.com/sergnio/sergn.io/blob/main/docs/wings-constitution.md">wings constitution</a>.</li>
+  </ul>
+
+  <h2>Directions</h2>
+  <ol class="dirs">
+    <li class="dir">
+      <h3>A · Combined list</h3>
+      <p>Round 2: the main list now mixes A's photo podium, B's big rank numbers and simple rows, and C's pinned tier letters with wing counts. Wing and location pages are unchanged: a photo hero on the wing page with a "spot" card and sibling list, and a card grid on the location page.</p>
+      <p class="dir__links"><a href="a-evolved.html">All screens</a><a href="a-evolved.html?screen=list">List</a><a href="a-evolved.html?screen=wing">Wing</a><a href="a-evolved.html?screen=location">Location</a></p>
+    </li>
+    <li class="dir">
+      <h3>B · Menu ledger</h3>
+      <p>Typographic and narrow, like a printed menu. Big rank numerals, dotted leaders and red grades. The wing page ends with a menu card listing everything tried at the spot.</p>
+      <p class="dir__links"><a href="b-ledger.html">All screens</a><a href="b-ledger.html?screen=list">List</a><a href="b-ledger.html?screen=wing">Wing</a><a href="b-ledger.html?screen=location">Location</a></p>
+    </li>
+    <li class="dir">
+      <h3>C · Tier board</h3>
+      <p>Photo-forward and grouped by tier letter (S, A, B). Full-bleed photo hero on the wing page with a dark location panel, and a dark stats band on the location page.</p>
+      <p class="dir__links"><a href="c-tiers.html">All screens</a><a href="c-tiers.html?screen=list">List</a><a href="c-tiers.html?screen=wing">Wing</a><a href="c-tiers.html?screen=location">Location</a></p>
+    </li>
+  </ol>
+
+  <h2>Round 9</h2>
+  <ul>
+    <li><a href="wing-combined.html">Combined wing page</a>: on desktop the "Also tried" wings sit side by side in one row, still in A's light outlined cards. On mobile they stack.</li>
+    <li>Earlier version: <a href="wing-combined.v3.html">combined wing page v3</a> (round 8, stacked rows), <a href="wing-combined.v4.html">combined wing page v4</a> (round 9, before the chosen placeholder).</li>
+  </ul>
+
+  <h2>Round 8</h2>
+  <ul>
+    <li><a href="wing-combined.html">Combined wing page</a>: "Also tried at Steve O's" now uses A's light outlined rows with thumbnails instead of the dark box.</li>
+    <li>Earlier version: <a href="wing-combined.v2.html">combined wing page v2</a> (round 7, dark box).</li>
+  </ul>
+
+  <h2>Round 7</h2>
+  <ul>
+    <li><a href="wing-combined.html">Combined wing page</a>: the place, address and city now sit under the wing name, with the grade badge, visits and rank on the next line and the last visit under them.</li>
+    <li>The dark box holds only "Also tried at Steve O's", with the other wings side by side on desktop and stacked on mobile.</li>
+    <li>A place with one wing shows no box. See the <a href="wing-combined.html?screen=single">Monte Carlo example</a>.</li>
+    <li>Earlier version: <a href="wing-combined.v1.html">combined wing page v1</a> (round 5). Round 6's <a href="wing-single.html">single-wing options</a> were stopped unfinished and replaced by this round.</li>
+  </ul>
+
+  <h2>Round 5</h2>
+  <ul>
+    <li>Wing page only. <a href="wing-combined.html">Combined wing page</a>: A's page and uncropped photo, C's dark Steve O's box in place of A's location card, and B's round grade badge.</li>
+    <li>In the combined page, "Also tried" lives inside C's box and lists only the other wings, so each wing shows once.</li>
+    <li>A's wing page: on mobile the photo now comes first, there's no website row when none is on file, and the "All 4 wings" button is gone.</li>
+    <li>Feedback is recorded in <a href="design-notes.md">design-notes.md</a>. Earlier version: <a href="a-evolved.v6.html">A v6</a> (before these wing-page fixes).</li>
+  </ul>
+
+  <h2>Round 4</h2>
+  <ul>
+    <li>A's main list only. The #1 crown is gold with jewels and gold balls on its points, like the 👑 emoji, and still as big as a rank number.</li>
+    <li>The #1 card's thin border is now gold to match.</li>
+    <li>Follow-up: the colored jewels are gone, so the crown is plain gold. Same size and gold border.</li>
+    <li>Earlier versions: <a href="a-evolved.v3.html">A v3</a> (round 3), <a href="a-evolved.v4.html">A v4</a> (gold crown with jewels), <a href="a-evolved.v5.html">A v5</a> (wing line at full strength).</li>
+  </ul>
+
+  <h2>Round 3</h2>
+  <ul>
+    <li>All three files, every screen: the title is just "Wings", and the intro says only "Flavor, crunch, juiciness, and size matter."</li>
+    <li>Filler labels are gone: "Ranked", "best first", "the buffalo list", and eyebrows like "Wing review" and "The spot".</li>
+    <li>A crown replaces the #1 rank number, at the size the "1" had. The 👑 on the S+ grade is gone, since the crown now marks #1.</li>
+    <li>Kept: tier wing counts, and B's "Steve O's · Crystal" line above the wing name, since it says where the wing is.</li>
+    <li>Round 2 versions: <a href="a-evolved.v2.html">A v2</a>, <a href="b-ledger.v2.html">B v2</a>, <a href="c-tiers.v2.html">C v2</a>, <a href="index.v2.html">overview v2</a>.</li>
+  </ul>
+
+  <h2>Round 2</h2>
+  <ul>
+    <li>Main lists only. In all three, the place name is now the big text and the wing type sits under it, smaller.</li>
+    <li>A's main list is the combined direction. Scroll it to see the tier letters pin, on mobile too.</li>
+    <li>Preferences are recorded in <a href="design-notes.md">design-notes.md</a>.</li>
+    <li>Round 1 versions: <a href="a-evolved.v1.html">A v1</a>, <a href="b-ledger.v1.html">B v1</a>, <a href="c-tiers.v1.html">C v1</a>, <a href="index.v1.html">overview v1</a>.</li>
+  </ul>
+
+  <h2>My pick</h2>
+  <p class="pick"><b>The combined list in A, plus B's menu card on the wing page.</b> The podium keeps the top three special, the ledger rows stay simple, and the pinned tier letters show where you are on a long list.</p>
+
+  <h2>Open questions</h2>
+  <ul>
+    <li>What should the main list be called, since it's "buffalo" but holds an asterisk wing?</li>
+    <li>On a location page, show main-list rank (#3 on the list) or a rank within the spot? The constitution says rank follows the list showing.</li>
+    <li>Most spots have no website on file. Show a map link instead, or hide the row?</li>
+    <li>Should the main list show visit counts, or keep them on wing and location pages only?</li>
+    <li>What should a wing with no photo show? The mocks use a striped placeholder.</li>
+    <li>Hide the wing line when it just says "Buffalo", showing only real variations?</li>
+  </ul>
+
+  <h2>Notes</h2>
+  <ul>
+    <li>Design source: the site's own styles (fonts, colors, cards and eyebrows from <code>src/styles.css</code>).</li>
+    <li>Sweet and Spicy and Teriyaki are Sanity drafts; their notes are the draft text.</li><li>Location pages show each note's first paragraph, clipped to a few lines.</li>
+    <li>Everything else is live data and photos from Sanity.</li>
+  </ul>
+</main>
+</body>
+</html>

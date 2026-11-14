@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Direction B - Menu ledger | #83 wing designs</title>
+<link rel="stylesheet" href="base.css">
+<style>
+  .page { padding-block: clamp(3rem, 7vw, 6rem); }
+  .center { text-align: center; }
+  .measure { max-width: 46rem; margin-inline: auto; }
+
+  .intro h1 { margin: 0 auto 1rem; font-size: clamp(3rem, 10vw, 7rem); line-height: 0.9; }
+  .intro__summary { max-width: 34rem; margin: 0 auto; color: var(--muted); font-size: clamp(1.1rem, 3vw, 1.3rem); font-style: italic; line-height: 1.45; }
+  .rule { height: 5px; margin: clamp(2rem, 5vw, 3rem) 0 0; border: 0; border-block: 1px solid var(--brand); }
+
+  .ledger-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 0.6rem 1rem; padding: 0.85rem 0; border-bottom: 1px solid var(--line); }
+  .ledger-head .eyebrow { margin: 0; }
+
+  .ledger { margin: 0; padding: 0; list-style: none; }
+  .entry { position: relative; display: grid; grid-template-columns: 3.4rem minmax(0, auto) minmax(1.5rem, 1fr) auto; align-items: baseline; gap: 0 0.75rem; padding: 0.95rem 0; border-bottom: 1px solid var(--line); }
+  .entry__rank { color: var(--accent); font-size: 1.9rem; font-variant-numeric: oldstyle-nums; line-height: 1; }
+  .entry:first-child .entry__rank { color: var(--highlight); }
+  .entry__name { min-width: 0; }
+  .entry h3 { display: inline; margin: 0; font-size: clamp(1.3rem, 2.6vw, 1.65rem); line-height: 1.15; }
+  .entry h3 a { text-decoration: none; }
+  .entry h3 a::after { position: absolute; inset: 0; content: ''; }
+  .entry__at { display: block; margin-top: 0.15rem; color: var(--muted); font-size: 1.02rem; font-style: italic; }
+  .entry__at .asterisk { margin-left: 0.05em; }
+  .leader { align-self: end; margin-bottom: 0.55rem; border-bottom: 2px dotted var(--placeholder); }
+  .entry__grade { color: var(--highlight); font-size: clamp(1.7rem, 3vw, 2.1rem); font-weight: 600; letter-spacing: -0.02em; line-height: 1; white-space: nowrap; align-self: end; margin-bottom: 0.1rem; }
+  .entry__grade small { margin-right: 0.3rem; font-size: 0.6em; }
+  .entry:hover h3 { color: var(--accent); }
+
+
+  .asterisk { position: relative; z-index: 1; color: var(--highlight); font-family: var(--mono); font-size: 0.7em; text-decoration: none; vertical-align: super; line-height: 0; padding: 0 0.1em; }
+  .footnote { margin: 1.5rem 0 0; color: var(--muted); font-size: 1rem; font-style: italic; line-height: 1.45; text-align: center; text-wrap: balance; }
+  .footnote b { color: var(--highlight); font-family: var(--mono); font-style: normal; font-weight: 500; }
+
+  .crown { display: block; width: 1.25em; height: auto; }
+  /* Wing page */
+  .crumbs { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.4rem; margin: 0 0 2rem; padding: 0; list-style: none; color: var(--muted); font-family: var(--mono); font-size: 0.72rem; }
+  .crumbs li + li::before { margin-right: 0.4rem; color: var(--placeholder); content: '/'; }
+  .crumbs a { text-decoration: none; }
+  .wing-head .eyebrow a { text-decoration: none; }
+  .wing-head h1 { margin: 0 auto 1.4rem; font-size: clamp(2.6rem, 7vw, 5rem); line-height: 0.95; }
+  .stamp { display: inline-grid; width: 6.5rem; height: 6.5rem; place-content: center; color: var(--highlight); border: 2px solid var(--highlight); border-radius: 50%; box-shadow: inset 0 0 0 4px var(--paper), inset 0 0 0 5px var(--highlight); transform: rotate(-6deg); }
+  .stamp b { font-size: 2.6rem; font-weight: 600; letter-spacing: -0.03em; line-height: 0.9; }
+  .stamp span { font-family: var(--mono); font-size: 0.56rem; letter-spacing: 0.08em; text-transform: uppercase; }
+  .wing-meta { margin: 1.2rem 0 0; color: var(--muted); font-family: var(--mono); font-size: 0.72rem; }
+  .wing-photo { width: 100%; max-height: 34rem; margin: clamp(2rem, 5vw, 3rem) 0; aspect-ratio: 16 / 9; object-fit: cover; border-radius: 0.25rem; }
+  .notes { font-size: clamp(1.15rem, 3vw, 1.35rem); line-height: 1.6; }
+  .notes p { margin-bottom: 1.1em; }
+  .notes p:first-child::first-letter { float: left; margin: 0.08em 0.1em 0 0; color: var(--highlight); font-size: 3.4em; line-height: 0.8; }
+
+  .menu-card { margin-top: clamp(2.5rem, 6vw, 4rem); padding: clamp(1.4rem, 4vw, 2.2rem); background: var(--card); border: 1px solid var(--brand); outline: 1px solid var(--brand); outline-offset: -7px; border-radius: 0.15rem; }
+  .menu-card__head { margin-bottom: 1.1rem; text-align: center; }
+  .menu-card__head .eyebrow { margin-bottom: 0.4rem; }
+  .menu-card__head h2 { margin: 0 0 0.35rem; font-size: clamp(1.9rem, 5vw, 2.6rem); line-height: 1; }
+  .menu-card__head p:not(.eyebrow) { margin: 0; color: var(--muted); font-size: 1.05rem; }
+  .menu-card__facts { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.3rem 1.1rem; margin: 0.6rem 0 0; padding: 0; list-style: none; color: var(--wash-ink); font-family: var(--mono); font-size: 0.7rem; }
+  .menu-card__facts a { text-decoration: none; border-bottom: 1px solid currentColor; }
+  .menu-card .entry { grid-template-columns: minmax(0, auto) minmax(1.5rem, 1fr) auto; padding: 0.75rem 0; }
+  .menu-card .entry:last-child { border-bottom: 0; }
+  .menu-card .entry h3 { font-size: 1.3rem; }
+  .menu-card .entry__grade { font-size: 1.5rem; }
+  .entry__tag { display: block; margin-top: 0.2rem; color: var(--muted); font-family: var(--mono); font-size: 0.64rem; letter-spacing: 0.03em; }
+  .entry--current h3::before { margin-right: 0.35rem; color: var(--highlight); content: '▸'; }
+  .entry--current h3 { color: var(--muted); }
+  .menu-card__cta { display: block; margin-top: 1.1rem; padding-top: 1rem; border-top: 1px solid var(--line); font-family: var(--mono); font-size: 0.76rem; text-align: center; }
+
+  /* Location page */
+  .loc-head h1 { margin: 0 auto 0.6rem; font-size: clamp(3rem, 10vw, 6.5rem); line-height: 0.9; }
+  .loc-head__addr { margin: 0 0 0.9rem; color: var(--muted); font-size: 1.25rem; font-style: italic; }
+  .loc-list .entry { grid-template-columns: minmax(0, auto) minmax(1.5rem, 1fr) auto; }
+  .loc-list .entry__note { display: -webkit-box; overflow: hidden; -webkit-box-orient: vertical; -webkit-line-clamp: 3; grid-column: 1 / -1; margin: 0.35rem 0 0; color: var(--muted); font-size: 1.05rem; line-height: 1.4; }
+  .chip { display: inline-block; margin-left: 0.5rem; padding: 0.12rem 0.4rem; color: var(--card); background: var(--brand); border-radius: 0.15rem; font-family: var(--mono); font-size: 0.6rem; vertical-align: 0.25rem; white-space: nowrap; }
+  .chip--quiet { color: var(--muted); background: transparent; border: 1px solid var(--line); }
+  .photos { display: grid; gap: 0.75rem; margin: clamp(2.5rem, 6vw, 3.5rem) 0 0; padding: 0; list-style: none; }
+  .photos img { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; border-radius: 0.2rem; }
+  .photos figcaption { margin-top: 0.4rem; color: var(--muted); font-family: var(--mono); font-size: 0.66rem; }
+
+  @media (max-width: 41.99rem) {
+    .entry { grid-template-columns: 2.4rem minmax(0, 1fr) auto; }
+    .leader { display: none; }
+    .menu-card .entry, .loc-list .entry { grid-template-columns: minmax(0, 1fr) auto; }
+    .entry__rank { font-size: 1.5rem; }
+  }
+  @media (min-width: 42rem) {
+    .photos { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+</style>
+</head>
+<body>
+
+<!-- ============ SCREEN 1: MAIN LIST ============ -->
+<p class="screen-label"><span class="shell"><span>B · Main list</span><code>/wings</code></span></p>
+<div class="screen" id="list">
+  <div data-header></div>
+  <main class="shell page">
+    <div class="measure">
+      <header class="intro center">
+        <h1>Wings</h1>
+        <p class="intro__summary">Flavor, crunch, juiciness, and size matter.</p>
+      </header>
+      <hr class="rule">
+      <div class="ledger-head">
+        <span class="slot">#90 · "All wings" toggle</span>
+      </div>
+      <ol class="ledger" aria-label="Wings, ranked best to worst">
+        <li class="entry"><span class="entry__rank" aria-hidden="true"><svg class="crown" viewBox="0 0 32 26" aria-hidden="true" focusable="false"><path fill="currentColor" d="M3 8.5 9.5 14 16 4l6.5 10L29 8.5 26.5 21h-21z"/><rect x="5.5" y="22.5" width="21" height="3" rx="1" fill="currentColor"/><circle cx="3" cy="7" r="2.2" fill="currentColor"/><circle cx="16" cy="2.6" r="2.2" fill="currentColor"/><circle cx="29" cy="7" r="2.2" fill="currentColor"/></svg></span><span class="entry__name"><h3><a href="#wing">Northbound Brew Pub</a></h3><span class="entry__at">Buffalo</span></span><span class="leader"></span><span class="entry__grade">S+</span></li>
+        <li class="entry"><span class="entry__rank" aria-hidden="true">2</span><span class="entry__name"><h3><a href="#wing">Runyons</a></h3><span class="entry__at">Buffalo</span></span><span class="leader"></span><span class="entry__grade">S</span></li>
+        <li class="entry"><span class="entry__rank" aria-hidden="true">3</span><span class="entry__name"><h3><a href="#wing">Steve O's</a></h3><span class="entry__at">Big Boy Buffalo</span></span><span class="leader"></span><span class="entry__grade">S-</span></li>
+        <li class="entry"><span class="entry__rank" aria-hidden="true">4</span><span class="entry__name"><h3><a href="#wing">Steve O's</a></h3><span class="entry__at">Drums &amp; Flats Buffalo</span></span><span class="leader"></span><span class="entry__grade">S-</span></li>
+        <li class="entry"><span class="entry__rank" aria-hidden="true">5</span><span class="entry__name"><h3><a href="#wing">Hilltop</a></h3><span class="entry__at">Buffalo</span></span><span class="leader"></span><span class="entry__grade">A+</span></li>
+        <li class="entry"><span class="entry__rank" aria-hidden="true">6</span><span class="entry__name"><h3><a href="#wing">NE Moose Bar &amp; Grill</a></h3><span class="entry__at">Buffalo</span></span><span class="leader"></span><span class="entry__grade">A</span></li>
+        <li class="entry"><span class="entry__rank" aria-hidden="true">7</span><span class="entry__name"><h3><a href="#wing">Runyons</a></h3><span class="entry__at">Spicy Buffalo</span></span><span class="leader"></span><span class="entry__grade">A</span></li>
+        <li class="entry"><span class="entry__rank" aria-hidden="true">8</span><span class="entry__name"><h3><a href="#wing">Monte Carlo</a></h3><span class="entry__at">House Asian Zing<a class="asterisk" href="#footnote-b" aria-label="Not buffalo, see footnote">*</a></span></span><span class="leader"></span><span class="entry__grade">A</span></li>
+        <li class="entry"><span class="entry__rank" aria-hidden="true">9</span><span class="entry__name"><h3><a href="#wing">Sportsmen's Restaurant &amp; Taverna</a></h3><span class="entry__at">Hot</span></span><span class="leader"></span><span class="entry__grade">A-</span></li>
+        <li class="entry"><span class="entry__rank" aria-hidden="true">10</span><span class="entry__name"><h3><a href="#wing">Cedar Inn</a></h3><span class="entry__at">Buffalo</span></span><span class="leader"></span><span class="entry__grade">B+</span></li>
+        <li class="entry"><span class="entry__rank" aria-hidden="true">11</span><span class="entry__name"><h3><a href="#wing">The Nook</a></h3><span class="entry__at">Buffalo</span></span><span class="leader"></span><span class="entry__grade">B+</span></li>
+        <li class="entry"><span class="entry__rank" aria-hidden="true">12</span><span class="entry__name"><h3><a href="#wing">Wingstop</a></h3><span class="entry__at">Original Hot</span></span><span class="leader"></span><span class="entry__grade">B</span></li>
+        <li class="entry"><span class="entry__rank" aria-hidden="true">13</span><span class="entry__name"><h3><a href="#wing">King of the Wing</a></h3><span class="entry__at">Buffalo</span></span><span class="leader"></span><span class="entry__grade">B-</span></li>
+      </ol>
+      <p class="footnote" id="footnote-b"><b aria-hidden="true">*</b> No buffalo at Monte Carlo, so its best wing stands in.<br><a href="https://github.com/sergnio/sergn.io/blob/main/docs/wings-constitution.md">How wings are ranked</a></p>
+    </div>
+  </main>
+  <div data-footer></div>
+</div>
+
+<!-- ============ SCREEN 2: WING PAGE ============ -->
+<p class="screen-label"><span class="shell"><span>B · Wing page</span><code>/wings/steve-os/big-boy-buffalo</code></span></p>
+<div class="screen" id="wing">
+  <div data-header></div>
+  <main class="shell page">
+    <ol class="crumbs" aria-label="Breadcrumb"><li><a href="#list">Wings</a></li><li><a href="#location">Steve O's</a></li><li aria-current="page">Big Boy Buffalo</li></ol>
+    <header class="wing-head center">
+      <p class="eyebrow"><a href="#location">Steve O's</a> · Crystal</p>
+      <h1>Big Boy Buffalo</h1>
+      <div class="stamp" role="img" aria-label="Grade S-"><b>S-</b></div>
+      <p class="wing-meta">No. 3 of 13 · Nov 10, 2026</p>
+    </header>
+    <img class="wing-photo" alt="Whole buffalo wings with tips on, grill marks, and green onion, on a white plate with celery sticks and a cup of ranch" src="https://cdn.sanity.io/images/0vbjaawm/production/97485890ea8f4659b4d04cf7db2971735da6b0b6-2400x1800.jpg?w=1800&auto=format">
+    <div class="measure">
+      <div class="notes">
+        <p>The Big Boy wings also quite good I mean yeah they're just solid wings like it's it's a lot more rare to get good. Tasty high-quality like big the whole wings even get the little wing tip as well. Steve fucks hard I gotta say.</p>
+        <p>And honestly, the most notable thing about this all was the the cook. The cook will always bring you the wings and you can tell. They're so proud that they yeah they just like are always excited to see how you react to the wings and every single cook I've had various different cooks here every single one is always so proud and just immensely appreciate that.</p>
+      </div>
+
+      <section class="menu-card" aria-labelledby="mc-title">
+        <header class="menu-card__head">
+          <h2 id="mc-title">Steve O's</h2>
+          <p><a href="#">4900 W Broadway Ave, Crystal</a></p>
+          <ul class="menu-card__facts"><li>11 visits</li><li>No website on file</li></ul>
+        </header>
+        <ol class="ledger">
+          <li class="entry entry--current"><span class="entry__name"><h3>Big Boy Buffalo</h3><span class="entry__tag">You're here · No. 3</span></span><span class="leader"></span><span class="entry__grade">S-</span></li>
+          <li class="entry"><span class="entry__name"><h3><a href="#wing">Drums &amp; Flats Buffalo</a></h3><span class="entry__tag">No. 4 on the list</span></span><span class="leader"></span><span class="entry__grade">S-</span></li>
+          <li class="entry"><span class="entry__name"><h3><a href="#wing">Sweet and Spicy</a></h3><span class="entry__tag">Not buffalo</span></span><span class="leader"></span><span class="entry__grade">A+</span></li>
+          <li class="entry"><span class="entry__name"><h3><a href="#wing">Teriyaki</a></h3><span class="entry__tag">Not buffalo</span></span><span class="leader"></span><span class="entry__grade">A</span></li>
+        </ol>
+        <a class="menu-card__cta" href="#location">Open Steve O's →</a>
+      </section>
+    </div>
+  </main>
+  <div data-footer></div>
+</div>
+
+<!-- ============ SCREEN 3: LOCATION PAGE ============ -->
+<p class="screen-label"><span class="shell"><span>B · Location page</span><code>/wings/steve-os</code></span></p>
+<div class="screen" id="location">
+  <div data-header></div>
+  <main class="shell page">
+    <ol class="crumbs" aria-label="Breadcrumb"><li><a href="#list">Wings</a></li><li aria-current="page">Steve O's</li></ol>
+    <div class="measure">
+      <header class="loc-head center">
+        <h1>Steve O's</h1>
+        <p class="loc-head__addr"><a href="#">4900 W Broadway Ave, Crystal</a></p>
+        <ul class="menu-card__facts"><li>11 visits</li><li>4 wings tried</li><li>No website on file</li></ul>
+      </header>
+      <hr class="rule">
+      <ol class="ledger loc-list" aria-label="Steve O's wings, best first">
+        <li class="entry"><span class="entry__name"><h3><a href="#wing">Big Boy Buffalo</a></h3><span class="chip">No. 3 on the list</span></span><span class="leader"></span><span class="entry__grade">S-</span><p class="entry__note">The Big Boy wings also quite good I mean yeah they're just solid wings like it's it's a lot more rare to get good. Tasty high-quality like big the whole wings even get the little wing tip as well. Steve fucks hard I gotta say.</p></li>
+        <li class="entry"><span class="entry__name"><h3><a href="#wing">Drums &amp; Flats Buffalo</a></h3><span class="chip">No. 4 on the list</span></span><span class="leader"></span><span class="entry__grade">S-</span><p class="entry__note">One impetus for my quest. Big wings, tasty, saucy, and the staff are so friendly.</p></li>
+        <li class="entry"><span class="entry__name"><h3><a href="#wing">Sweet and Spicy</a></h3><span class="chip chip--quiet">Not buffalo</span></span><span class="leader"></span><span class="entry__grade">A+</span><p class="entry__note">The sweet teriyaki was also pretty fucking good. I really liked the sweet and spicy. The sweet and spicy was good. It just had a little bit of heat nice sugary again also very saucy. I appreciate the sauciness and of course the grill marks.</p></li>
+        <li class="entry"><span class="entry__name"><h3><a href="#wing">Teriyaki</a></h3><span class="chip chip--quiet">Not buffalo</span></span><span class="leader"></span><span class="entry__grade">A</span><p class="entry__note">The teriyaki was also really nice. Honestly they're all good but the teriyaki was probably a little too salty, but this was the sauciest of them all and I gotta be a big fan of that.</p></li>
+      </ol>
+    </div>
+    <ul class="photos" aria-label="Photos from Steve O's">
+      <li><figure style="margin:0"><img alt="Whole buffalo wings with tips on, on a white plate with celery and ranch" src="https://cdn.sanity.io/images/0vbjaawm/production/97485890ea8f4659b4d04cf7db2971735da6b0b6-2400x1800.jpg?w=1000&auto=format"><figcaption>Big Boy Buffalo</figcaption></figure></li>
+      <li><figure style="margin:0"><img alt="Grilled drums and flats in teriyaki, sweet and spicy, and buffalo around two cups of ranch" src="https://cdn.sanity.io/images/0vbjaawm/production/1f004f47ffbc1eb3e0a5f13016f048d7a29e3d70-2400x1800.jpg?w=1000&auto=format"><figcaption>Drums &amp; Flats: teriyaki, sweet and spicy, buffalo</figcaption></figure></li>
+    </ul>
+  </main>
+  <div data-footer></div>
+</div>
+
+<script src="mock.js"></script>
+</body>
+</html>

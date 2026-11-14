@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Combined wing page | #83 wing designs</title>
+<link rel="stylesheet" href="base.css">
+<style>
+  .page { padding-block: clamp(3rem, 7vw, 6rem); }
+  .crumbs { display: flex; flex-wrap: wrap; gap: 0.4rem; margin: 0 0 1.75rem; padding: 0; list-style: none; color: var(--muted); font-family: var(--mono); font-size: 0.72rem; }
+  .crumbs li + li::before { margin-right: 0.4rem; color: var(--placeholder); content: '/'; }
+  .crumbs a { text-decoration: none; }
+  .crumbs a:hover { text-decoration: underline; }
+
+  .hero { display: grid; gap: 1.75rem; }
+  .hero h1 { margin-bottom: 0.9rem; font-size: clamp(2.3rem, 5vw, 3.6rem); line-height: 1.02; }
+  .hero__at { margin: 0 0 1.25rem; color: var(--muted); font-size: 1.25rem; line-height: 1.35; }
+  .hero__at a { color: var(--ink); }
+  .hero__facts { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; column-gap: 1.25rem; margin-bottom: 1.75rem; color: var(--muted); font-family: var(--mono); font-size: 0.72rem; line-height: 1.5; }
+  .hero__facts .stamp { grid-row: span 2; }
+  .hero__stats { display: flex; flex-wrap: wrap; gap: 0.2rem 1.25rem; margin: 0; align-self: end; }
+  .hero__last { margin: 0.2rem 0 0; align-self: start; }
+  .asterisk { color: var(--highlight); text-decoration: none; padding-left: 0.1em; }
+  .footnote { display: flex; gap: 0.5rem; margin: 0; color: var(--muted); font-size: 1.05rem; line-height: 1.45; }
+  .footnote b { color: var(--highlight); font-family: var(--mono); }
+.wing-ph {
+  --wing-ph-ink: var(--wash-ink);
+  --wing-ph-stroke: 2.25px;
+  --wing-ph-size: 54%;
+  container-type: inline-size;
+  position: relative;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  color: var(--wing-ph-ink);
+  background: linear-gradient(160deg, color-mix(in srgb, var(--wash) 90%, var(--paper)), var(--paper) 85%);
+  border: 1px dashed var(--placeholder);
+}
+.wing-ph__art {
+  width: var(--wing-ph-size);
+  height: auto;
+  aspect-ratio: 1;
+  overflow: visible;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: var(--wing-ph-stroke);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: calc(var(--wing-ph-stroke) * 2.4) calc(var(--wing-ph-stroke) * 2.2);
+}
+.wing-ph__art * { vector-effect: non-scaling-stroke; }
+.wing-ph__caption {
+  display: none;
+  position: absolute;
+  bottom: 9%;
+  left: 0;
+  right: 0;
+  margin: 0;
+  color: var(--wing-ph-ink);
+  font-family: 'DM Mono', monospace;
+  font-size: 0.7rem;
+  font-weight: 400;
+  letter-spacing: 0.06em;
+  text-align: center;
+  text-transform: uppercase;
+}
+@container (min-width: 15rem) {
+  .wing-ph__caption { display: block; }
+  .wing-ph__art { transform: translateY(-6%); }
+}
+.wing-ph--hero { --wing-ph-stroke: 3px; --wing-ph-size: 42%; }
+.wing-ph--thumb { --wing-ph-stroke: 1.5px; --wing-ph-size: 92%; }
+.wing-ph--tiny { --wing-ph-stroke: 1.25px; }
+
+  .hero .wing-ph--hero { aspect-ratio: 4 / 3; border-radius: 0.25rem; }
+  .sib .wing-ph--thumb { flex: none; width: 3.75rem; height: 3.75rem; border-radius: 0.15rem; }
+  .hero__img.hero__ph { display: grid; aspect-ratio: 4 / 3; place-items: center; background: repeating-linear-gradient(135deg, var(--wash) 0 6px, var(--card) 6px 12px); }
+  .hero__ph span { padding: 0.35rem 0.6rem; color: var(--muted); background: var(--paper); border-radius: 0.15rem; font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.06em; text-transform: uppercase; }
+  .hero__img { display: block; width: 100%; height: auto; border-radius: 0.25rem; }
+  .notes { font-size: clamp(1.15rem, 3vw, 1.3rem); line-height: 1.55; }
+  .notes p { margin-bottom: 1.1em; }
+
+  .stamp { display: inline-grid; width: 5rem; height: 5rem; flex: none; place-content: center; color: var(--highlight); border: 2px solid var(--highlight); border-radius: 50%; box-shadow: inset 0 0 0 4px var(--paper), inset 0 0 0 5px var(--highlight); transform: rotate(-6deg); }
+  .stamp b { font-size: 2rem; font-weight: 600; letter-spacing: -0.03em; line-height: 0.9; }
+
+  .grade {
+    display: inline-grid; min-width: 2.6rem; height: 2.1rem; padding: 0 0.5rem; place-items: center;
+    color: var(--highlight); background: color-mix(in srgb, var(--highlight) 9%, var(--card));
+    border: 1px solid color-mix(in srgb, var(--highlight) 28%, transparent); border-radius: 0.25rem;
+    font-family: var(--mono); font-size: 0.95rem; font-weight: 500; letter-spacing: 0.02em; white-space: nowrap;
+  }
+  .stretch { text-decoration: none; }
+  .stretch::after { position: absolute; z-index: 1; inset: 0; content: ''; }
+  .place { margin-top: clamp(2.5rem, 6vw, 4rem); padding-top: clamp(2rem, 5vw, 3rem); border-top: 1px solid var(--line); }
+  .siblings h2 { margin: 0 0 0.35rem; font-size: clamp(1.5rem, 3.5vw, 2rem); line-height: 1.05; }
+  .siblings > p { margin: 0 0 1rem; color: var(--muted); font-size: 1.05rem; }
+  .sib-list { display: grid; gap: 0.6rem; margin: 0; padding: 0; list-style: none; }
+  .sib { position: relative; display: grid; grid-template-columns: 3.75rem minmax(0, 1fr) auto; gap: 0.9rem; align-items: center; padding: 0.55rem 0.9rem 0.55rem 0.55rem; background: var(--card); border: 1px solid var(--line); border-radius: 0.25rem; }
+  .sib img, .sib .sib__ph { width: 3.75rem; height: 3.75rem; object-fit: cover; border-radius: 0.15rem; background: linear-gradient(135deg, var(--brand), var(--tint)); }
+  .sib h3 { margin: 0; font-size: 1.2rem; line-height: 1.1; }
+  .sib__tag { display: block; margin-top: 0.2rem; color: var(--muted); font-family: var(--mono); font-size: 0.64rem; }
+
+  @media (max-width: 55.99rem) {
+    .hero__img, .hero .wing-ph--hero { order: -1; }
+  }
+  @media (min-width: 56rem) {
+    .sib-list { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .hero { grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.05fr); column-gap: clamp(2rem, 4vw, 3.5rem); align-items: start; }
+  }
+</style>
+</head>
+<body>
+<p class="screen-label"><span class="shell"><span>Combined · Wing page</span><code>/wings/steve-os/big-boy-buffalo</code></span></p>
+<div class="screen" id="wing">
+  <div data-header></div>
+  <main class="shell page">
+    <ol class="crumbs" aria-label="Breadcrumb"><li><a href="a-evolved.html?screen=list">Wings</a></li><li><a href="a-evolved.html?screen=location">Steve O's</a></li><li aria-current="page">Big Boy Buffalo</li></ol>
+    <article class="hero">
+      <div>
+        <h1>Big Boy Buffalo</h1>
+        <p class="hero__at">at <a href="a-evolved.html?screen=location">Steve O's</a>, 4900 W Broadway Ave, Crystal</p>
+        <div class="hero__facts">
+          <div class="stamp" role="img" aria-label="Grade S-"><b>S-</b></div>
+          <p class="hero__stats"><span>11 visits</span><span>#3 of 13</span></p>
+          <p class="hero__last">Last visit Nov 10, 2026</p>
+        </div>
+        <div class="notes">
+          <p>The Big Boy wings also quite good I mean yeah they're just solid wings like it's it's a lot more rare to get good. Tasty high-quality like big the whole wings even get the little wing tip as well. Steve fucks hard I gotta say.</p>
+          <p>And honestly, the most notable thing about this all was the the cook. The cook will always bring you the wings and you can tell. They're so proud that they yeah they just like are always excited to see how you react to the wings and every single cook I've had various different cooks here every single one is always so proud and just immensely appreciate that.</p>
+        </div>
+      </div>
+      <img class="hero__img" width="2400" height="1800" alt="Whole buffalo wings with tips on, grill marks, and green onion, on a white plate with celery sticks and a cup of ranch" src="https://cdn.sanity.io/images/0vbjaawm/production/97485890ea8f4659b4d04cf7db2971735da6b0b6-2400x1800.jpg?w=1400&auto=format">
+    </article>
+
+    <section class="place" aria-labelledby="sib-title">
+      <div class="siblings">
+        <h2 id="sib-title">Also tried at Steve O's</h2>
+        <ul class="sib-list">
+          <li class="sib"><img alt="" src="https://cdn.sanity.io/images/0vbjaawm/production/1f004f47ffbc1eb3e0a5f13016f048d7a29e3d70-2400x1800.jpg?w=200&h=200&fit=crop&auto=format"><div><h3><a class="stretch" href="#wing">Drums &amp; Flats Buffalo</a></h3><span class="sib__tag">#4 on the list</span></div><span class="grade">S-</span></li>
+          <li class="sib"><div class="wing-ph wing-ph--thumb" role="img" aria-label="No photo yet"><svg class="wing-ph__art" viewBox="0 0 120 120" aria-hidden="true" focusable="false"><g transform="rotate(-35 60 60)"><path d="M75 55C63 52 59 36 37 36C19 36 11 48 11 60C11 74 21 84 37 84C57 84 63 68 75 65L96 64.5C96 72 108 72 107 63C104 60.5 104 59.5 107 57C108 48 96 48 96 55.5Z"/></g></svg><span class="wing-ph__caption">No photo yet</span></div><div><h3><a class="stretch" href="#wing">Sweet and Spicy</a></h3><span class="sib__tag">Not buffalo</span></div><span class="grade">A+</span></li>
+          <li class="sib"><div class="wing-ph wing-ph--thumb" role="img" aria-label="No photo yet"><svg class="wing-ph__art" viewBox="0 0 120 120" aria-hidden="true" focusable="false"><g transform="rotate(-35 60 60)"><path d="M75 55C63 52 59 36 37 36C19 36 11 48 11 60C11 74 21 84 37 84C57 84 63 68 75 65L96 64.5C96 72 108 72 107 63C104 60.5 104 59.5 107 57C108 48 96 48 96 55.5Z"/></g></svg><span class="wing-ph__caption">No photo yet</span></div><div><h3><a class="stretch" href="#wing">Teriyaki</a></h3><span class="sib__tag">Not buffalo</span></div><span class="grade">A</span></li>
+        </ul>
+      </div>
+    </section>
+  </main>
+  <div data-footer></div>
+</div>
+
+<p class="screen-label"><span class="shell"><span>Combined · Wing page, only wing at its place</span><code>/wings/monte-carlo/house-asian-zing</code></span></p>
+<div class="screen" id="single">
+  <div data-header></div>
+  <main class="shell page">
+    <ol class="crumbs" aria-label="Breadcrumb"><li><a href="a-evolved.html?screen=list">Wings</a></li><li><a href="a-evolved.html?screen=location">Monte Carlo</a></li><li aria-current="page">House Asian Zing</li></ol>
+    <article class="hero">
+      <div>
+        <h1>House Asian Zing</h1>
+        <p class="hero__at">at <a href="a-evolved.html?screen=location">Monte Carlo</a>, 219 3rd Ave N, Minneapolis</p>
+        <div class="hero__facts">
+          <div class="stamp" role="img" aria-label="Grade A"><b>A</b></div>
+          <p class="hero__stats"><span>#8 of 13<a class="asterisk" href="#fn-monte-carlo" aria-label="Not buffalo, see note">*</a></span></p>
+          <p class="hero__last">Last visit May 15, 2026</p>
+        </div>
+        <div class="notes">
+          <p>They didn't have buffalo, but they were nice and solid. Crispy.</p>
+        </div>
+        <p class="footnote" id="fn-monte-carlo"><b aria-hidden="true">*</b> No buffalo at Monte Carlo, so this wing holds its spot on the list.</p>
+      </div>
+      <div class="wing-ph wing-ph--hero" role="img" aria-label="No photo yet"><svg class="wing-ph__art" viewBox="0 0 120 120" aria-hidden="true" focusable="false"><g transform="rotate(-35 60 60)"><path d="M75 55C63 52 59 36 37 36C19 36 11 48 11 60C11 74 21 84 37 84C57 84 63 68 75 65L96 64.5C96 72 108 72 107 63C104 60.5 104 59.5 107 57C108 48 96 48 96 55.5Z"/></g></svg><span class="wing-ph__caption">No photo yet</span></div>
+    </article>
+  </main>
+  <div data-footer></div>
+</div>
+
+<script src="mock.js"></script>
+</body>
+</html>
