@@ -16,7 +16,7 @@ const markup = `<!doctype html>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600&display=block"
+      href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Newsreader:opsz,wght@6..72,400..650&display=block"
       rel="stylesheet"
     />
     <style>
@@ -44,7 +44,7 @@ const markup = `<!doctype html>
         max-width: 15ch;
         font-family: 'Newsreader', Georgia, serif;
         font-size: 108px;
-        font-weight: 500;
+        font-weight: 650;
         line-height: 1.05;
         letter-spacing: -0.02em;
         color: #30272d;

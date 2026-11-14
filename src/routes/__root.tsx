@@ -16,12 +16,10 @@ import {
 import fontCss from '../fonts.css?url'
 import appCss from '../styles.css?url'
 
-// The two faces every page paints with before anything else. They are named
-// here rather than discovered from the stylesheet so the preload scanner can
-// start them on first byte; scripts/assert-static-output.mjs fails the build
-// if either URL stops matching what src/fonts.css actually declares.
+// The two faces every page paints first; Onest sits below the fold, so it is not preloaded.
+// scripts/assert-static-output.mjs fails the build if a URL stops matching src/fonts.css.
 const preloadedFonts = [
-  '/fonts/newsreader-v26-400-600-normal-latin.woff2',
+  '/fonts/newsreader-v26-400-650-normal-latin.woff2',
   '/fonts/dm-mono-v16-400-normal-latin.woff2',
 ]
 

@@ -250,8 +250,10 @@ cache partitioning means a shared Google cache hit was never available anyway.
 
 The generator collapses faces that share a family, style and subset with a
 byte-identical file into one `@font-face` declaring a weight _range_. Newsreader
-is variable, so Google serves the same 131 KB binary under three URLs for
-weights 400/500/600 - a page using two of them downloaded it twice.
+and Onest are variable, so Google serves one binary per subset under a URL for
+every weight - without the merge a page using two weights downloaded it twice.
+Newsreader ships 400 to 650 and Onest 400 to 600; `docs/brand.md` says which
+weight each role uses.
 
 Font filenames carry the family version Google publishes (`v16`, `v26`), so a
 font that actually changes lands at a new URL; that is what makes the
@@ -260,7 +262,8 @@ font that actually changes lands at a new URL; that is what makes the
 `src/routes/__root.tsx` links `src/fonts.css` from the document head rather than
 `@import`-ing it from `src/styles.css` - an `@import` hides it from the preload
 scanner, so the woff2 files cannot start until `styles.css` has been fetched and
-parsed - and preloads the two latin faces every page paints with.
+parsed - and preloads the two latin faces every page paints first (Newsreader and DM
+Mono; Onest only appears below the fold, so it is not preloaded).
 
 The build fails if any prerendered page mentions `fonts.googleapis.com` or
 `fonts.gstatic.com`, if more or fewer than one emitted CSS asset declares
@@ -269,7 +272,7 @@ output, if a shipped woff2 is referenced by no `@font-face`, if the latin faces
 exceed a 180 KB budget, or if any page fails to link the font stylesheet,
 preloads no font, preloads a URL no `@font-face` declares, or preloads without
 `crossorigin` (which makes the browser download the file twice). E2e tests prove
-the fonts are served as `font/woff2`, that both families reach
+the fonts are served as `font/woff2`, that the preloaded families reach
 `status: 'loaded'`, and that no request leaves for a Google host.
 
 ### Image loading priority
