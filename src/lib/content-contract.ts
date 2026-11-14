@@ -227,10 +227,13 @@ function isOnMainList(document: unknown) {
   )
 }
 
+/** S, A, B, C, D, F: the tier letters, best first. */
+const tierLetters = [...new Set(grades.map((grade) => grade.charAt(0)))]
+
 /**
- * The constitution's letter grade follows the ranking, and the wings page
- * groups the list under one heading per letter, so a letter that comes back
- * after a lower one would split its tier in two.
+ * The constitution's letter grade follows the ranking, so walking the main
+ * list best first, the tier letter may only stay the same or step down.
+ * Order within a letter is the Studio's to set.
  */
 function wingTierOrderViolations(
   collection: CollectionName,
@@ -243,14 +246,16 @@ function wingTierOrderViolations(
     .map((document) => readPath(document, 'grade'))
     .filter(isGrade)
     .map((grade) => grade.charAt(0))
-  const outOfOrder = letters.find(
+  const climb = letters.findIndex(
     (letter, index) =>
-      letter !== letters[index - 1] && letters.indexOf(letter) < index,
+      index > 0 &&
+      tierLetters.indexOf(letter) < tierLetters.indexOf(letters[index - 1]),
   )
-  if (!outOfOrder) return []
+  if (climb === -1) return []
 
+  const [above, below] = [letters[climb - 1], letters[climb]]
   return [
-    `wings ranks a ${outOfOrder} wing below a lower grade on the main list, so the ${outOfOrder} tier would split in two - drag it back among the other ${outOfOrder} wings in the Studio`,
+    `wings ranks a ${below} wing below a ${above} wing on the main list, but every ${below} ranks above every ${above} - drag it up among the other ${below} wings in the Studio`,
   ]
 }
 

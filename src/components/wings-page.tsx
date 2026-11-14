@@ -64,11 +64,12 @@ export function WingsPage({ wings }: { wings: WingReview[] }) {
                 </header>
                 <div className="wing-tier__body">
                   {tops.length ? (
-                    <ol className="wing-tops" role="list">
+                    <ol className="wing-tops" role="list" start={tops[0].rank}>
                       {tops.map((entry) => (
                         <WingTop
                           entry={entry}
                           key={entry.wing._id}
+                          listLength={entries.length}
                           priority={entry.rank === priorityRank}
                         />
                       ))}
@@ -81,7 +82,11 @@ export function WingsPage({ wings }: { wings: WingReview[] }) {
                       start={lines[0].rank}
                     >
                       {lines.map((entry) => (
-                        <WingLine entry={entry} key={entry.wing._id} />
+                        <WingLine
+                          entry={entry}
+                          key={entry.wing._id}
+                          listLength={entries.length}
+                        />
                       ))}
                     </ol>
                   ) : null}
@@ -115,13 +120,18 @@ export function WingsPage({ wings }: { wings: WingReview[] }) {
 
 function WingTop({
   entry: { wing, rank },
+  listLength,
   priority,
 }: {
   entry: MainListEntry
+  listLength: number
   priority: boolean
 }) {
   return (
-    <li className={rank === 1 ? 'wing-top wing-top--first' : 'wing-top'}>
+    <li
+      {...rankPosition(rank, listLength)}
+      className={rank === 1 ? 'wing-top wing-top--first' : 'wing-top'}
+    >
       <article>
         {wing.heroImage?.asset ? (
           <ContentImage
@@ -151,9 +161,15 @@ function WingTop({
   )
 }
 
-function WingLine({ entry: { wing, rank } }: { entry: MainListEntry }) {
+function WingLine({
+  entry: { wing, rank },
+  listLength,
+}: {
+  entry: MainListEntry
+  listLength: number
+}) {
   return (
-    <li className="wing-line">
+    <li {...rankPosition(rank, listLength)} className="wing-line">
       <span aria-hidden="true" className="wing-line__rank">
         {rank}
       </span>
@@ -167,6 +183,11 @@ function WingLine({ entry: { wing, rank } }: { entry: MainListEntry }) {
       <WingGrade className="wing-line__grade" wing={wing} />
     </li>
   )
+}
+
+/** Screen readers count items per <ol> and ignore start, so state the rank. */
+function rankPosition(rank: number, listLength: number) {
+  return { 'aria-posinset': rank, 'aria-setsize': listLength }
 }
 
 function WingLink({ wing }: { wing: WingReview }) {
@@ -213,9 +234,11 @@ function WingGrade({
 }) {
   return (
     <span className={className}>
-      <span className="visually-hidden">Grade: </span>
-      {tierLetter(wing)}
-      <span className="wing-grade__mod">{wing.grade?.slice(1)}</span>
+      <span className="visually-hidden">{`Grade: ${wing.grade}`}</span>
+      <span aria-hidden="true">
+        {tierLetter(wing)}
+        <span className="wing-grade__mod">{wing.grade?.slice(1)}</span>
+      </span>
     </span>
   )
 }

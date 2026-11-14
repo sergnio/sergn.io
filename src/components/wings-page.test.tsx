@@ -49,6 +49,29 @@ describe('the wings page', () => {
     expect(markup.match(/class="wing-line"/g)).toHaveLength(1)
   })
 
+  it('numbers each tier list from its first rank, podium cards included', () => {
+    const starts = [
+      ...markup.matchAll(
+        /<ol class="(wing-tops|wing-lines)"[^>]*start="(\d+)"/g,
+      ),
+    ].map(([, list, start]) => `${list} ${start}`)
+    expect(starts).toEqual(['wing-tops 1', 'wing-tops 3', 'wing-lines 4'])
+  })
+
+  it('states each rank to screen readers, which ignore an ol start', () => {
+    const positions = [
+      ...markup.matchAll(/<li aria-posinset="(\d+)" aria-setsize="(\d+)"/g),
+    ].map(([, rank, size]) => `${rank}/${size}`)
+    expect(positions).toEqual(['1/4', '2/4', '3/4', '4/4'])
+  })
+
+  it('reads each grade as one phrase', () => {
+    const labels = [
+      ...markup.matchAll(/<span class="visually-hidden">(Grade: [^<]+)</g),
+    ].map(([, label]) => label)
+    expect(labels).toEqual(['Grade: A+', 'Grade: A', 'Grade: B', 'Grade: C'])
+  })
+
   it('keeps wings off the main list off the page', () => {
     expect(markup).not.toContain('/wings/corner-bar-honey-hot')
     expect(markup).not.toContain('/wings/gas-station-case-wings')
@@ -71,7 +94,7 @@ describe('the wings page', () => {
   it('sets every grade modifier in its own slot, even when there is none', () => {
     const grades = [
       ...markup.matchAll(
-        /Grade: <\/span>(\w)<span class="wing-grade__mod">([+-]?)<\/span>/g,
+        /aria-hidden="true">(\w)<span class="wing-grade__mod">([+-]?)<\/span>/g,
       ),
     ].map(([, letter, modifier]) => letter + modifier)
     expect(grades).toEqual(['A+', 'A', 'B', 'C'])

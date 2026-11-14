@@ -1216,11 +1216,6 @@ figcaption {
   text-decoration: none;
 }
 
-/* 80% alpha, not opacity, so the asterisk is not buried under the stretched link. */
-:is(.wing-top__wing, .wing-line__wing) .wing-asterisk {
-  color: color-mix(in srgb, var(--highlight) 80%, transparent);
-}
-
 .wing-stretch::after {
   position: absolute;
   z-index: 1;
@@ -1385,7 +1380,7 @@ figcaption {
 .wing-top__wing {
   grid-column: 1 / -1;
   margin: 0;
-  color: color-mix(in srgb, var(--muted) 80%, transparent);
+  color: color-mix(in srgb, var(--muted) 92%, transparent);
   font-size: 1rem;
 }
 
@@ -1433,7 +1428,7 @@ figcaption {
 
 .wing-line__wing {
   margin: 0.1rem 0 0;
-  color: color-mix(in srgb, var(--muted) 80%, transparent);
+  color: color-mix(in srgb, var(--muted) 92%, transparent);
   font-size: 0.98rem;
 }
 
