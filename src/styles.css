@@ -1661,6 +1661,20 @@ figcaption {
   margin-bottom: 1.1em;
 }
 
+/* Embedded review images stay in the text column, even the wide and full ones. */
+.wing-hero__text {
+  min-width: 0;
+}
+
+.wing-hero__notes .rich-text__image {
+  width: 100%;
+  margin-left: 0;
+}
+
+.wing-hero__notes .rich-text__image figcaption {
+  margin-left: 0;
+}
+
 .wing-hero__footnote {
   display: flex;
   gap: 0.5rem;

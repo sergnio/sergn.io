@@ -94,6 +94,28 @@ test('a wing page puts its photo beside the text on desktop and above the name o
   }
 })
 
+test('embedded review images stay inside the wing text column', async ({
+  page,
+}) => {
+  for (const width of [390, 1280]) {
+    await page.setViewportSize({ width, height: 900 })
+    await page.goto('/wings/neighborhood-buffalo')
+    await page.evaluate(() => document.fonts.ready)
+
+    const notes = await bounds(page.locator('.wing-hero__notes'))
+    const photo = await bounds(page.locator('.wing-hero__photo'))
+    const figures = page.locator('.wing-hero__notes figure')
+    expect(await figures.count()).toBeGreaterThan(0)
+    for (const figure of await figures.all()) {
+      const image = await bounds(figure)
+      expect(image.left).toBe(notes.left)
+      expect(image.right).toBeLessThanOrEqual(notes.right)
+      if (width >= 896) expect(image.right).toBeLessThan(photo.left)
+      else expect(image.right).toBeLessThanOrEqual(width - 16)
+    }
+  }
+})
+
 test('a wing page shows the whole photo, never cropped', async ({ page }) => {
   await page.setViewportSize({ width: 1280, height: 900 })
   await page.goto('/wings/neighborhood-buffalo')
