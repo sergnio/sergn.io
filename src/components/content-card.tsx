@@ -69,7 +69,7 @@ export function ContentCard({
       </Link>
       <div className="content-card__body">
         {document.recommendationStatus === 'notRecommended' ? (
-          <p className="eyebrow eyebrow--not-recommended">Not recommended</p>
+          <p className="eyebrow">Not recommended</p>
         ) : (
           <p className="eyebrow">{labels[collection]}</p>
         )}

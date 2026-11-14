@@ -15,13 +15,7 @@ import {
 } from '#/lib/metadata'
 import fontCss from '../fonts.css?url'
 import appCss from '../styles.css?url'
-
-// The two faces every page paints first; Onest sits below the fold, so it is not preloaded.
-// scripts/assert-static-output.mjs fails the build if a URL stops matching src/fonts.css.
-const preloadedFonts = [
-  '/fonts/newsreader-v26-400-650-normal-latin.woff2',
-  '/fonts/dm-mono-v16-400-normal-latin.woff2',
-]
+import { everyPageFontPreloads } from '#/lib/font-preloads'
 
 export const Route = createRootRoute({
   head: () => ({
@@ -60,19 +54,9 @@ export const Route = createRootRoute({
         title: 'sergn.io blog',
         href: '/feed.xml',
       },
-      // Self-hosted from the site's own origin: a third-party font
-      // stylesheet costs two extra DNS + TLS handshakes and makes the woff2
-      // fetches wait on a cross-origin CSS response first.
-      ...preloadedFonts.map(
-        (href) =>
-          ({
-            rel: 'preload',
-            as: 'font',
-            type: 'font/woff2',
-            href,
-            crossOrigin: 'anonymous',
-          }) as const,
-      ),
+      // Self-hosted, so no third-party handshakes; the build fails if a preload
+      // stops matching src/fonts.css.
+      ...everyPageFontPreloads,
       // Linked here rather than @import-ed from styles.css: an @import makes
       // this request wait for styles.css to download and parse first, which
       // pushed the actual woff2 fetches behind two serial round trips.

@@ -7,6 +7,7 @@ export const Route = createFileRoute('/reubens/')({
   loader: () => getCollection({ data: { collection: 'reubens' } }),
   head: ({ loaderData }) => ({
     ...pageHead({
+      preloadSans: true,
       description: 'Reuben reviews with the sandwich details that matter.',
       path: '/reubens',
       title: collectionTitles.reubens,

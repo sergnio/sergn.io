@@ -557,8 +557,30 @@ for (const source of declaredFonts) {
 }
 
 // An unreferenced woff2 is dead weight in the deploy and a sign the generator
-// and the checked-in stylesheet have drifted apart.
-for (const file of await readdir(path.join(outputDirectory, 'fonts'))) {
+// and the checked-in stylesheet have drifted apart. Each family's OFL text ships beside it.
+const shippedFontFiles = await readdir(path.join(outputDirectory, 'fonts'))
+for (const file of shippedFontFiles) {
+  if (/^LICENSE-[a-z-]+\.txt$/.test(file)) {
+    const license = await readFile(
+      path.join(outputDirectory, 'fonts', file),
+      'utf8',
+    )
+    if (
+      !/^Copyright .+\n/.test(license) ||
+      !license.includes('SIL OPEN FONT LICENSE Version 1.1')
+    ) {
+      throw new Error(
+        `/fonts/${file} is not an OFL 1.1 text with a copyright line.`,
+      )
+    }
+    continue
+  }
+  const family = file.replace(/-v\d+-.*$/, '')
+  if (!shippedFontFiles.includes(`LICENSE-${family}.txt`)) {
+    throw new Error(
+      `/fonts/${file} ships without /fonts/LICENSE-${family}.txt.`,
+    )
+  }
   if (!declaredFonts.includes(`/fonts/${file}`)) {
     throw new Error(
       `/fonts/${file} is shipped but no @font-face references it. Re-run scripts/generate-fonts.mjs.`,

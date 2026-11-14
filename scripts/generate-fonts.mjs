@@ -91,7 +91,9 @@ const css = await (
 const faces = parseFaces(css)
 
 await mkdir(outputDir, { recursive: true })
-for (const stale of await readdir(outputDir).catch(() => [])) {
+const isFontLicense = (fileName) => /^LICENSE-[a-z-]+\.txt$/.test(fileName)
+const existingFiles = await readdir(outputDir).catch(() => [])
+for (const stale of existingFiles.filter((file) => !isFontLicense(file))) {
   await rm(join(outputDir, stale))
 }
 
@@ -172,5 +174,14 @@ await writeFile(
     filepath: cssPath,
   }),
 )
+
+// The OFL requires its text to travel with the font files, so a family without one cannot ship.
+for (const family of new Set(faces.map((face) => slug(face.family)))) {
+  if (!existingFiles.includes(`LICENSE-${family}.txt`)) {
+    throw new Error(
+      `public/fonts/LICENSE-${family}.txt is missing. Add the family's OFL text with its copyright line.`,
+    )
+  }
+}
 
 console.log(`\nWrote ${blocks.length} faces to ${cssPath}`)
