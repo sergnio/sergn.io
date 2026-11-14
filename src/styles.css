@@ -1199,20 +1199,6 @@ figcaption {
   line-height: 1.45;
 }
 
-/* Holds the place of the "All wings" toggle until #90 builds it. */
-.wings-slot {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  padding: 0.35rem 0.6rem;
-  color: #6a5a8a;
-  border: 1px dashed #a597c4;
-  border-radius: 0.25rem;
-  font-family: 'DM Mono', monospace;
-  font-size: 0.68rem;
-  line-height: 1.3;
-}
-
 .wing-asterisk {
   position: relative;
   z-index: 2;
