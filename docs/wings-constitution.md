@@ -7,7 +7,7 @@ The rules for how wings are judged, listed, and graded on [sergn.io/wings](https
 ### I. The wing comes first
 
 - A wing MUST be judged on eating it: juicy, crispy, tender, and not dry.
-- Size MUST be noted, but it counts against a wing only when it hurts the cooking (dry, rubbery, or undercooked inside). Big is fine.
+- Size MUST be noted when the wings are smaller or larger than normal. It counts against a wing only when it hurts the cooking (dry, rubbery, or undercooked inside). Big is fine.
 - The sauce MUST NOT carry a weak wing. A tasty, sugary sauce does not make up for a dry or soggy wing.
 
 ### II. Flavor decides, price breaks ties
@@ -49,4 +49,4 @@ Rationale: the list once mixed value with flavor, which misled readers ([#87](ht
 - Versioning: MAJOR when a rule is removed or redefined, MINOR when a rule or section is added or expanded, PATCH for wording only.
 - Every new or edited wing entry MUST be checked against these rules before publishing, and a rule change MUST be followed by a re-rank of affected entries.
 
-**Version**: 1.0.0 | **Ratified**: 2026-11-10 | **Last Amended**: 2026-11-10
+**Version**: 2.0.0 | **Ratified**: 2026-11-10 | **Last Amended**: 2026-11-14
