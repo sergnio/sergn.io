@@ -1616,13 +1616,8 @@ figcaption {
   grid-template-columns: auto minmax(0, 1fr);
 }
 
-.wing-facts:has(.wing-crown) {
-  grid-template-columns: auto auto minmax(0, 1fr);
-}
-
-.wing-facts .wing-crown {
-  grid-row: span 2;
-  margin-right: -0.5rem;
+.wing-stamp .wing-crown {
+  width: 2.6rem;
 }
 
 .wing-stamp {
