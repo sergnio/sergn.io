@@ -7,6 +7,7 @@
 - The public application is a statically prerendered TanStack Start site. See `README.md` for Sanity and Netlify configuration.
 - Every collection but the blog publishes as a ranking, best first. `src/lib/content-types.ts` names them and `src/lib/content-contract.ts` fails the build for a recommendation with no rank; the Studio's drag-and-drop list is what assigns one. A non-recommendation sits outside the ranking, so it carries no rank and owes only a title, a slug and the notes saying why.
 - Old slugs live on in each document's `previousSlugs`, which the build turns into 301s. Studio's Publish records them; a slug changed any other way (CLI, script) must append the old one itself.
+- Wing rules live in `docs/wings-constitution.md`, the source of truth. Any wings issue, PR, review, or content change must follow it and link it; flag conflicts rather than working around them.
 
 ## Maintaining this file
 

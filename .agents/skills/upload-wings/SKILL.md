@@ -11,6 +11,7 @@ Turn rough notes and a photo into a complete `wingReview` through the authentica
 
 - Resolve the repository root as `../../..` relative to this skill directory (resolve symlinks first). Run Sanity commands from its `studio/` directory.
 - Before authoring, read `AGENTS.md`, the hosting/content guidance in `README.md`, `studio/sanity.cli.ts`, `studio/schemaTypes/reviews.ts`, `studio/schemaTypes/location.ts`, `studio/schemaTypes/shared.ts`, and `src/lib/content-contract.ts`. These are authoritative if configuration or fields change.
+- Read `docs/wings-constitution.md` and follow it: one entry per flavor and wing type, the S-tier gate, and which wings belong on the main list. Ask Sergio before applying a grade or status it does not allow.
 - Read `~/.agents/VOICE.md` before editing prose in Sergio's voice. Preserve his opinions and phrasing; lightly clean up notes, never invent tasting experiences.
 - Confirm project and dataset from `studio/sanity.cli.ts`. Use explicit `--project-id` and `--dataset` flags on dataset commands. Current values are `0vbjaawm` and `production`.
 - Use `npx --no sanity --help` and per-command `--help` for the installed CLI syntax. Use its existing login, not a Studio browser session. Check authentication with `npx --no sanity api users/me` and project access with `npx --no sanity users list`.
