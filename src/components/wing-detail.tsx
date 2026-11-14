@@ -102,10 +102,15 @@ function WingFacts({
 
   return (
     <div className="wing-facts">
-      {rank === 1 ? <WingCrown /> : null}
       {grade ? (
-        <div aria-label={`Grade ${grade}`} className="wing-stamp" role="img">
-          <b>{grade}</b>
+        <div
+          aria-label={
+            rank === 1 ? `Grade ${grade}, the crown pick` : `Grade ${grade}`
+          }
+          className="wing-stamp"
+          role="img"
+        >
+          {rank === 1 ? <WingCrown /> : <b>{grade}</b>}
         </div>
       ) : null}
       {hasStats ? (
@@ -185,9 +190,11 @@ function PlaceAddress({ address, city }: { address?: string; city: string }) {
     <a
       className="wing-hero__address"
       href={`https://www.openstreetmap.org/search?query=${encodeURIComponent(query)}`}
+      rel="noopener noreferrer"
+      target="_blank"
     >
-      {query}
-      <span className="visually-hidden"> (opens a map)</span>
+      {query}{' '}
+      <span className="visually-hidden">(opens a map in a new tab)</span>
     </a>
   )
 }

@@ -91,7 +91,7 @@ test.describe('collection browsing flow', () => {
     await expect(page.getByText('at Neighborhood Tavern,')).toBeVisible()
     await expect(
       page.getByRole('link', {
-        name: '18 Tavern Row, Columbus (opens a map)',
+        name: '18 Tavern Row, Columbus (opens a map in a new tab)',
       }),
     ).toBeVisible()
     await expect(page.getByRole('img', { name: 'Grade A+' })).toBeVisible()
