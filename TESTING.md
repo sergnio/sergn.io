@@ -28,7 +28,7 @@ Tests MUST use the first query in this list that can identify the element:
 4. Alt text or title: `getByAltText`, `getByTitle`.
 5. Test id: `getByTestId`. Name it for what the thing is (`data-testid="wing-rank"`), never for how it looks.
 
-- Tests MUST narrow a search by chaining from a role or text query (`list.getByRole('listitem')`), not with CSS.
+- Tests MUST narrow a search from a role or text query, not with CSS. In Playwright, chain locators (`list.getByRole('listitem')`). In React Testing Library, use [`within`](https://testing-library.com/docs/dom-testing-library/api-within/) (`within(screen.getByRole('list', { name: 'Coffee, ranked best to worst' })).getByRole('listitem')`).
 - When an element has no role, name, or text a person could find it by, the markup SHOULD be fixed before a test id is added. That is usually an accessibility bug too.
 
 **Machine-read output is the exception.** When serialized output is the contract a crawler, browser, or feed reader consumes, tests MAY parse it directly. That covers `<head>` tags (`meta[name="description"]`, `link[rel="canonical"]`, JSON-LD), served HTML before hydration, `sitemap.xml`, `feed.xml`, `robots.txt`, headers, and redirect rules. Such tests MUST assert the attributes and values that matter, never formatting, attribute order, or unrelated markup.
@@ -39,7 +39,7 @@ Tests MUST use the first query in this list that can identify the element:
 - Tests MUST NOT reach into the DOM with `querySelector`, `evaluate`, or `getComputedStyle` to check something a query or web-first assertion (`toHaveText`, `toHaveAccessibleName`, `toBeVisible`) can check.
 - Tests MUST NOT mock this repo's own modules or the router. Render inside a real router and mock only true boundaries: outbound requests, the clock, and third-party resources.
 - Tests MUST NOT assert the text of a query or other source code. Run it, as `src/lib/sanity/queries.test.ts` does with `groq-js`, and assert the result.
-- Integration tests MUST render with React Testing Library and query the result with its screen queries, not regex over `renderToStaticMarkup` output.
+- Integration tests MUST render with React Testing Library and query the result with `screen` queries, scoped with `within` where needed, not regex over `renderToStaticMarkup` output.
 - Tests MUST work with DOM nodes, never component instances. They MUST NOT read or set a component's props, state, refs, or hook internals.
 - Tests MUST interact the way a person does: click, type, and press keys through `@testing-library/user-event` or Playwright. They MUST NOT call event handlers directly or use `fireEvent`.
 
