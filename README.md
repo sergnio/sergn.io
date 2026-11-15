@@ -263,9 +263,10 @@ font that actually changes lands at a new URL; that is what makes the
 `@import`-ing it from `src/styles.css` - an `@import` hides it from the preload
 scanner, so the woff2 files cannot start until `styles.css` has been fetched and
 parsed - and preloads the Newsreader and DM Mono latin faces every page
-paints first. Onest is preloaded only on the ranked lists and the 404 page,
-where it paints above the fold; elsewhere it arrives with `font-display: swap`,
-so a cold first visit can briefly show the fallback sans.
+paints first. Onest also paints above the fold on many pages (the mobile Menu
+button, wing place names), but only the ranked lists and the 404 page opt into
+preloading it; elsewhere it arrives with `font-display: swap`, so a cold first
+visit can briefly show the fallback sans.
 
 All three families are under the SIL Open Font License 1.1. Each family's
 license text, with its copyright line, is committed beside the files as
