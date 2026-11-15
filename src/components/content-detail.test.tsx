@@ -1,5 +1,7 @@
+// @vitest-environment jsdom
+import { cleanup, render, screen, within } from '@testing-library/react'
 import { renderToStaticMarkup } from 'react-dom/server'
-import { describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it } from 'vitest'
 import type {
   CollectionName,
   ContentDocument,
@@ -9,6 +11,8 @@ import { collectionNames } from '#/lib/content-types'
 import { getFixtureCollection, getFixtureDocument } from '#/lib/fixtures'
 import { formatDate } from '#/lib/formatters'
 import { ContentDetail } from './content-detail'
+
+afterEach(cleanup)
 
 type DetailDocument = Exclude<ContentDocument, WingReview>
 
@@ -223,18 +227,30 @@ describe('review facts', () => {
   })
 
   it('links a coffee title to its product page', () => {
-    const markup = markupFor(requireDocument('coffee', 'colombia-perky'))
+    const coffee = requireDocument('coffee', 'colombia-perky')
+    render(<ContentDetail document={coffee} />)
 
-    expect(markup).toContain(
-      '<h1><a href="https://avocoffeeroasters.example.com">Colombia Perky</a></h1>',
+    const heading = screen.getByRole('heading', { level: 1 })
+    expect(
+      within(heading)
+        .getByRole('link', { name: 'Colombia Perky' })
+        .getAttribute('href'),
+    ).toBe('https://avocoffeeroasters.example.com')
+    expect(markupFor(coffee)).toContain(
+      '<dt>Bought from</dt><dd>Avo Coffee Roasters</dd>',
     )
-    expect(markup).toContain('<dt>Bought from</dt><dd>Avo Coffee Roasters</dd>')
   })
 
   it('leaves a title without a product page unlinked', () => {
-    const markup = markupFor(requireDocument('coffee', 'ethiopia-direct-trade'))
+    render(
+      <ContentDetail
+        document={requireDocument('coffee', 'ethiopia-direct-trade')}
+      />,
+    )
 
-    expect(markup).toMatch(/<h1>[^<]+<\/h1>/)
+    const heading = screen.getByRole('heading', { level: 1 })
+    expect(heading.textContent).toBe('Ethiopia Direct Trade')
+    expect(within(heading).queryByRole('link')).toBeNull()
   })
 
   it('drops a fact row rather than printing an empty term', () => {

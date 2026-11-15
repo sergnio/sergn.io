@@ -2,6 +2,7 @@ import { Link } from '@tanstack/react-router'
 import { cardDate, cardGrade, cardImage, cardSummary } from '#/lib/card-fields'
 import type { CollectionName, ContentDocument } from '#/lib/content-types'
 import { formatDate } from '#/lib/formatters'
+import { morph } from '#/lib/morph'
 import { ContentCard } from './content-card'
 
 /**
@@ -90,7 +91,11 @@ function RankedRow({ collection, document, rank }: RankedEntryProps) {
       </p>
       <div className="ranked-row__body">
         <h3>
-          <Link params={{ slug: document.slug }} to={`/${collection}/$slug`}>
+          <Link
+            params={{ slug: document.slug }}
+            style={morph('title', document)}
+            to={`/${collection}/$slug`}
+          >
             {document.title}
           </Link>
         </h3>

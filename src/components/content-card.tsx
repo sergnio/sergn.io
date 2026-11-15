@@ -2,6 +2,7 @@ import { Link } from '@tanstack/react-router'
 import { cardDate, cardGrade, cardImage, cardSummary } from '#/lib/card-fields'
 import type { CollectionName, ContentDocument } from '#/lib/content-types'
 import { formatDate } from '#/lib/formatters'
+import { morph } from '#/lib/morph'
 import { ContentImage } from './content-image'
 
 type ContentCardProps = {
@@ -60,6 +61,7 @@ export function ContentCard({
           image={cardImage(document)}
           priority={priority}
           sizes="(min-width: 720px) 33vw, 100vw"
+          style={morph('photo', document)}
         />
         {!cardImage(document) ? (
           <div aria-hidden="true" className="content-card__placeholder">
@@ -74,7 +76,11 @@ export function ContentCard({
           <p className="eyebrow">{labels[collection]}</p>
         )}
         <Heading>
-          <Link params={{ slug: document.slug }} to={`/${collection}/$slug`}>
+          <Link
+            params={{ slug: document.slug }}
+            style={morph('title', document)}
+            to={`/${collection}/$slug`}
+          >
             {document.title}
           </Link>
         </Heading>

@@ -21,6 +21,7 @@ import {
   formatGrade,
   formatVisits,
 } from '#/lib/formatters'
+import { morph } from '#/lib/morph'
 import { ImageFigure } from './content-image'
 import { RichText } from './rich-text'
 
@@ -250,11 +251,13 @@ export function ContentDetail({ document }: ContentDetailProps) {
         <header className="detail-hero__copy">
           <p className="eyebrow">{detailLabel(document)}</p>
           <h1>
-            {productUrl(document) ? (
-              <a href={productUrl(document)}>{document.title}</a>
-            ) : (
-              document.title
-            )}
+            <span style={morph('title', document)}>
+              {productUrl(document) ? (
+                <a href={productUrl(document)}>{document.title}</a>
+              ) : (
+                document.title
+              )}
+            </span>
           </h1>
           {document.recommendationStatus === 'notRecommended' ? (
             <p className="detail-callout">Sergio does not recommend this.</p>
@@ -272,6 +275,7 @@ export function ContentDetail({ document }: ContentDetailProps) {
           image={image}
           priority
           sizes="(min-width: 900px) 50vw, 100vw"
+          style={morph('photo', document)}
         />
         {document._type !== 'post' && document.notes?.length ? (
           <div className="detail-hero__notes">

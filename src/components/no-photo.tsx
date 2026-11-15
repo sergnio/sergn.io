@@ -1,18 +1,26 @@
+import type { CSSProperties } from 'react'
+
 /** The "No photo yet" drumette from the design's placeholder-spec.md. */
 // `decorative` hides it where the card around it already names the wing.
 export function NoPhoto({
   className,
   decorative = false,
+  style,
 }: {
   className?: string
   decorative?: boolean
+  style?: CSSProperties
 }) {
   const a11y = decorative
     ? { 'aria-hidden': true }
     : { 'aria-label': 'No photo yet', role: 'img' }
 
   return (
-    <div className={className ? `wing-ph ${className}` : 'wing-ph'} {...a11y}>
+    <div
+      className={className ? `wing-ph ${className}` : 'wing-ph'}
+      {...a11y}
+      style={style}
+    >
       <svg
         aria-hidden="true"
         className="wing-ph__art"
