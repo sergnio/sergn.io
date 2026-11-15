@@ -2,7 +2,6 @@
 // back to when its content has no image of its own. Kept as a script so the
 // committed PNG has a readable source of truth rather than being an opaque
 // binary. Run with: node scripts/generate-og-image.mjs
-import { readFile } from 'node:fs/promises'
 import path from 'node:path'
 import { chromium } from '@playwright/test'
 
@@ -14,7 +13,12 @@ const markup = `<!doctype html>
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <link href="/fonts.css" rel="stylesheet" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Newsreader:opsz,wght@6..72,400..650&display=block"
+      rel="stylesheet"
+    />
     <style>
       * { box-sizing: border-box; margin: 0; }
       body {
@@ -65,23 +69,7 @@ const page = await browser.newPage({
   viewport: { width, height },
   deviceScaleFactor: 1,
 })
-// Serve the page and the site's own committed fonts from a private origin, so nothing is fetched.
-const origin = 'https://og-image.invalid'
-await page.route('**/*', async (route) => {
-  const { pathname } = new URL(route.request().url())
-  if (!route.request().url().startsWith(origin)) return route.abort()
-  if (pathname === '/')
-    return route.fulfill({ body: markup, contentType: 'text/html' })
-  const file =
-    pathname === '/fonts.css'
-      ? path.join(process.cwd(), 'src', 'fonts.css')
-      : path.join(process.cwd(), 'public', 'fonts', path.basename(pathname))
-  return route.fulfill({
-    body: await readFile(file),
-    contentType: pathname.endsWith('.css') ? 'text/css' : 'font/woff2',
-  })
-})
-await page.goto(`${origin}/`, { waitUntil: 'networkidle' })
+await page.setContent(markup, { waitUntil: 'networkidle' })
 await page.evaluate(() => document.fonts.ready)
 await page.screenshot({ path: output })
 await browser.close()
