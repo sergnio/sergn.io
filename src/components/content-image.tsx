@@ -1,3 +1,4 @@
+import type { CSSProperties } from 'react'
 import type { SanityImage } from '#/lib/content-types'
 import { imageDimensions, imageSrcSet, imageUrl } from '#/lib/sanity/image'
 
@@ -11,12 +12,14 @@ type ContentImageProps = {
    * one image per page should carry it, or the priority means nothing.
    */
   priority?: boolean
+  style?: CSSProperties
 }
 
 export function ContentImage({
   image,
   sizes,
   priority = false,
+  style,
 }: ContentImageProps) {
   const source = imageUrl(image, 800)
   const srcSet = imageSrcSet(image)
@@ -35,6 +38,7 @@ export function ContentImage({
       sizes={sizes}
       src={source}
       srcSet={srcSet}
+      style={style}
       width={dimensions?.width}
     />
   )
@@ -50,12 +54,18 @@ export function ImageFigure({
   image,
   priority,
   sizes,
+  style,
 }: ContentImageProps & { className?: string }) {
   if (!image) return null
 
   return (
     <figure className={className}>
-      <ContentImage image={image} priority={priority} sizes={sizes} />
+      <ContentImage
+        image={image}
+        priority={priority}
+        sizes={sizes}
+        style={style}
+      />
       {image.caption || image.credit ? (
         <figcaption>
           {image.caption}

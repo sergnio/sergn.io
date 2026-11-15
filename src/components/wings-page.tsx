@@ -2,6 +2,7 @@ import { Link } from '@tanstack/react-router'
 import { useEffect, useRef } from 'react'
 import type { WingReview } from '#/lib/content-types'
 import { formatDate, formatVisits } from '#/lib/formatters'
+import { morph } from '#/lib/morph'
 import type { MainListEntry } from '#/lib/wings'
 import {
   mainList,
@@ -143,9 +144,10 @@ function WingTop({
             image={wing.heroImage}
             priority={priority}
             sizes={`(min-width: 42rem) 33vw, ${rank === 1 ? 100 : 50}vw`}
+            style={morph('photo', wing)}
           />
         ) : (
-          <NoPhoto decorative />
+          <NoPhoto decorative style={morph('photo', wing)} />
         )}
         <div className="wing-top__body">
           <span aria-hidden="true" className="wing-top__rank">
@@ -229,6 +231,7 @@ function WingLink({ wing }: { wing: WingReview }) {
     <Link
       className="wing-stretch"
       params={{ slug: wing.slug }}
+      style={morph('title', wing)}
       to="/wings/$slug"
     >
       {wing.location.name}

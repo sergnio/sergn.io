@@ -2,6 +2,7 @@ import { Link } from '@tanstack/react-router'
 import type { WingReview } from '#/lib/content-types'
 import { isGrade } from '#/lib/content-types'
 import { formatDate, formatVisits } from '#/lib/formatters'
+import { morph } from '#/lib/morph'
 import { imageUrl } from '#/lib/sanity/image'
 import type { WingPageData, WingStanding } from '#/lib/wings'
 import { wingName } from '#/lib/wings'
@@ -38,15 +39,19 @@ export function WingDetail({ wing, rank, listLength, siblings }: WingPageData) {
             image={wing.heroImage}
             priority
             sizes="(min-width: 56rem) 36rem, calc(100vw - 2rem)"
+            style={morph('photo', wing)}
           />
         ) : (
-          <NoPhoto className="wing-ph--hero" />
+          <NoPhoto className="wing-ph--hero" style={morph('photo', wing)} />
         )}
         <div className="wing-hero__text">
           <h1>{name}</h1>
           <p className="wing-hero__at">
-            at <span className="wing-hero__place">{place.name}</span>,{' '}
-            <PlaceAddress address={place.address} city={place.city} />
+            at{' '}
+            <span className="wing-hero__place" style={morph('title', wing)}>
+              {place.name}
+            </span>
+            , <PlaceAddress address={place.address} city={place.city} />
           </p>
           {wing.recommendationStatus === 'notRecommended' ? (
             <p className="detail-callout">Sergio does not recommend this.</p>

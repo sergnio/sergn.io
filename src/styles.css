@@ -1924,3 +1924,74 @@ figcaption {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
+
+/* Page transitions (#115): the router runs every navigation as a view
+   transition, typed "forward" or "back". */
+.site-header {
+  view-transition-name: site-header;
+}
+
+::view-transition-group(*) {
+  animation-duration: 260ms;
+  animation-timing-function: cubic-bezier(0.2, 0, 0, 1);
+}
+
+::view-transition-old(site-header) {
+  display: none;
+}
+
+::view-transition-new(site-header) {
+  animation: none;
+}
+
+:root {
+  --page-shift: 1rem;
+}
+
+:root:active-view-transition-type(back) {
+  --page-shift: -1rem;
+}
+
+/* An entry with no partner on the other page moves with the page around it. */
+::view-transition-old(root),
+::view-transition-old(*):only-child {
+  animation: page-leave 160ms ease-in both;
+}
+
+::view-transition-new(root),
+::view-transition-new(*):only-child {
+  animation: page-enter 240ms cubic-bezier(0.2, 0, 0, 1) 60ms both;
+}
+
+@keyframes page-leave {
+  to {
+    opacity: 0;
+    transform: translateX(calc(var(--page-shift) * -1));
+  }
+}
+
+@keyframes page-enter {
+  from {
+    opacity: 0;
+    transform: translateX(var(--page-shift));
+  }
+}
+
+::view-transition-group(.photo) {
+  overflow: hidden;
+  border-radius: var(--radius-md);
+}
+
+::view-transition-old(.photo),
+::view-transition-new(.photo) {
+  height: 100%;
+  object-fit: cover;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
+}
