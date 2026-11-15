@@ -13,7 +13,7 @@ export const everyPageFontPreloads = [
   '/fonts/dm-mono-v16-400-normal-latin.woff2',
 ].map(fontPreload)
 
-/** Onest paints above the fold only on ranked lists and the 404 page, so only they preload it. */
+/** Onest is above the fold on many pages (the mobile Menu, wing place names); the ranked lists and 404 opt into preloading it. */
 export const sansFontPreload = fontPreload(
   '/fonts/onest-v11-400-600-normal-latin.woff2',
 )
