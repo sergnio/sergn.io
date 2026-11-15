@@ -1,10 +1,15 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { CollectionPage } from '#/components/collection-page'
 import { getCollection } from '#/lib/content.functions'
+import { collectionFirstScreen, imagesReady } from '#/lib/page-images'
 import { collectionScripts, collectionTitles, pageHead } from '#/lib/metadata'
 
 export const Route = createFileRoute('/syrup/')({
-  loader: () => getCollection({ data: { collection: 'syrup' } }),
+  loader: async () => {
+    const documents = await getCollection({ data: { collection: 'syrup' } })
+    await imagesReady(collectionFirstScreen(documents))
+    return documents
+  },
   head: ({ loaderData }) => ({
     ...pageHead({
       preloadSans: true,

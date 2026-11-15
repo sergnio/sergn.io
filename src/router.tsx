@@ -6,7 +6,12 @@ export function getRouter() {
     routeTree,
     scrollRestoration: true,
     defaultPreload: 'intent',
-    defaultPreloadStaleTime: 0,
+    // Loader data is prerendered at build time and cannot change until the
+    // next deploy, so a session loads each page's data once and keeps it.
+    defaultStaleTime: Infinity,
+    defaultPreloadStaleTime: Infinity,
+    defaultGcTime: Infinity,
+    defaultPreloadGcTime: Infinity,
   })
 }
 

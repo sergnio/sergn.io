@@ -5,16 +5,11 @@ import type {
   PostBodyContent,
 } from '#/lib/content-types'
 import { classifyLinkHref } from '#/lib/links'
+import { imageSizes } from '#/lib/page-images'
 import { ImageFigure } from './content-image'
 
 type RichTextProps = {
   value?: PortableTextContent | PostBodyContent
-}
-
-const imageSizesByDisplay: Record<ImageDisplay, string> = {
-  inline: '(min-width: 768px) 48rem, 100vw',
-  wide: '(min-width: 1100px) 64rem, 100vw',
-  full: '100vw',
 }
 
 export function RichText({ value }: RichTextProps) {
@@ -75,7 +70,7 @@ export function RichText({ value }: RichTextProps) {
                 <ImageFigure
                   className={`rich-text__image rich-text__image--${display}`}
                   image={image}
-                  sizes={imageSizesByDisplay[display]}
+                  sizes={imageSizes.richText[display]}
                 />
               )
             },

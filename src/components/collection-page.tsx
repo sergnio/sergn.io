@@ -1,8 +1,8 @@
-import { cardImage } from '#/lib/card-fields'
+import { cardImage, podiumSize } from '#/lib/card-fields'
 import type { CollectionName, ContentDocument } from '#/lib/content-types'
 import { isRankedCollection } from '#/lib/content-types'
 import { ContentCard } from './content-card'
-import { podiumSize, RankedCollection } from './ranked-collection'
+import { RankedCollection } from './ranked-collection'
 
 type CollectionPageProps = {
   collection: CollectionName

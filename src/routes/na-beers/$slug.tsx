@@ -2,6 +2,7 @@ import { createFileRoute, notFound } from '@tanstack/react-router'
 import { ContentDetail } from '#/components/content-detail'
 import { getDocument } from '#/lib/content.functions'
 import { detailHead } from '#/lib/metadata'
+import { detailFirstScreen, imagesReady } from '#/lib/page-images'
 
 export const Route = createFileRoute('/na-beers/$slug')({
   loader: async ({ params }) => {
@@ -9,6 +10,7 @@ export const Route = createFileRoute('/na-beers/$slug')({
       data: { collection: 'na-beers', slug: params.slug },
     })
     if (!document || document._type !== 'naBeer') throw notFound()
+    await imagesReady(detailFirstScreen(document))
     return document
   },
   head: ({ loaderData }) =>
