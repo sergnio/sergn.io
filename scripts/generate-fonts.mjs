@@ -1,35 +1,39 @@
 #!/usr/bin/env node
-// Writes public/fonts/ and src/fonts.css offline from the pinned Fontsource packages.
-// Why and how to refresh: "Fonts" in README.md.
-import { mkdir, readFile, readdir, rm, writeFile } from 'node:fs/promises'
-import { createRequire } from 'node:module'
+/**
+ * Mirrors the Google Fonts the site uses into `public/fonts/` and writes the
+ * matching `src/fonts.css`.
+ *
+ * The site links its own copy rather than fonts.googleapis.com: a third-party
+ * stylesheet puts two extra DNS + TLS handshakes and a serial round trip
+ * (HTML -> googleapis CSS -> gstatic woff2) on the critical render path, and
+ * browser cache partitioning means the visitor never gets a shared-cache hit
+ * for it anyway. Self-hosting also lets the CSP drop both Google origins and
+ * keeps reader IP addresses off a third party.
+ *
+ * Filenames carry the family version Google publishes (`v16`, `v26`), so the
+ * URL changes whenever the font binary does - that is what makes the
+ * immutable cache header in netlify.toml safe.
+ *
+ * Run `node scripts/generate-fonts.mjs` to refresh; commit the result.
+ */
+import { createHash } from 'node:crypto'
+import { mkdir, readdir, rm, writeFile } from 'node:fs/promises'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { format, resolveConfig } from 'prettier'
-import wawoff2 from 'wawoff2'
 
-const require = createRequire(import.meta.url)
 const root = join(dirname(fileURLToPath(import.meta.url)), '..')
 const outputDir = join(root, 'public', 'fonts')
 const cssPath = join(root, 'src', 'fonts.css')
 
-// Exactly the families and weights the stylesheet asks for. A variable family
-// ships one file per subset covering `weight`; a static family one per weight.
-const families = [
-  { family: 'DM Mono', package: '@fontsource/dm-mono', weights: [400, 500] },
-  {
-    family: 'Newsreader',
-    package: '@fontsource-variable/newsreader',
-    axes: 'opsz',
-    weight: '400 650',
-  },
-  {
-    family: 'Onest',
-    package: '@fontsource-variable/onest',
-    axes: 'wght',
-    weight: '400 600',
-  },
-]
+// Exactly the families, weights and axes the stylesheet asks for.
+const googleCssUrl =
+  'https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Newsreader:opsz,wght@6..72,400..650&family=Onest:wght@400..600&display=swap'
+
+// Google serves woff2 only to browsers that support it; an unrecognised
+// user agent gets ttf, which is roughly twice the bytes.
+const browserUserAgent =
+  'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
 
 const slug = (value) =>
   value
@@ -37,81 +41,54 @@ const slug = (value) =>
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-|-$/g, '')
 
-const packageFile = (name, file) =>
-  join(dirname(require.resolve(`${name}/package.json`)), file)
-
-const harfbuzz = (
-  await WebAssembly.instantiate(
-    await readFile(require.resolve('harfbuzzjs/dist/harfbuzz-subset.wasm')),
-  )
-).instance.exports
-const HB_SUBSET_FLAGS_NO_HINTING = 0x1
-const HB_MEMORY_MODE_READONLY = 1
-
-/** Drops TrueType hinting and keeps everything else, as Google serves it. */
-async function withoutHinting(woff2) {
-  const sfnt = await wawoff2.decompress(woff2)
-  const sfntPointer = harfbuzz.malloc(sfnt.length)
-  new Uint8Array(harfbuzz.memory.buffer).set(sfnt, sfntPointer)
-  const blob = harfbuzz.hb_blob_create(
-    sfntPointer,
-    sfnt.length,
-    HB_MEMORY_MODE_READONLY,
-    0,
-    0,
-  )
-  const face = harfbuzz.hb_face_create(blob, 0)
-  const input = harfbuzz.hb_subset_input_create_or_fail()
-  harfbuzz.hb_subset_input_keep_everything(input)
-  harfbuzz.hb_subset_input_set_flags(
-    input,
-    harfbuzz.hb_subset_input_get_flags(input) | HB_SUBSET_FLAGS_NO_HINTING,
-  )
-  const subset = harfbuzz.hb_subset_or_fail(face, input)
-  if (!subset) throw new Error('HarfBuzz could not drop the hinting.')
-  const subsetBlob = harfbuzz.hb_face_reference_blob(subset)
-  const sfntOut = new Uint8Array(
-    harfbuzz.memory.buffer,
-    harfbuzz.hb_blob_get_data(subsetBlob, 0),
-    harfbuzz.hb_blob_get_length(subsetBlob),
-  ).slice()
-  harfbuzz.hb_blob_destroy(subsetBlob)
-  harfbuzz.hb_face_destroy?.(subset)
-  harfbuzz.hb_subset_input_destroy(input)
-  harfbuzz.hb_face_destroy?.(face)
-  harfbuzz.hb_blob_destroy(blob)
-  harfbuzz.free(sfntPointer)
-  return Buffer.from(await wawoff2.compress(sfntOut))
+async function fetchOk(url, init) {
+  const response = await fetch(url, init)
+  if (!response.ok) {
+    throw new Error(`GET ${url} failed with ${response.status}`)
+  }
+  return response
 }
 
-/** One face per subset (and per weight for a static family), in Google's order. */
-async function facesOf(source) {
-  const metadata = JSON.parse(
-    await readFile(packageFile(source.package, 'metadata.json'), 'utf8'),
-  )
-  const unicodeRanges = JSON.parse(
-    await readFile(packageFile(source.package, 'unicode.json'), 'utf8'),
-  )
-  const variants = source.axes
-    ? [{ weight: source.weight, file: `${source.axes}-normal` }]
-    : source.weights.map((weight) => ({
-        weight: `${weight}`,
-        file: `${weight}-normal`,
-      }))
-  return variants.flatMap((variant) =>
-    Object.entries(unicodeRanges).map(([subset, unicodeRange]) => ({
-      family: source.family,
-      version: metadata.version,
-      weight: variant.weight,
+/** Splits the Google stylesheet into one record per @font-face block. */
+function parseFaces(css) {
+  const faces = []
+  const blockPattern = /\/\*\s*([\w-]+)\s*\*\/\s*@font-face\s*\{([^}]*)\}/g
+  for (const [, subset, body] of css.matchAll(blockPattern)) {
+    const field = (name) => {
+      const match = body.match(new RegExp(`${name}:\\s*([^;]+);`))
+      if (!match) throw new Error(`@font-face block has no ${name}: ${body}`)
+      return match[1].trim()
+    }
+    const url = field('src').match(/url\((https:\/\/[^)]+)\)/)?.[1]
+    if (!url) throw new Error(`@font-face block has no woff2 url: ${body}`)
+    faces.push({
+      family: field('font-family').replace(/['"]/g, ''),
+      style: field('font-style'),
+      weight: field('font-weight'),
+      display: field('font-display'),
+      unicodeRange: field('unicode-range'),
       subset,
-      unicodeRange,
-      source: packageFile(
-        source.package,
-        `files/${metadata.id}-${subset}-${variant.file}.woff2`,
-      ),
-    })),
-  )
+      url,
+    })
+  }
+  if (faces.length === 0) throw new Error('No @font-face blocks found.')
+  return faces
 }
+
+/** `.../s/newsreader/v26/cY9A...woff2` -> `v26`. */
+function familyVersion(url) {
+  const version = url.match(/\/s\/[^/]+\/(v\d+)\//)?.[1]
+  if (!version) throw new Error(`Cannot read a family version from ${url}`)
+  return version
+}
+
+const css = await (
+  await fetchOk(googleCssUrl, {
+    headers: { 'user-agent': browserUserAgent },
+  })
+).text()
+
+const faces = parseFaces(css)
 
 await mkdir(outputDir, { recursive: true })
 const isFontLicense = (fileName) => /^LICENSE-[a-z-]+\.txt$/.test(fileName)
@@ -120,31 +97,69 @@ for (const stale of existingFiles.filter((file) => !isFontLicense(file))) {
   await rm(join(outputDir, stale))
 }
 
+/**
+ * Google emits one @font-face per requested weight even for a variable font,
+ * pointing each at a byte-identical file under a different URL - so a page
+ * using Newsreader 400 and 600 downloads the same 131 KB binary twice. Faces
+ * that share a family, style, subset and file content collapse into a single
+ * face declaring the weight range the one file already covers.
+ */
+function groupFaces(parsed) {
+  const groups = new Map()
+  for (const face of parsed) {
+    const key = [face.family, face.style, face.subset, face.digest].join('|')
+    const existing = groups.get(key)
+    // A weight is a single value (`400`) or, for a requested range, `400 650`.
+    const weights = face.weight.split(' ').map(Number)
+    if (existing) existing.weights.push(...weights)
+    else groups.set(key, { ...face, weights })
+  }
+  return [...groups.values()].map((group) => {
+    const weights = [...group.weights].sort((a, b) => a - b)
+    const first = weights[0]
+    const last = weights[weights.length - 1]
+    return {
+      ...group,
+      weight: first === last ? `${first}` : `${first} ${last}`,
+    }
+  })
+}
+
+const downloads = await Promise.all(
+  faces.map(async (face) => {
+    const bytes = Buffer.from(await (await fetchOk(face.url)).arrayBuffer())
+    return {
+      ...face,
+      bytes,
+      digest: createHash('sha256').update(bytes).digest('hex'),
+    }
+  }),
+)
+
 const blocks = []
-for (const face of (await Promise.all(families.map(facesOf))).flat()) {
-  const bytes = await withoutHinting(await readFile(face.source))
-  const fileName = `${slug(face.family)}-${face.version}-${face.weight.replace(' ', '-')}-normal-${face.subset}.woff2`
-  await writeFile(join(outputDir, fileName), bytes)
+for (const face of groupFaces(downloads)) {
+  const fileName = `${slug(face.family)}-${familyVersion(face.url)}-${face.weight.replace(' ', '-')}-${face.style}-${face.subset}.woff2`
+  await writeFile(join(outputDir, fileName), face.bytes)
   blocks.push(
     [
-      `/* ${face.family} ${face.weight} normal - ${face.subset} */`,
+      `/* ${face.family} ${face.weight} ${face.style} - ${face.subset} */`,
       `@font-face {`,
       `  font-family: '${face.family}';`,
-      `  font-style: normal;`,
+      `  font-style: ${face.style};`,
       `  font-weight: ${face.weight};`,
-      `  font-display: swap;`,
+      `  font-display: ${face.display};`,
       `  src: url('/fonts/${fileName}') format('woff2');`,
-      `  unicode-range: ${face.unicodeRange.replaceAll(',', ', ')};`,
+      `  unicode-range: ${face.unicodeRange};`,
       `}`,
     ].join('\n'),
   )
-  console.log(`${fileName} (${bytes.length} bytes)`)
+  console.log(`${fileName} (${face.bytes.length} bytes)`)
 }
 
 const stylesheet = [
   '/*',
-  ' * Generated by scripts/generate-fonts.mjs from the pinned Fontsource packages.',
-  ' * Do not edit by hand: change the families in that script and re-run it.',
+  ' * Generated by scripts/generate-fonts.mjs from the Google Fonts CSS API.',
+  ' * Do not edit by hand: change the request in that script and re-run it.',
   ' * The woff2 files live in public/fonts/ so these URLs stay stable and',
   ' * predictable enough to preload from the document head.',
   ' */',
@@ -161,10 +176,10 @@ await writeFile(
 )
 
 // The OFL requires its text to travel with the font files, so a family without one cannot ship.
-for (const { family } of families) {
-  if (!existingFiles.includes(`LICENSE-${slug(family)}.txt`)) {
+for (const family of new Set(faces.map((face) => slug(face.family)))) {
+  if (!existingFiles.includes(`LICENSE-${family}.txt`)) {
     throw new Error(
-      `public/fonts/LICENSE-${slug(family)}.txt is missing. Add the family's OFL text with its copyright line.`,
+      `public/fonts/LICENSE-${family}.txt is missing. Add the family's OFL text with its copyright line.`,
     )
   }
 }

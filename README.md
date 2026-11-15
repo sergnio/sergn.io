@@ -240,31 +240,24 @@ pass against a build of the live empty dataset as well as the fixtures.
 
 ### Fonts
 
-Web fonts are self-hosted: visitors only ever download them from this origin.
-`scripts/generate-fonts.mjs` writes `public/fonts/` and `src/fonts.css` from
-pinned npm dev dependencies (`@fontsource/dm-mono`,
-`@fontsource-variable/newsreader` with its `opsz` axis, and
-`@fontsource-variable/onest`), so regenerating needs no network either. Both
-outputs are committed, and re-running the script is the only supported way to
-change them; to update a font, bump its package version and re-run.
+Web fonts are self-hosted. `scripts/generate-fonts.mjs` mirrors the Google Fonts
+CSS API into `public/fonts/` and writes `src/fonts.css`; both are committed, and
+re-running the script is the only supported way to change them. Serving them
+from this origin removes two DNS + TLS handshakes and a serial round trip from
+the critical path (`HTML` -> googleapis CSS -> gstatic woff2), lets the CSP drop
+both Google origins, and keeps reader IP addresses off a third party. Browser
+cache partitioning means a shared Google cache hit was never available anyway.
 
-Fontsource repackages each family's Google Fonts release with the same version,
-glyphs, axes and subsets, but keeps TrueType hinting that Google strips for
-modern browsers. The generator drops it with HarfBuzz's subsetter (`harfbuzzjs`,
-keeping every glyph, feature and axis) and re-encodes with Google's woff2
-encoder (`wawoff2`), which brings the files back to Google's sizes; without that
-step DM Mono would roughly double and blow the latin font budget.
+The generator collapses faces that share a family, style and subset with a
+byte-identical file into one `@font-face` declaring a weight _range_. Newsreader
+and Onest are variable, so Google serves one binary per subset under a URL for
+every weight - without the merge a page using two weights downloaded it twice.
+Newsreader ships 400 to 650 and Onest 400 to 600; `docs/brand.md` says which
+weight each role uses.
 
-Serving fonts from this origin removes two DNS + TLS handshakes and a serial
-round trip from the critical path, lets the CSP allow fonts from `'self'` only,
-and keeps reader IP addresses off a third party. Newsreader and Onest are
-variable, so each subset is one file declaring a weight _range_: Newsreader
-ships 400 to 650 and Onest 400 to 600; `docs/brand.md` says which weight each
-role uses.
-
-Font filenames carry the family's release version (`v16`, `v26`), so a font
-that actually changes lands at a new URL; that is what makes the `immutable`
-cache header for `/fonts/*` in `netlify.toml` safe.
+Font filenames carry the family version Google publishes (`v16`, `v26`), so a
+font that actually changes lands at a new URL; that is what makes the
+`immutable` cache header for `/fonts/*` in `netlify.toml` safe.
 
 `src/routes/__root.tsx` links `src/fonts.css` from the document head rather than
 `@import`-ing it from `src/styles.css` - an `@import` hides it from the preload
@@ -338,7 +331,7 @@ file: a Content-Security-Policy, `Referrer-Policy`, `Strict-Transport-Security`,
 `'unsafe-inline'` for scripts because TanStack Start emits an inline hydration
 payload on every prerendered page and Netlify cannot mint a nonce for static
 files; it still restricts script, style, font, image, and connect sources to
-this origin plus the Sanity CDN and the GoatCounter tracker, and forbids framing entirely.
+this origin plus Google Fonts and the Sanity CDN, and forbids framing entirely.
 The build asserts the header rule exists, that the locked-down directives are
 exactly as intended, that no directive allows `*` or `'unsafe-eval'`, and that
 every origin the prerendered pages actually load from is covered by the policy.
