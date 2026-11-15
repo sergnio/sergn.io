@@ -3,6 +3,7 @@ import { WingDetail } from '#/components/wing-detail'
 import { getCollection } from '#/lib/content.functions'
 import type { WingReview } from '#/lib/content-types'
 import { detailHead } from '#/lib/metadata'
+import { imagesReady, wingFirstScreen } from '#/lib/page-images'
 import { wingPageData } from '#/lib/wings'
 
 export const Route = createFileRoute('/wings/$slug')({
@@ -12,6 +13,7 @@ export const Route = createFileRoute('/wings/$slug')({
     })) as WingReview[]
     const page = wingPageData(wings, params.slug)
     if (!page) throw notFound()
+    await imagesReady(wingFirstScreen(page))
     return page
   },
   head: ({ loaderData }) =>

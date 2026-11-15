@@ -2,6 +2,7 @@ import { Link } from '@tanstack/react-router'
 import { cardDate, cardGrade, cardImage, cardSummary } from '#/lib/card-fields'
 import type { CollectionName, ContentDocument } from '#/lib/content-types'
 import { formatDate } from '#/lib/formatters'
+import { imageSizes } from '#/lib/page-images'
 import { ContentImage } from './content-image'
 
 type ContentCardProps = {
@@ -59,7 +60,7 @@ export function ContentCard({
         <ContentImage
           image={cardImage(document)}
           priority={priority}
-          sizes="(min-width: 720px) 33vw, 100vw"
+          sizes={imageSizes.card}
         />
         {!cardImage(document) ? (
           <div aria-hidden="true" className="content-card__placeholder">

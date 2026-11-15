@@ -8,6 +8,12 @@ import { formatGrade, formatVisits } from './formatters'
  */
 
 /**
+ * How many entries lead a ranking as full cards. The rest render as rows, so
+ * a long collection stays scannable and the best few still get a photo.
+ */
+export const podiumSize = 3
+
+/**
  * A card's image is the only thing on it big enough to be an LCP candidate,
  * and not every document has one, so callers deciding which card to
  * prioritise have to ask this rather than assume the first card.

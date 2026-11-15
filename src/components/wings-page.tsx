@@ -2,6 +2,7 @@ import { Link } from '@tanstack/react-router'
 import { useEffect, useRef } from 'react'
 import type { WingReview } from '#/lib/content-types'
 import { formatDate, formatVisits } from '#/lib/formatters'
+import { imageSizes } from '#/lib/page-images'
 import type { MainListEntry } from '#/lib/wings'
 import {
   mainList,
@@ -142,7 +143,7 @@ function WingTop({
           <ContentImage
             image={wing.heroImage}
             priority={priority}
-            sizes={`(min-width: 42rem) 33vw, ${rank === 1 ? 100 : 50}vw`}
+            sizes={imageSizes.wingTop(rank)}
           />
         ) : (
           <NoPhoto decorative />

@@ -1,5 +1,6 @@
 import type { SanityImage } from '#/lib/content-types'
-import { imageDimensions, imageSrcSet, imageUrl } from '#/lib/sanity/image'
+import { responsiveImage } from '#/lib/page-images'
+import { imageDimensions } from '#/lib/sanity/image'
 
 type ContentImageProps = {
   image?: SanityImage
@@ -18,11 +19,10 @@ export function ContentImage({
   sizes,
   priority = false,
 }: ContentImageProps) {
-  const source = imageUrl(image, 800)
-  const srcSet = imageSrcSet(image)
+  const { src, srcSet } = responsiveImage(image, sizes)
   const dimensions = imageDimensions(image)
 
-  if (!source || !image) return null
+  if (!src || !image) return null
 
   return (
     <img
@@ -33,7 +33,7 @@ export function ContentImage({
       height={dimensions?.height}
       loading={priority ? 'eager' : 'lazy'}
       sizes={sizes}
-      src={source}
+      src={src}
       srcSet={srcSet}
       width={dimensions?.width}
     />
