@@ -28,8 +28,21 @@ const recordedTransitions = (page: Page) =>
     ...(window as unknown as TransitionWindow).__viewTransitions,
   ])
 
+// A view transition animates from the frame its new page first paints, so a
+// few frames after the page appears are enough to see whether one started.
+const waitFewFrames = (page: Page) =>
+  page.evaluate(
+    () =>
+      new Promise((resolve) => {
+        let frames = 5
+        const tick = () => (--frames ? requestAnimationFrame(tick) : resolve(0))
+        requestAnimationFrame(tick)
+      }),
+  )
+
 // Waits out the transition still playing, so it is not counted for the next one.
 async function forgetTransitions(page: Page) {
+  await waitFewFrames(page)
   await page.waitForFunction(() =>
     document
       .getAnimations()
@@ -43,31 +56,22 @@ async function forgetTransitions(page: Page) {
   )
 }
 
-// A view transition animates from the frame its new page first paints, so a
-// few frames after the page appears are enough to see whether one ran.
 async function expectNoTransition(page: Page) {
-  await page.evaluate(
-    () =>
-      new Promise((resolve) => {
-        let frames = 5
-        const tick = () => (--frames ? requestAnimationFrame(tick) : resolve(0))
-        requestAnimationFrame(tick)
-      }),
-  )
+  await waitFewFrames(page)
   expect(await recordedTransitions(page)).toEqual([])
 }
 
-type SwipeWindow = Window & { __nextBackIsSwipe?: boolean }
+type SwipeWindow = Window & { __nextTraversalIsSwipe?: boolean }
 
 // Stands in for Safari's edge swipe, which no automated browser can perform:
 // the real back navigation reports that the browser already animated it.
-async function enableSwipeBack(page: Page) {
+async function enableSwipeTraversal(page: Page) {
   // Added before the page's scripts so it sees each popstate first.
   await page.addInitScript(() => {
     const swipeWindow = window as SwipeWindow
     window.addEventListener('popstate', (event) => {
-      if (!swipeWindow.__nextBackIsSwipe) return
-      swipeWindow.__nextBackIsSwipe = false
+      if (!swipeWindow.__nextTraversalIsSwipe) return
+      swipeWindow.__nextTraversalIsSwipe = false
       event.stopImmediatePropagation()
       window.dispatchEvent(
         new PopStateEvent('popstate', {
@@ -79,11 +83,12 @@ async function enableSwipeBack(page: Page) {
   })
 }
 
-const goBackBySwipe = (page: Page) =>
-  page.evaluate(() => {
-    ;(window as SwipeWindow).__nextBackIsSwipe = true
-    history.back()
-  })
+const traverseBySwipe = (page: Page, direction: 'back' | 'forward') =>
+  page.evaluate((direction) => {
+    ;(window as SwipeWindow).__nextTraversalIsSwipe = true
+    if (direction === 'back') history.back()
+    else history.forward()
+  }, direction)
 
 const primaryNavLink = (page: Page, name: string) =>
   page
@@ -116,11 +121,17 @@ test.describe('page transitions', () => {
       .toContain('::view-transition-new(root)')
   })
 
-  test('a swipe back keeps only the browser animation and redraws without loading', async ({
+  test('a swipe back and forward keeps only the browser animation and redraws without loading', async ({
     page,
   }) => {
-    await enableSwipeBack(page)
+    await enableSwipeTraversal(page)
     await openWingsFromHome(page)
+    await page
+      .getByRole('link', { name: 'Neighborhood Tavern' })
+      .first()
+      .click()
+    const wingHeading = page.getByRole('heading', { level: 1, name: 'Buffalo' })
+    await expect(wingHeading).toBeVisible()
     const dataRequests: string[] = []
     page.on('request', (request) => {
       if (request.url().includes('/__tsr/staticServerFnCache/')) {
@@ -129,14 +140,14 @@ test.describe('page transitions', () => {
     })
     await forgetTransitions(page)
 
-    await goBackBySwipe(page)
-
-    await expect(page).toHaveURL(/\/$/)
-    await expect(
-      page.getByRole('navigation', { name: 'Sections' }),
-    ).toBeVisible()
-    expect(dataRequests).toEqual([])
+    await traverseBySwipe(page, 'back')
+    await expect(pageHeading(page)).toHaveText('Wings')
     await expectNoTransition(page)
+
+    await traverseBySwipe(page, 'forward')
+    await expect(wingHeading).toBeVisible()
+    await expectNoTransition(page)
+    expect(dataRequests).toEqual([])
   })
 
   test('reduced motion swaps pages with no animation', async ({ page }) => {
