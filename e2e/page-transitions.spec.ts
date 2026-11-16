@@ -84,9 +84,9 @@ async function enableSwipeTraversal(page: Page) {
 }
 
 const traverseBySwipe = (page: Page, direction: 'back' | 'forward') =>
-  page.evaluate((direction) => {
+  page.evaluate((traversalDirection) => {
     ;(window as SwipeWindow).__nextTraversalIsSwipe = true
-    if (direction === 'back') history.back()
+    if (traversalDirection === 'back') history.back()
     else history.forward()
   }, direction)
 
