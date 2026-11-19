@@ -17,10 +17,7 @@ const isPlainClick = (event: MouseEvent) =>
   event.button === 0 &&
   !(event.metaKey || event.ctrlKey || event.shiftKey || event.altKey)
 
-/**
- * A real link to a collection's list that, when the reader came from that list,
- * goes back instead so they land where they left off with no loop in history.
- */
+/** Links to a list, but goes back when the reader came from it, keeping their place. */
 export function BackToListLink({
   collection,
   children,
