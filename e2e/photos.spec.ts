@@ -23,26 +23,38 @@ async function servePhotos(page: Page, { delayMs }: { delayMs: number }) {
 
 async function trackLayoutShifts(page: Page) {
   await page.addInitScript(() => {
-    const shifts: number[] = []
+    const shifts: { value: number; moved: string[] }[] = []
     Object.assign(window, { layoutShifts: shifts })
+    const describe = (node: Node | null) =>
+      node instanceof Element
+        ? `${node.tagName.toLowerCase()}.${node.className}`
+        : String(node?.nodeName)
     new PerformanceObserver((list) => {
       for (const entry of list.getEntries() as unknown as {
         value: number
         hadRecentInput: boolean
+        sources: { node: Node | null }[]
       }[]) {
-        if (!entry.hadRecentInput) shifts.push(entry.value)
+        if (entry.hadRecentInput) continue
+        shifts.push({
+          value: entry.value,
+          moved: entry.sources.map((source) => describe(source.node)),
+        })
       }
     }).observe({ type: 'layout-shift', buffered: true })
   })
 }
 
-const layoutShift = (page: Page) =>
-  page.evaluate(() =>
-    (window as unknown as { layoutShifts: number[] }).layoutShifts.reduce(
-      (sum, value) => sum + value,
-      0,
-    ),
-  )
+type Shifts = { layoutShifts: { value: number; moved: string[] }[] }
+
+/** Counts only what moves from here on. */
+const forgetLayoutShifts = (page: Page) =>
+  page.evaluate(() => {
+    ;(window as unknown as Shifts).layoutShifts.length = 0
+  })
+
+const layoutShifts = (page: Page) =>
+  page.evaluate(() => (window as unknown as Shifts).layoutShifts)
 
 // Read once, not retried: the question is whether each photo on screen is
 // already painted at the moment the page appears.
@@ -76,6 +88,7 @@ for (const width of [390, 1280]) {
     await servePhotos(page, { delayMs: 500 })
     await trackLayoutShifts(page)
     await openHomeAndSettle(page)
+    await forgetLayoutShifts(page)
 
     await page
       .getByRole('navigation', { name: 'Sections' })
@@ -94,7 +107,7 @@ for (const width of [390, 1280]) {
     await expect(page).toHaveURL(/\/wings\/corner-bar-buffalo$/)
     expect(await unpaintedPhotos(page)).toEqual([])
 
-    expect(await layoutShift(page)).toBe(0)
+    expect(await layoutShifts(page)).toEqual([])
   })
 }
 
