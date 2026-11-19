@@ -3,15 +3,18 @@ import { WingDetail } from '#/components/wing-detail'
 import { getCollection } from '#/lib/content.functions'
 import type { WingReview } from '#/lib/content-types'
 import { detailHead } from '#/lib/metadata'
+import { heroPhoto } from '#/lib/page-photos'
+import { photosDecoded } from '#/lib/photo-preload'
 import { wingPageData } from '#/lib/wings'
 
 export const Route = createFileRoute('/wings/$slug')({
-  loader: async ({ params }) => {
+  loader: async ({ location, params, preload }) => {
     const wings = (await getCollection({
       data: { collection: 'wings' },
     })) as WingReview[]
     const page = wingPageData(wings, params.slug)
     if (!page) throw notFound()
+    await photosDecoded([heroPhoto(page.wing)], { location, preload })
     return page
   },
   head: ({ loaderData }) =>

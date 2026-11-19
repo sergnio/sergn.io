@@ -116,6 +116,71 @@ for (const { width, deviceScaleFactor } of [
   })
 }
 
+test.describe('a photo not downloaded ahead of time', () => {
+  // Data Saver turns preloading off, so only the navigation can fetch it.
+  test.beforeEach(async ({ page }) => {
+    await page.addInitScript(() => {
+      Object.defineProperty(navigator, 'connection', {
+        value: { saveData: true, effectiveType: '4g' },
+      })
+    })
+  })
+
+  test('holds the next page briefly so it opens with the photo painted', async ({
+    page,
+  }) => {
+    await servePhotos(page, { delayMs: 100 })
+    await openHomeAndSettle(page)
+
+    await page
+      .getByRole('navigation', { name: 'Sections' })
+      .getByRole('link', { name: 'Wings', exact: true })
+      .click()
+    await expect(
+      page.getByRole('heading', { level: 1, name: 'Wings' }),
+    ).toBeVisible()
+
+    expect(await unpaintedPhotos(page)).toEqual([])
+  })
+
+  test('holds the next page too when a hover already loaded its data', async ({
+    page,
+  }) => {
+    await servePhotos(page, { delayMs: 100 })
+    await openHomeAndSettle(page)
+    const wingsLink = page
+      .getByRole('navigation', { name: 'Sections' })
+      .getByRole('link', { name: 'Wings', exact: true })
+
+    const pageData = page.waitForResponse(/staticServerFnCache/)
+    await wingsLink.hover()
+    await pageData
+    await wingsLink.click()
+    await expect(
+      page.getByRole('heading', { level: 1, name: 'Wings' }),
+    ).toBeVisible()
+
+    expect(await unpaintedPhotos(page)).toEqual([])
+  })
+
+  test('opens the next page anyway when the photo is slow', async ({
+    page,
+  }) => {
+    await servePhotos(page, { delayMs: 5_000 })
+    await openHomeAndSettle(page)
+
+    await page
+      .getByRole('navigation', { name: 'Sections' })
+      .getByRole('link', { name: 'Wings', exact: true })
+      .click()
+
+    await expect(
+      page.getByRole('heading', { level: 1, name: 'Wings' }),
+    ).toBeVisible({ timeout: 2_000 })
+    expect(await unpaintedPhotos(page)).not.toEqual([])
+  })
+})
+
 test('a reader who asked to save data downloads no photos ahead of time', async ({
   page,
 }) => {

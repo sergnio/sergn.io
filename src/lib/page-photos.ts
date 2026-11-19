@@ -53,6 +53,21 @@ export function listPhotos(
   )
 }
 
+/** The list photos a phone shows before any scrolling. */
+export function firstScreenListPhotos(
+  collection: CollectionName,
+  documents: ContentDocument[],
+) {
+  return listPhotos(collection, documents).slice(0, 3)
+}
+
+/** The large photo a detail page opens on. */
+export function heroPhoto(document: ContentDocument) {
+  return document._type === 'wingReview'
+    ? responsivePhoto(document.heroImage, photoSizes.wingHero)
+    : responsivePhoto(cardImage(document), photoSizes.detailHero)
+}
+
 /** The photos at the top of each of a collection's detail pages. */
 export function detailPhotos(
   collection: CollectionName,
@@ -61,14 +76,12 @@ export function detailPhotos(
   if (collection === 'wings') {
     const wings = documents as WingReview[]
     return wings.flatMap((wing) => [
-      responsivePhoto(wing.heroImage, photoSizes.wingHero),
+      heroPhoto(wing),
       ...(wingPageData(wings, wing.slug)?.siblings ?? []).map((sibling) =>
         thumbnailPhoto(sibling.wing.heroImage),
       ),
     ])
   }
 
-  return documents.map((document) =>
-    responsivePhoto(cardImage(document), photoSizes.detailHero),
-  )
+  return documents.map(heroPhoto)
 }

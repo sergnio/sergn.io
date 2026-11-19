@@ -18,9 +18,10 @@ import {
 import fontCss from '../fonts.css?url'
 import appCss from '../styles.css?url'
 import { everyPageFontPreloads } from '#/lib/font-preloads'
-import { preloadSitePhotos } from '#/lib/photo-preload'
+import { knownPhotosDecoded, preloadSitePhotos } from '#/lib/photo-preload'
 
 export const Route = createRootRoute({
+  beforeLoad: knownPhotosDecoded,
   head: () => ({
     meta: [
       { charSet: 'utf-8' },
