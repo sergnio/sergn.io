@@ -9,10 +9,7 @@ import { isRankedCollection } from './content-types'
 import { imageSrcSet, imageUrl } from './sanity/image'
 import { mainList, podiumSize, wingPageData } from './wings'
 
-/**
- * The `sizes` each photo slot renders with. A preload must use the same value
- * as the `<img>`, or the browser picks another srcset file and downloads twice.
- */
+/** Shared by each `<img>` and its preload, so both pick the same srcset file. */
 export const photoSizes = {
   card: '(min-width: 720px) 33vw, 100vw',
   detailHero: '(min-width: 900px) 50vw, 100vw',

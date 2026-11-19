@@ -2,9 +2,8 @@ import type { Page } from '@playwright/test'
 import { awaitClientRouter } from './client-router'
 import { expect, test } from './tracker-stub'
 
-// Fixture photos point at Unsplash. Served locally, cacheable like the Sanity
-// CDN, and slow enough that a photo nobody preloaded cannot finish between the
-// page swap and the check.
+// Cacheable like the Sanity CDN, and too slow for a photo nobody preloaded to
+// arrive before the check.
 async function servePhotos(page: Page, { delayMs }: { delayMs: number }) {
   const requested: string[] = []
   await page.route('https://images.unsplash.com/**', async (route) => {
