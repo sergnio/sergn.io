@@ -10,6 +10,7 @@ import {
   wingName,
   wingTiers,
 } from '#/lib/wings'
+import { openedFromList } from './back-to-list-link'
 import { ContentImage } from './content-image'
 import { NoPhoto } from './no-photo'
 import { WingCrown } from './wing-crown'
@@ -112,7 +113,11 @@ export function WingsPage({ wings }: { wings: WingReview[] }) {
           <span>
             {wing.location.name} had no buffalo on the menu, so its best wing
             holds the spot. Its other wings live on{' '}
-            <Link params={{ slug: wing.slug }} to="/wings/$slug">
+            <Link
+              params={{ slug: wing.slug }}
+              state={openedFromList('wings')}
+              to="/wings/$slug"
+            >
               its own page
             </Link>
             .
@@ -229,6 +234,7 @@ function WingLink({ wing }: { wing: WingReview }) {
     <Link
       className="wing-stretch"
       params={{ slug: wing.slug }}
+      state={openedFromList('wings')}
       to="/wings/$slug"
     >
       {wing.location.name}
