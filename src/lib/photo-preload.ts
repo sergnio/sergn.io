@@ -63,12 +63,7 @@ async function collectionDocuments(router: AnyRouter, name: CollectionName) {
   return (matches?.at(-1)?.loaderData ?? []) as ContentDocument[]
 }
 
-/**
- * Downloads and decodes every list photo and detail page hero at the size each
- * page shows it, so pages open with their photos already painted. Waits until
- * the first page has loaded and the browser is idle, and skips readers who
- * asked to save data or are on a 2G connection.
- */
+/** Once the first page is idle, readies every page's top photos at the size it shows them. */
 export function preloadSitePhotos(router: AnyRouter) {
   if (started || !connectionAllowsPreload()) return
   started = true
