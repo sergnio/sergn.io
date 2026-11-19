@@ -16,7 +16,10 @@ const collections: CollectionName[] = [
 const parallelDownloads = 4
 
 // Held: once collected, Chrome and Safari download the photo again on the page.
-const warmed = new Map<string, HTMLImageElement>()
+const warmed = new Map<
+  string,
+  { image: HTMLImageElement; decoded: Promise<void> }
+>()
 let started = false
 
 type NetworkInformation = { saveData?: boolean; effectiveType?: string }
@@ -27,17 +30,57 @@ function connectionAllowsPreload() {
   return !connection?.effectiveType?.endsWith('2g')
 }
 
-function warmPhoto({ src, srcSet, sizes }: PagePhoto) {
+function warmPhoto(
+  { src, srcSet, sizes }: PagePhoto,
+  priority: 'low' | 'high' = 'low',
+) {
   const key = `${src}|${srcSet}|${sizes}`
-  if (warmed.has(key)) return Promise.resolve()
+  const existing = warmed.get(key)
+  if (existing) return existing.decoded
 
   const image = new Image()
-  image.fetchPriority = 'low'
+  image.fetchPriority = priority
   if (sizes) image.sizes = sizes
   if (srcSet) image.srcset = srcSet
   image.src = src
-  warmed.set(key, image)
-  return image.decode().catch(() => undefined)
+  const decoded = image.decode().catch(() => undefined)
+  warmed.set(key, { image, decoded })
+  return decoded
+}
+
+const longestPhotoWaitMs = 300
+
+// Recorded per path, since the router skips the loader when a preload already ran it.
+const photosByPath = new Map<string, (PagePhoto | undefined)[]>()
+
+type Navigation = { location: { pathname: string }; preload: boolean }
+
+const pathKey = (pathname: string) => pathname.replace(/\/$/, '') || '/'
+
+async function decodedOrTimedOut(photos: (PagePhoto | undefined)[]) {
+  const decoded = photos
+    .filter((photo): photo is PagePhoto => Boolean(photo))
+    .map((photo) => warmPhoto(photo, 'high'))
+  await Promise.race([
+    Promise.all(decoded),
+    new Promise((resolve) => setTimeout(resolve, longestPhotoWaitMs)),
+  ])
+}
+
+/** A loader's photos: a navigation waits for them, but never long. */
+export async function photosDecoded(
+  photos: (PagePhoto | undefined)[],
+  { location, preload }: Navigation,
+) {
+  if (typeof window === 'undefined') return
+  photosByPath.set(pathKey(location.pathname), photos)
+  if (!preload) await decodedOrTimedOut(photos)
+}
+
+/** Waits on a page's photos when its loader already ran as a preload. */
+export async function knownPhotosDecoded({ location, preload }: Navigation) {
+  const photos = photosByPath.get(pathKey(location.pathname))
+  if (photos && !preload) await decodedOrTimedOut(photos)
 }
 
 // One photo's slots warm one after another: at the same width two slots pick
