@@ -1,6 +1,11 @@
 import { createRouter as createTanStackRouter } from '@tanstack/react-router'
 import { browserAnimatedThisNavigation } from './lib/browser-animated-history'
 import { installNavDebug } from './lib/nav-debug'
+import {
+  delayViewTransitionsAfterPush,
+  navVariantOn,
+  rememberNavVariants,
+} from './lib/nav-variants'
 import { routeTree } from './routeTree.gen'
 
 export function getRouter() {
@@ -15,9 +20,14 @@ export function getRouter() {
     defaultGcTime: Infinity,
     defaultPreloadGcTime: Infinity,
     defaultViewTransition: {
-      types: () => (browserAnimatedThisNavigation() ? false : []),
+      types: () =>
+        browserAnimatedThisNavigation() || navVariantOn('novt') ? false : [],
     },
   })
+  if (typeof window !== 'undefined') {
+    rememberNavVariants()
+    if (navVariantOn('pushfirst')) delayViewTransitionsAfterPush()
+  }
   installNavDebug(router)
   return router
 }

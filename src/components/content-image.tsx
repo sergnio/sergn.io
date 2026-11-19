@@ -1,5 +1,6 @@
 import type { CSSProperties } from 'react'
 import type { SanityImage } from '#/lib/content-types'
+import { useNavVariant } from '#/lib/nav-variants'
 import { imageDimensions, imageSrcSet, imageUrl } from '#/lib/sanity/image'
 
 type ContentImageProps = {
@@ -12,13 +13,17 @@ type ContentImageProps = {
    * one image per page should carry it, or the priority means nothing.
    */
   priority?: boolean
+  /** Temporary ?syncimg test: paint already-loaded photos in the first frame. */
+  readyOnReturn?: boolean
 }
 
 export function ContentImage({
   image,
   sizes,
   priority = false,
+  readyOnReturn = false,
 }: ContentImageProps) {
+  const syncImages = useNavVariant('syncimg') && readyOnReturn
   const source = imageUrl(image, 800)
   const srcSet = imageSrcSet(image)
   const dimensions = imageDimensions(image)
@@ -30,11 +35,11 @@ export function ContentImage({
       <img
         alt={image.alt}
         className="content-image"
-        decoding="async"
+        decoding={syncImages ? 'sync' : 'async'}
         fetchPriority={priority ? 'high' : undefined}
         height={dimensions?.height}
         key={source}
-        loading={priority ? 'eager' : 'lazy'}
+        loading={priority || syncImages ? 'eager' : 'lazy'}
         ref={showIfAlreadyLoaded}
         sizes={sizes}
         src={source}

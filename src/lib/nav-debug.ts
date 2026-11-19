@@ -1,5 +1,6 @@
 import type { AnyRouter } from '@tanstack/react-router'
 import { lastAnimatedDecision } from './browser-animated-history'
+import { activeNavVariants } from './nav-variants'
 
 // Temporary: an on-screen log of the last navigations, on with ?navdebug.
 const storageKey = 'navdebug'
@@ -157,7 +158,7 @@ export function installNavDebug(router: AnyRouter) {
       })
       log.length = Math.min(log.length, 10)
       panel.textContent = [
-        `len ${history.length} uaFlag ${'hasUAVisualTransition' in PopStateEvent.prototype} ${/(?:OS|Version)\/[\d._]+/.exec(navigator.userAgent)?.[0] ?? ''}`,
+        `len ${history.length} uaFlag ${'hasUAVisualTransition' in PopStateEvent.prototype} ${/(?:OS|Version)\/[\d._]+/.exec(navigator.userAgent)?.[0] ?? ''} ${activeNavVariants().join(' ') || 'default'}`,
         'act idx to           dec   v r img dcd scroll      ms  rnd fr 1st  tch',
         ...log.map((e) =>
           [
