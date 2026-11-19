@@ -100,7 +100,7 @@ export function installNavDebug(router: AnyRouter) {
       })
       log.length = Math.min(log.length, 10)
       panel.textContent = [
-        `len ${history.length} uaFlag ${'hasUAVisualTransition' in PopStateEvent.prototype}`,
+        `len ${history.length} uaFlag ${'hasUAVisualTransition' in PopStateEvent.prototype} ${/(?:OS|Version)\/[\d._]+/.exec(navigator.userAgent)?.[0] ?? ''}`,
         'act  idx to                     dec       vt req img   scroll    ms',
         ...log.map((e) =>
           [
