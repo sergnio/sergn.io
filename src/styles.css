@@ -487,12 +487,40 @@ h3 {
   z-index: 1;
 }
 
+.content-image-frame {
+  display: block;
+  position: relative;
+  overflow: hidden;
+  background: var(--photo-color, var(--placeholder));
+}
+
+/* Sanity's 20 px copy, blurred further so it reads as soft focus, not blocks. */
+.content-image-frame::before {
+  content: '';
+  position: absolute;
+  inset: -1rem;
+  background: var(--photo-blur, none) center / cover no-repeat;
+  filter: blur(14px);
+}
+
 .content-image {
+  position: relative;
   width: 100%;
   height: auto;
   aspect-ratio: 4 / 3;
   object-fit: cover;
-  background: var(--placeholder) center / cover no-repeat;
+  transition: opacity 250ms ease-out;
+}
+
+/* Hidden only where the script that reveals it can run. */
+@media (scripting: enabled) {
+  .content-image:not([data-loaded]) {
+    opacity: 0;
+  }
+}
+
+.content-image[data-loaded='cached'] {
+  transition: none;
 }
 
 .content-card__placeholder {
@@ -767,6 +795,9 @@ h3 {
 
 .detail-hero__image .content-image {
   aspect-ratio: 4 / 3;
+}
+
+.detail-hero__image .content-image-frame {
   border-radius: var(--radius-md);
 }
 
@@ -892,7 +923,7 @@ figcaption {
   margin: var(--space-6) 0;
 }
 
-.rich-text__image .content-image {
+.rich-text__image .content-image-frame {
   border-radius: var(--radius-md);
 }
 
@@ -911,7 +942,7 @@ figcaption {
   margin-left: calc(-1 * var(--page-inset));
 }
 
-.rich-text__image--full .content-image {
+.rich-text__image--full .content-image-frame {
   border-radius: 0;
 }
 
@@ -1752,6 +1783,9 @@ figcaption {
 
 .wing-hero__photo .content-image {
   aspect-ratio: auto;
+}
+
+.wing-hero__photo .content-image-frame {
   border-radius: var(--radius-md);
 }
 

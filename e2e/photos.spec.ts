@@ -66,9 +66,14 @@ const unpaintedPhotos = (page: Page) =>
         .filter(
           (image): image is HTMLImageElement =>
             image instanceof HTMLImageElement &&
+            image.isConnected &&
             image.getBoundingClientRect().top < window.innerHeight,
         )
-        .filter((image) => !(image.complete && image.naturalWidth > 0))
+        .filter(
+          (image) =>
+            !(image.complete && image.naturalWidth > 0) ||
+            getComputedStyle(image).opacity !== '1',
+        )
         .map((image) => image.alt),
     )
 
@@ -210,20 +215,75 @@ test('a browser that cannot report its connection, like Safari, still downloads 
   expect(requested).not.toEqual([])
 })
 
-test('a photo still downloading shows a blurred copy of itself', async ({
-  page,
-}) => {
-  // Never answered, so every photo stays mid-download.
-  await page.route('https://images.unsplash.com/**', () => undefined)
-  await page.goto('/wings', { waitUntil: 'domcontentloaded' })
+test.describe('a photo on a fresh visit', () => {
+  const topPhoto = (page: Page) =>
+    page
+      .getByRole('main')
+      .getByRole('img', { name: 'A plate of sauced chicken wings' })
 
-  // The placeholder is the requirement itself, so the test reads the style.
-  const topPhoto = page
-    .getByRole('main')
-    .getByRole('img', { name: 'A plate of sauced chicken wings' })
-  await expect(topPhoto).toHaveCSS(
-    'background-image',
-    /^url\("data:image\/jpeg;base64,/,
-  )
-  await expect(topPhoto).toHaveCSS('background-size', 'cover')
+  // Held until the test lets them through, so it sees both sides of the arrival.
+  async function holdPhotos(page: Page) {
+    const held: (() => void)[] = []
+    await page.route('https://images.unsplash.com/**', (route) => {
+      held.push(() => {
+        void route
+          .fulfill({ path: 'public/icon-192.png' })
+          .catch(() => undefined)
+      })
+    })
+    return () => held.splice(0).forEach((release) => release())
+  }
+
+  test('shows a soft blur of itself while it downloads', async ({ page }) => {
+    await holdPhotos(page)
+    await page.goto('/wings', { waitUntil: 'domcontentloaded' })
+
+    // The placeholder is the requirement itself, so the test reads the style.
+    const frame = topPhoto(page).locator('..')
+    const blur = await frame.evaluate((element) => {
+      const style = getComputedStyle(element, '::before')
+      return { image: style.backgroundImage, filter: style.filter }
+    })
+    expect(blur.image).toMatch(/^url\("data:image\/jpeg;base64,/)
+    expect(blur.filter).toMatch(/^blur\(/)
+    await expect(topPhoto(page)).toHaveCSS('opacity', '0')
+  })
+
+  test('fades in over the blur once it arrives', async ({ page }) => {
+    const releasePhotos = await holdPhotos(page)
+    await page.goto('/wings', { waitUntil: 'domcontentloaded' })
+    await expect(topPhoto(page)).toHaveCSS('opacity', '0')
+
+    releasePhotos()
+
+    await expect(topPhoto(page)).toHaveCSS('transition-duration', '0.25s')
+    await expect(topPhoto(page)).toHaveCSS('opacity', '1')
+  })
+
+  test('appears without a fade for a reader who asked for less motion', async ({
+    page,
+  }) => {
+    await page.emulateMedia({ reducedMotion: 'reduce' })
+    const releasePhotos = await holdPhotos(page)
+    await page.goto('/wings', { waitUntil: 'domcontentloaded' })
+
+    releasePhotos()
+
+    const fadeSeconds = await topPhoto(page).evaluate((image) =>
+      parseFloat(getComputedStyle(image).transitionDuration),
+    )
+    expect(fadeSeconds).toBeLessThan(0.001)
+    await expect(topPhoto(page)).toHaveCSS('opacity', '1')
+  })
+
+  test.describe('without JavaScript', () => {
+    test.use({ javaScriptEnabled: false })
+
+    test('is never hidden, since nothing could reveal it', async ({ page }) => {
+      await holdPhotos(page)
+      await page.goto('/wings', { waitUntil: 'domcontentloaded' })
+
+      await expect(topPhoto(page)).toHaveCSS('opacity', '1')
+    })
+  })
 })

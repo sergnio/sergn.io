@@ -22,7 +22,7 @@ const imageProjection = `{
   credit,
   "crop": image.crop,
   "hotspot": image.hotspot,
-  "asset": image.asset->{_id, url, metadata {dimensions {width, height, aspectRatio}, lqip}}
+  "asset": image.asset->{_id, url, metadata {dimensions {width, height, aspectRatio}, lqip, "dominantColor": palette.dominant.background}}
 }`
 
 const commonFields = `
@@ -47,7 +47,7 @@ const richTextProjection = `[] {
     display,
     "crop": image.crop,
     "hotspot": image.hotspot,
-    "asset": image.asset->{_id, url, metadata {dimensions {width, height, aspectRatio}, lqip}}
+    "asset": image.asset->{_id, url, metadata {dimensions {width, height, aspectRatio}, lqip, "dominantColor": palette.dominant.background}}
   }
 }`
 
