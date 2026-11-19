@@ -2,6 +2,7 @@ import { Link } from '@tanstack/react-router'
 import type { WingReview } from '#/lib/content-types'
 import { isGrade } from '#/lib/content-types'
 import { formatDate, formatVisits } from '#/lib/formatters'
+import { photoSizes, wingThumbnailWidth } from '#/lib/page-photos'
 import { imageUrl } from '#/lib/sanity/image'
 import type { WingPageData, WingStanding } from '#/lib/wings'
 import { wingName } from '#/lib/wings'
@@ -36,7 +37,7 @@ export function WingDetail({ wing, rank, listLength, siblings }: WingPageData) {
             className="wing-hero__photo"
             image={wing.heroImage}
             priority
-            sizes="(min-width: 56rem) 36rem, calc(100vw - 2rem)"
+            sizes={photoSizes.wingHero}
           />
         ) : (
           <NoPhoto className="wing-ph--hero" />
@@ -144,7 +145,7 @@ function WingFacts({
 
 function WingSibling({ wing, rank }: WingStanding) {
   const grade = isGrade(wing.grade) ? wing.grade : undefined
-  const thumbnail = imageUrl(wing.heroImage, 200)
+  const thumbnail = imageUrl(wing.heroImage, wingThumbnailWidth)
 
   return (
     <li className="wing-sib">

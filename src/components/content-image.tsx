@@ -21,6 +21,8 @@ export function ContentImage({
   const source = imageUrl(image, 800)
   const srcSet = imageSrcSet(image)
   const dimensions = imageDimensions(image)
+  // Sanity blurs the whole upload, so it would misalign under a crop.
+  const placeholder = image?.crop ? undefined : image?.asset?.metadata?.lqip
 
   if (!source || !image) return null
 
@@ -35,6 +37,9 @@ export function ContentImage({
       sizes={sizes}
       src={source}
       srcSet={srcSet}
+      style={
+        placeholder ? { backgroundImage: `url("${placeholder}")` } : undefined
+      }
       width={dimensions?.width}
     />
   )

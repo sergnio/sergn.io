@@ -492,7 +492,7 @@ h3 {
   height: auto;
   aspect-ratio: 4 / 3;
   object-fit: cover;
-  background: var(--placeholder);
+  background: var(--placeholder) center / cover no-repeat;
 }
 
 .content-card__placeholder {

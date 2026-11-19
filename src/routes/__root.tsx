@@ -3,7 +3,9 @@ import {
   Outlet,
   Scripts,
   createRootRoute,
+  useRouter,
 } from '@tanstack/react-router'
+import { useEffect } from 'react'
 import { Analytics } from '#/components/analytics'
 import { NotFoundContent } from '#/components/not-found'
 import { SiteHeader } from '#/components/site-header'
@@ -16,6 +18,7 @@ import {
 import fontCss from '../fonts.css?url'
 import appCss from '../styles.css?url'
 import { everyPageFontPreloads } from '#/lib/font-preloads'
+import { preloadSitePhotos } from '#/lib/photo-preload'
 
 export const Route = createRootRoute({
   head: () => ({
@@ -101,6 +104,11 @@ function RootDocument({ children }: { children: React.ReactNode }) {
 }
 
 function RootLayout() {
+  const router = useRouter()
+  useEffect(() => {
+    preloadSitePhotos(router)
+  }, [router])
+
   return (
     <>
       <a className="skip-link" href="#main-content">
