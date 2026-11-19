@@ -5,6 +5,7 @@ import { formatDate, formatVisits } from '#/lib/formatters'
 import { imageUrl } from '#/lib/sanity/image'
 import type { WingPageData, WingStanding } from '#/lib/wings'
 import { wingName } from '#/lib/wings'
+import { BackToListLink } from './back-to-list-link'
 import { ImageFigure } from './content-image'
 import { NoPhoto } from './no-photo'
 import { RichText } from './rich-text'
@@ -23,9 +24,7 @@ export function WingDetail({ wing, rank, listLength, siblings }: WingPageData) {
       <nav aria-label="Breadcrumb">
         <ol className="wing-crumbs">
           <li>
-            <Link activeOptions={{ exact: true }} to="/wings">
-              Wings
-            </Link>
+            <BackToListLink collection="wings">Wings</BackToListLink>
           </li>
           <li>{place.name}</li>
           <li aria-current="page">{name}</li>
