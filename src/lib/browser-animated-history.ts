@@ -2,6 +2,9 @@
 // The site's own view transition on top of that slide is the flash, so skip it.
 let lastPopWasAnimated = false
 let gestureSinceLastNavigation = false
+let pendingSignal = 'push'
+/** Temporary, read by the ?navdebug log. */
+export const lastAnimatedDecision = { signal: 'none' }
 
 function noteGesture() {
   gestureSinceLastNavigation = true
@@ -19,6 +22,7 @@ function popWasAnimated(event: PopStateEvent) {
 if (typeof window !== 'undefined') {
   window.addEventListener('popstate', (event) => {
     lastPopWasAnimated = popWasAnimated(event)
+    pendingSignal = `${'hasUAVisualTransition' in event ? 'ua' : 'touch'}:${lastPopWasAnimated ? 'Y' : 'n'}`
   })
   window.addEventListener('touchend', noteGesture, { passive: true })
   window.addEventListener('touchcancel', noteGesture, { passive: true })
@@ -34,6 +38,8 @@ if (typeof window !== 'undefined') {
 /** Answers for the navigation about to render, then forgets. */
 export function browserAnimatedThisNavigation() {
   const animated = lastPopWasAnimated
+  lastAnimatedDecision.signal = pendingSignal
+  pendingSignal = 'push'
   lastPopWasAnimated = false
   gestureSinceLastNavigation = false
   return animated

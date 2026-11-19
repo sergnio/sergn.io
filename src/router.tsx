@@ -1,9 +1,10 @@
 import { createRouter as createTanStackRouter } from '@tanstack/react-router'
 import { browserAnimatedThisNavigation } from './lib/browser-animated-history'
+import { installNavDebug } from './lib/nav-debug'
 import { routeTree } from './routeTree.gen'
 
 export function getRouter() {
-  return createTanStackRouter({
+  const router = createTanStackRouter({
     routeTree,
     scrollRestoration: true,
     defaultPreload: 'intent',
@@ -17,6 +18,8 @@ export function getRouter() {
       types: () => (browserAnimatedThisNavigation() ? false : []),
     },
   })
+  installNavDebug(router)
+  return router
 }
 
 declare module '@tanstack/react-router' {
