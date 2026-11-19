@@ -21,6 +21,7 @@ import {
   formatGrade,
   formatVisits,
 } from '#/lib/formatters'
+import { photoSizes } from '#/lib/page-photos'
 import { ImageFigure } from './content-image'
 import { RichText } from './rich-text'
 
@@ -271,7 +272,7 @@ export function ContentDetail({ document }: ContentDetailProps) {
           className="detail-hero__image"
           image={image}
           priority
-          sizes="(min-width: 900px) 50vw, 100vw"
+          sizes={photoSizes.detailHero}
         />
         {document._type !== 'post' && document.notes?.length ? (
           <div className="detail-hero__notes">

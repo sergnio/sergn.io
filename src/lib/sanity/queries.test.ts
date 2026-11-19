@@ -13,15 +13,47 @@ async function run(query: string, dataset: unknown[], type: string) {
 }
 
 describe('published content queries', () => {
-  it('projects all public image accessibility and responsive fields', () => {
-    const query = collectionQuery('coffee')
+  it('projects all public image accessibility and responsive fields', async () => {
+    const crop = { top: 0.1, bottom: 0, left: 0, right: 0 }
+    const hotspot = { x: 0.5, y: 0.5, height: 1, width: 1 }
+    const dimensions = { width: 1200, height: 900, aspectRatio: 1.333 }
+    const lqip = 'data:image/jpeg;base64,/9j/'
+    const dataset = [
+      {
+        _id: 'coffee-1',
+        _type: 'coffee',
+        slug: { current: 'coffee-1' },
+        heroImage: {
+          alt: 'A bag of coffee',
+          image: { asset: { _ref: 'image-1' }, crop, hotspot },
+        },
+      },
+      {
+        _id: 'image-1',
+        _type: 'sanity.imageAsset',
+        url: 'https://cdn.sanity.io/images/x/y/image-1.jpg',
+        metadata: { dimensions, lqip, palette: {} },
+      },
+    ]
 
-    expect(query).toContain('alt')
-    expect(query).toContain('crop')
-    expect(query).toContain('hotspot')
-    expect(query).toContain(
-      'metadata {dimensions {width, height, aspectRatio}}',
-    )
+    const result = await evaluate(parse(collectionQuery('coffee')), {
+      dataset,
+      params: { type: 'coffee' },
+    })
+    const [coffee] = (await result.get()) as Array<{ heroImage: unknown }>
+
+    expect(coffee.heroImage).toEqual({
+      alt: 'A bag of coffee',
+      caption: null,
+      credit: null,
+      crop,
+      hotspot,
+      asset: {
+        _id: 'image-1',
+        url: 'https://cdn.sanity.io/images/x/y/image-1.jpg',
+        metadata: { dimensions, lqip },
+      },
+    })
   })
 
   // Every collection renders one top-level image, and imageWithAlt nests the
