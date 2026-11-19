@@ -79,34 +79,40 @@ async function openHomeAndSettle(page: Page) {
   await page.waitForLoadState('networkidle')
 }
 
-for (const width of [390, 1280]) {
-  test(`after the home page, Wings and a wing open with every photo painted at ${width}px`, async ({
-    page,
-  }) => {
-    await page.setViewportSize({ width, height: 844 })
-    await servePhotos(page, { delayMs: 500 })
-    await trackLayoutShifts(page)
-    await openHomeAndSettle(page)
-    await forgetLayoutShifts(page)
+for (const { width, deviceScaleFactor } of [
+  { width: 390, deviceScaleFactor: 3 },
+  { width: 1280, deviceScaleFactor: 2 },
+]) {
+  test.describe(`at ${width}px and ${deviceScaleFactor}x`, () => {
+    test.use({ viewport: { width, height: 844 }, deviceScaleFactor })
 
-    await page
-      .getByRole('navigation', { name: 'Sections' })
-      .getByRole('link', { name: 'Wings', exact: true })
-      .click()
-    await expect(
-      page.getByRole('heading', { level: 1, name: 'Wings' }),
-    ).toBeVisible()
-    expect(await unpaintedPhotos(page)).toEqual([])
+    test('after the home page, Wings and a wing open with every photo painted', async ({
+      page,
+    }) => {
+      await servePhotos(page, { delayMs: 500 })
+      await trackLayoutShifts(page)
+      await openHomeAndSettle(page)
+      await forgetLayoutShifts(page)
 
-    await page
-      .getByRole('main')
-      .getByRole('link', { name: /^The Corner Bar/ })
-      .first()
-      .click()
-    await expect(page).toHaveURL(/\/wings\/corner-bar-buffalo$/)
-    expect(await unpaintedPhotos(page)).toEqual([])
+      await page
+        .getByRole('navigation', { name: 'Sections' })
+        .getByRole('link', { name: 'Wings', exact: true })
+        .click()
+      await expect(
+        page.getByRole('heading', { level: 1, name: 'Wings' }),
+      ).toBeVisible()
+      expect(await unpaintedPhotos(page)).toEqual([])
 
-    expect(await layoutShifts(page)).toEqual([])
+      await page
+        .getByRole('main')
+        .getByRole('link', { name: /^The Corner Bar/ })
+        .first()
+        .click()
+      await expect(page).toHaveURL(/\/wings\/corner-bar-buffalo$/)
+      expect(await unpaintedPhotos(page)).toEqual([])
+
+      expect(await layoutShifts(page)).toEqual([])
+    })
   })
 }
 
