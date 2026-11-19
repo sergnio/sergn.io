@@ -126,6 +126,20 @@ test('a reader who asked to save data downloads no photos ahead of time', async 
   expect(requested).toEqual([])
 })
 
+test('a browser that cannot report its connection, like Safari, still downloads photos ahead of time', async ({
+  page,
+}) => {
+  await page.addInitScript(() => {
+    Object.defineProperty(navigator, 'connection', { value: undefined })
+  })
+  const requested = await servePhotos(page, { delayMs: 0 })
+
+  await openHomeAndSettle(page)
+
+  // The home page shows no photos, so every request is a preload.
+  expect(requested).not.toEqual([])
+})
+
 test('a photo still downloading shows a blurred copy of itself', async ({
   page,
 }) => {
