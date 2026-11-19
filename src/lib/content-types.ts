@@ -45,6 +45,7 @@ export type SanityImage = {
         aspectRatio?: number
       }
       lqip?: string
+      dominantColor?: string | null
     }
   }
   crop?: { top: number; bottom: number; left: number; right: number }

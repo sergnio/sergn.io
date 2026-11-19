@@ -7,6 +7,7 @@ import {
 } from '@tanstack/react-router'
 import { useEffect } from 'react'
 import { Analytics } from '#/components/analytics'
+import { photoFadeScript } from '#/components/content-image'
 import { NotFoundContent } from '#/components/not-found'
 import { SiteHeader } from '#/components/site-header'
 import {
@@ -77,6 +78,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
       <head>
+        <script dangerouslySetInnerHTML={{ __html: photoFadeScript }} />
         <HeadContent />
       </head>
       <body>

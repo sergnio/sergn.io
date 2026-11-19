@@ -32,7 +32,11 @@ describe('published content queries', () => {
         _id: 'image-1',
         _type: 'sanity.imageAsset',
         url: 'https://cdn.sanity.io/images/x/y/image-1.jpg',
-        metadata: { dimensions, lqip, palette: {} },
+        metadata: {
+          dimensions,
+          lqip,
+          palette: { dominant: { background: '#724113', foreground: '#fff' } },
+        },
       },
     ]
 
@@ -51,7 +55,7 @@ describe('published content queries', () => {
       asset: {
         _id: 'image-1',
         url: 'https://cdn.sanity.io/images/x/y/image-1.jpg',
-        metadata: { dimensions, lqip },
+        metadata: { dimensions, lqip, dominantColor: '#724113' },
       },
     })
   })
