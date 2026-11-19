@@ -1,11 +1,11 @@
 import { cardImage } from './card-fields'
+import { documentsWithPhotoCards } from './collection-sections'
 import type {
   CollectionName,
   ContentDocument,
   SanityImage,
   WingReview,
 } from './content-types'
-import { isRankedCollection } from './content-types'
 import { imageSrcSet, imageUrl } from './sanity/image'
 import { mainList, podiumSize, wingPageData } from './wings'
 
@@ -48,19 +48,7 @@ export function listPhotos(
       )
   }
 
-  const withCards = isRankedCollection(collection)
-    ? [
-        ...documents
-          .filter(
-            (document) => document.recommendationStatus !== 'notRecommended',
-          )
-          .slice(0, podiumSize),
-        ...documents.filter(
-          (document) => document.recommendationStatus === 'notRecommended',
-        ),
-      ]
-    : documents
-  return withCards.map((document) =>
+  return documentsWithPhotoCards(collection, documents).map((document) =>
     responsivePhoto(cardImage(document), photoSizes.card),
   )
 }

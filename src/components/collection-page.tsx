@@ -1,8 +1,9 @@
 import { cardImage } from '#/lib/card-fields'
 import type { CollectionName, ContentDocument } from '#/lib/content-types'
 import { isRankedCollection } from '#/lib/content-types'
+import { podiumSize, splitByRecommendation } from '#/lib/collection-sections'
 import { ContentCard } from './content-card'
-import { podiumSize, RankedCollection } from './ranked-collection'
+import { RankedCollection } from './ranked-collection'
 
 type CollectionPageProps = {
   collection: CollectionName
@@ -16,16 +17,10 @@ export function CollectionPage({
   title,
 }: CollectionPageProps) {
   const ranked = isRankedCollection(collection)
-  const recommended = ranked
-    ? documents.filter(
-        (document) => document.recommendationStatus !== 'notRecommended',
-      )
-    : documents
-  const notRecommended = ranked
-    ? documents.filter(
-        (document) => document.recommendationStatus === 'notRecommended',
-      )
-    : []
+  const { recommended, notRecommended } = splitByRecommendation(
+    collection,
+    documents,
+  )
 
   // The topmost card that actually has an image is what this page paints its
   // Largest Contentful Paint with. Left lazy it cannot start loading until

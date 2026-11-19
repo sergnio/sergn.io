@@ -1,14 +1,9 @@
 import { Link } from '@tanstack/react-router'
 import { cardDate, cardGrade, cardImage, cardSummary } from '#/lib/card-fields'
+import { podiumSize } from '#/lib/collection-sections'
 import type { CollectionName, ContentDocument } from '#/lib/content-types'
 import { formatDate } from '#/lib/formatters'
 import { ContentCard } from './content-card'
-
-/**
- * How many entries lead a ranking as full cards. The rest render as rows, so
- * a long collection stays scannable and the best few still get a photo.
- */
-export const podiumSize = 3
 
 type RankedCollectionProps = {
   collection: CollectionName
