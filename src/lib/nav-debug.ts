@@ -15,6 +15,10 @@ type Entry = {
   decodeMs: number
   scroll: string
   ms: number
+  renderMs: number
+  framesBefore: number
+  firstFrame: string
+  sinceTouch: string
 }
 
 function enabled() {
@@ -38,6 +42,12 @@ function visibleImages() {
   }
 }
 
+// What the first frame after a navigation showed before the new page rendered.
+function mainContent() {
+  const main = document.querySelector('main')
+  return main?.querySelector('h1') ? 'old' : 'nil'
+}
+
 // Long for a photo Safari already showed means it threw the decoded pixels away.
 async function slowestDecode(images: HTMLImageElement[]) {
   const times = await Promise.all(
@@ -56,7 +66,7 @@ export function installNavDebug(router: AnyRouter) {
   const panel = document.createElement('pre')
   panel.setAttribute('aria-hidden', 'true')
   panel.style.cssText =
-    'position:fixed;left:4px;bottom:4px;z-index:9999;margin:0;padding:4px;max-width:calc(100vw - 8px);overflow:hidden;font:9px/1.25 ui-monospace,monospace;background:rgb(0 0 0/.8);color:#fff;pointer-events:none;white-space:pre'
+    'position:fixed;left:4px;bottom:4px;z-index:9999;margin:0;padding:4px;max-width:calc(100vw - 8px);overflow:hidden;font:8px/1.25 ui-monospace,monospace;background:rgb(0 0 0/.8);color:#fff;pointer-events:none;white-space:pre'
   document.body.append(panel)
 
   const log: Entry[] = []
@@ -65,6 +75,15 @@ export function installNavDebug(router: AnyRouter) {
   let startedAt = performance.now()
   let viewTransition = false
   let dataRequests = 0
+  let renderedAt = 0
+  let framesBefore = 0
+  let firstFrame = ''
+  let lastTouchEnd = -Infinity
+  let sinceTouch = '-'
+  addEventListener('touchend', () => (lastTouchEnd = performance.now()), {
+    capture: true,
+    passive: true,
+  })
 
   if ('startViewTransition' in document) {
     const startViewTransition = document.startViewTransition.bind(document)
@@ -88,7 +107,20 @@ export function installNavDebug(router: AnyRouter) {
       startedAt = performance.now()
       viewTransition = false
       dataRequests = 0
+      renderedAt = 0
+      framesBefore = 0
+      firstFrame = ''
+      const touchGap = Math.round(startedAt - lastTouchEnd)
+      sinceTouch = touchGap < 2000 ? String(touchGap) : '-'
       lastAnimatedDecision.signal = 'notcalled'
+      const navigationStart = startedAt
+      const countFramesUntilRendered = () => {
+        if (navigationStart !== startedAt || renderedAt) return
+        if (!firstFrame) firstFrame = mainContent()
+        framesBefore++
+        requestAnimationFrame(countFramesUntilRendered)
+      }
+      requestAnimationFrame(countFramesUntilRendered)
     },
   )
 
@@ -98,6 +130,8 @@ export function installNavDebug(router: AnyRouter) {
   })
 
   router.subscribe('onRendered', ({ toLocation }) => {
+    renderedAt = performance.now()
+    const renderMs = Math.round(renderedAt - startedAt)
     const firstFrameImages = new Promise<ReturnType<typeof visibleImages>>(
       (resolve) => requestAnimationFrame(() => resolve(visibleImages())),
     )
@@ -116,23 +150,31 @@ export function installNavDebug(router: AnyRouter) {
         decodeMs,
         scroll: `${Math.round(scrollY)}${left === undefined ? '' : `/${left}`}`,
         ms,
+        renderMs,
+        framesBefore,
+        firstFrame: firstFrame || 'new',
+        sinceTouch,
       })
       log.length = Math.min(log.length, 10)
       panel.textContent = [
         `len ${history.length} uaFlag ${'hasUAVisualTransition' in PopStateEvent.prototype} ${/(?:OS|Version)\/[\d._]+/.exec(navigator.userAgent)?.[0] ?? ''}`,
-        'act  idx to               dec       vt req img   dcd scroll    ms',
+        'act idx to           dec   v r img dcd scroll      ms  rnd fr 1st  tch',
         ...log.map((e) =>
           [
-            e.action.padEnd(4).slice(0, 4),
+            e.action.slice(0, 3),
             String(e.index).padStart(3),
-            e.to.padEnd(16),
-            e.decision.padEnd(9),
-            e.viewTransition ? 'Y ' : '- ',
-            String(e.dataRequests).padStart(3),
-            e.images.padEnd(5),
+            e.to.slice(0, 12).padEnd(12),
+            e.decision.replace('touch', 'tch').slice(0, 5).padEnd(5),
+            e.viewTransition ? 'Y' : '-',
+            String(e.dataRequests).slice(0, 1),
+            e.images.padEnd(3),
             String(e.decodeMs).padStart(3),
             e.scroll.padEnd(9),
             String(e.ms).padStart(4),
+            String(e.renderMs).padStart(4),
+            String(e.framesBefore).padStart(2),
+            e.firstFrame,
+            e.sinceTouch.padStart(4),
           ].join(' '),
         ),
       ].join('\n')
