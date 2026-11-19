@@ -15,7 +15,7 @@ const collections: CollectionName[] = [
 
 const parallelDownloads = 4
 
-// Held so the decoded photos stay in this document's image cache.
+// Held: once collected, Chrome and Safari download the photo again on the page.
 const warmed = new Map<string, HTMLImageElement>()
 let started = false
 
