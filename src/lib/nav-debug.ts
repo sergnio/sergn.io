@@ -12,6 +12,7 @@ type Entry = {
   viewTransition: boolean
   dataRequests: number
   images: string
+  decodeMs: number
   scroll: string
   ms: number
 }
@@ -31,7 +32,22 @@ function visibleImages() {
   const missing = images.filter(
     (image) => !image.complete || !image.naturalWidth,
   )
-  return `${images.length - missing.length}/${images.length}`
+  return {
+    images,
+    loaded: `${images.length - missing.length}/${images.length}`,
+  }
+}
+
+// Long for a photo Safari already showed means it threw the decoded pixels away.
+async function slowestDecode(images: HTMLImageElement[]) {
+  const times = await Promise.all(
+    images.map(async (image) => {
+      const start = performance.now()
+      await image.decode().catch(() => undefined)
+      return performance.now() - start
+    }),
+  )
+  return Math.round(Math.max(0, ...times))
 }
 
 export function installNavDebug(router: AnyRouter) {
@@ -82,35 +98,39 @@ export function installNavDebug(router: AnyRouter) {
   })
 
   router.subscribe('onRendered', ({ toLocation }) => {
-    const firstFrameImages = new Promise<string>((resolve) =>
-      requestAnimationFrame(() => resolve(visibleImages())),
+    const firstFrameImages = new Promise<ReturnType<typeof visibleImages>>(
+      (resolve) => requestAnimationFrame(() => resolve(visibleImages())),
     )
-    void firstFrameImages.then((images) => {
+    void firstFrameImages.then(async ({ images, loaded }) => {
+      const ms = Math.round(performance.now() - startedAt)
+      const decodeMs = await slowestDecode(images)
       const left = leftAt.get(toLocation.state.__TSR_key ?? '')
       log.unshift({
         action,
-        to: toLocation.pathname.slice(0, 22),
+        to: toLocation.pathname.slice(0, 16),
         index: toLocation.state.__TSR_index,
         decision: lastAnimatedDecision.signal,
         viewTransition,
         dataRequests,
-        images,
+        images: loaded,
+        decodeMs,
         scroll: `${Math.round(scrollY)}${left === undefined ? '' : `/${left}`}`,
-        ms: Math.round(performance.now() - startedAt),
+        ms,
       })
       log.length = Math.min(log.length, 10)
       panel.textContent = [
         `len ${history.length} uaFlag ${'hasUAVisualTransition' in PopStateEvent.prototype} ${/(?:OS|Version)\/[\d._]+/.exec(navigator.userAgent)?.[0] ?? ''}`,
-        'act  idx to                     dec       vt req img   scroll    ms',
+        'act  idx to               dec       vt req img   dcd scroll    ms',
         ...log.map((e) =>
           [
             e.action.padEnd(4).slice(0, 4),
             String(e.index).padStart(3),
-            e.to.padEnd(22),
+            e.to.padEnd(16),
             e.decision.padEnd(9),
             e.viewTransition ? 'Y ' : '- ',
             String(e.dataRequests).padStart(3),
             e.images.padEnd(5),
+            String(e.decodeMs).padStart(3),
             e.scroll.padEnd(9),
             String(e.ms).padStart(4),
           ].join(' '),
