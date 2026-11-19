@@ -148,6 +148,7 @@ function WingTop({
           <ContentImage
             image={wing.heroImage}
             priority={priority}
+            readyOnReturn
             sizes={photoSizes.wingTop(rank)}
           />
         ) : (
